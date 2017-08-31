@@ -820,6 +820,10 @@
 	if (src.bioHolder.HasEffect("hulk"))
 		damage += 5
 
+	if (src.traitHolder.hasTrait("bigbruiser"))
+		msgs.stamina_self -= STAMINA_HTH_COST //Double the cost since this is stacked on top of default
+		msgs.stamina_target -= STAMINA_HTH_DMG
+
 	return damage
 
 /////////////////////////////////////////////////////// Target damage modifiers //////////////////////////////////

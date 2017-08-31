@@ -544,6 +544,72 @@
 	id = "leftfeet"
 	points = 1
 	isPositive = 0
+
+/obj/trait/meathead
+	name = "Meathead (-1) \[Stats\]"
+	cleanName = "Meathead"
+	desc = "Can take quite a beating! Suffers from brain trauma, though."
+	id = "meathead"
+	category = "stats"
+	points = -1
+	isPositive = 1
+
+	onAdd(var/mob/owner)
+		if(istype(owner, /mob/living/carbon/human))
+			var/mob/living/carbon/human/H = owner
+			H.max_health = 150
+			H.health = 150
+			H.brainloss = 60
+		return
+
+	onLife(var/mob/owner) //Just to be safe.
+		if(istype(owner, /mob/living/carbon/human))
+			var/mob/living/carbon/human/H = owner
+			H.max_health = 150
+			if(H.brainloss < 60)
+				H.brainloss = 60
+		return
+
+/obj/trait/athletic
+	name = "Athletic (-2) \[Stats\]"
+	cleanName = "Athletic"
+	desc = "Won't get tired as easily!"
+	id = "athletic"
+	category = "stats"
+	points = -2
+	isPositive = 1
+
+	onAdd(var/mob/owner)
+		if(istype(owner, /mob/living/carbon/human))
+			var/mob/living/carbon/human/H = owner
+			H.add_stam_mod_max("trait", STAMINA_MAX * 0.1)
+			H.add_stam_mod_regen("trait", STAMINA_REGEN * 0.2)
+		return
+
+/obj/trait/bigbruiser
+	name = "Big Bruiser (-2) \[Stats\]"
+	cleanName = "Big Bruiser"
+	desc = "Stronger punches but higher stamina cost!"
+	id = "bigbruiser"
+	category = "stats"
+	points = -2
+	isPositive = 1
+
+/obj/trait/glasscannon
+	name = "Glass cannon (-2) \[Stats\]"
+	cleanName = "Glass cannon"
+	desc = "You have 1 stamina max. Attacks no longer cost you stamina and\nyou deal double the normal damage with most melee weapons."
+	id = "glasscannon"
+	category = "stats"
+	points = -2
+	isPositive = 1
+
+	onAdd(var/mob/owner)
+		if(istype(owner, /mob/living/carbon/human))
+			var/mob/living/carbon/human/H = owner
+			H.add_stam_mod_max("trait", -(STAMINA_MAX - 1))
+		return
+
 /*
 /obj/trait/lizard
 	name = "Lizard (-1) \[Race\]"
@@ -624,22 +690,6 @@
 		if(istype(owner, /mob/living/carbon/human))
 			var/mob/living/carbon/human/H = owner
 			H.max_health = 50
-		return
-
-/obj/trait/glasscannon
-	name = "Glass cannon (-1) \[Stats\]"
-	cleanName = "Glass cannon"
-	desc = "You have 1 stamina max. Attacks no longer cost you stamina and\nyou deal double the normal damage with most melee weapons."
-	id = "glasscannon"
-	category = "stats"
-	points = -1
-	isPositive = 1
-	unselectable = 1
-
-	onAdd(var/mob/owner)
-		if(istype(owner, /mob/living/carbon/human))
-			var/mob/living/carbon/human/H = owner
-			H.add_stam_mod_max("trait", -(STAMINA_MAX - 1))
 		return
 
 /obj/trait/fat
