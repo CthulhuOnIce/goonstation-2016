@@ -292,6 +292,14 @@
 	points = -1
 	isPositive = 1
 
+/obj/trait/jailbird
+	name = "Jailbird (0)"
+	cleanName = "Jailbird"
+	desc = "You have a criminal record and are currently on the run!"
+	id = "jailbird"
+	points = 0
+	isPositive = 0
+
 /obj/trait/clericalerror
 	name = "Clerical Error (0)"
 	cleanName = "Clerical Error"
