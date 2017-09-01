@@ -117,6 +117,12 @@
 					D.disrupt(A)
 					src.visible_message("<span style=\"color:blue\"><b>[A]'s disguiser is disrupted!</b></span>")
 
+		if (ishuman(A))
+			var/mob/living/carbon/human/H = A
+			if(H.stance == "dodge") //matrix dodge flip
+				A.visible_message("<b><span style=\"color:red\">The projectile narrowly misses [A]!</span></b>") //Todo: prevent spam by preventing duplicate collisions on the same mob.
+				return
+
 		// also run the atom's general bullet act
 		var/atom/B = A.bullet_act(src) //If bullet_act returns an atom, do all bad stuff to that atom instead
 		if(istype(B))

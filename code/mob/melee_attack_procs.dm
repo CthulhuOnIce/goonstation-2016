@@ -285,6 +285,8 @@
 /mob/living/carbon/human/check_block()
 	if (!stat && !weakened && !stunned && !paralysis && a_intent == "disarm" && stamina > STAMINA_DEFAULT_BLOCK_COST && prob(STAMINA_BLOCK_CHANCE) && !equipped())
 		return 1
+	if (stance == "dodge")
+		return 1
 	return 0
 
 /mob/proc/do_block(var/mob/attacker)

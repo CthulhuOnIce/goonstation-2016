@@ -84,7 +84,7 @@
 	//The spooky UNKILLABLE MAN
 	var/unkillable = 0
 
-	// TODO: defensive/offensive stance intents for combat
+	//Use this as a variable for things like matrix flopout or whatever??
 	var/stance = "normal"
 
 	var/mob/living/carbon/target = null
@@ -1677,6 +1677,14 @@
 									animate_spin(src, "R", 1, 0)
 								else
 									animate_spin(src, "L", 1, 0)
+							//TACTICOOL FLOPOUT
+							if (src.traitHolder.hasTrait("matrixflopout"))
+								src.remove_stamina(STAMINA_FLIP_COST * 2) //Double that stamina consumption!
+								src.stamina_stun()
+								message = "<B>[src]</B> does a tactical flip!"
+								src.stance = "dodge"
+								spawn(5) //I'm sorry for my transgressions there's probably a way better way to do this
+									src.stance = "normal"
 							for (var/obj/table/T in oview(1, null))
 								if ((!istype(usr.equipped(), /obj/item/grab)) && (src.dir == get_dir(src, T)))
 									if (iswrestler(src))

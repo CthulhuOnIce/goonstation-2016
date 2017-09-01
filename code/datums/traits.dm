@@ -406,6 +406,29 @@
 			owner.bioHolder.AddEffect("deaf")
 		return
 
+//Todo: make this an actual harmful bioEffect?
+//TODO: Perhaps use the same systems drones do to hide people faces and names in examinetext, context menu and bottom-left display?
+/*
+/obj/trait/prosopagnosia
+	name = "Prosopagnosia (+2)"
+	cleanName = "Prosopagnosia"
+	desc = "Also known as face blindness, makes everyone's faces indistinguishable to you."
+	id = "prosopagnosia"
+	points = 2
+	isPositive = 0
+
+	onAdd(var/mob/owner)
+		if(owner.bioHolder)
+			if(istype(owner, /mob/living/carbon/human))
+				var/mob/living/carbon/human/H = owner
+				owner.bioHolder.AddEffect("prosopagnosia")
+		return
+
+	onLife(var/mob/owner) //Just to be safe.
+		if(owner.bioHolder && !owner.bioHolder.HasEffect("prosopagnosia"))
+			owner.bioHolder.AddEffect("prosopagnosia")
+		return
+*/
 /obj/trait/hemo
 	name = "Hemophilia (+1)"
 	cleanName = "Hemophilia"
@@ -581,7 +604,7 @@
 /obj/trait/athletic
 	name = "Athletic (-2) \[Stats\]"
 	cleanName = "Athletic"
-	desc = "Won't get tired as easily!"
+	desc = "Great stamina! Frail body."
 	id = "athletic"
 	category = "stats"
 	points = -2
@@ -592,6 +615,8 @@
 			var/mob/living/carbon/human/H = owner
 			H.add_stam_mod_max("trait", STAMINA_MAX * 0.1)
 			H.add_stam_mod_regen("trait", STAMINA_REGEN * 0.2)
+			H.max_health = 80
+			H.health = 80
 		return
 
 /obj/trait/bigbruiser
@@ -617,6 +642,16 @@
 			var/mob/living/carbon/human/H = owner
 			H.add_stam_mod_max("trait", -(STAMINA_MAX - 1))
 		return
+
+/obj/trait/matrixflopout
+	name = "Matrix Flopout (-2) \[Skill\]"
+	cleanName = "Matrix Flopout"
+	desc = "Flipping lets you dodge bullets and attacks for a higher stamina cost!"
+	id = "matrixflopout"
+	category = "skill"
+	points = -2
+	isPositive = 1
+
 
 /*
 /obj/trait/lizard

@@ -91,6 +91,7 @@
 								"Existing.",\
 								"Illegal haircutting.",\
 								"Staring at a bee for over an hour.",\
+								"Not showering before entering pool.",\
 								"Rampant idiocy.")
 		S.fields["mi_crim_d"] = "No details provided."
 		S.fields["ma_crim"] = pick(\
