@@ -128,7 +128,9 @@ datum/v_space
 			user.mind.transfer_to(user.body)
 			user.body = null
 		else
-			user.ghostize()
+			var/mob/dead/observer/O = user.ghostize()
+			if(user.network_device)
+				O.set_loc(user.network_device)
 
 		if (user.stat == 2)
 			del(user)
@@ -165,16 +167,21 @@ datum/v_space
 
 		if(istype(user,/mob/living/carbon/human))
 			copy_to(virtual_character, user)
-			var/clothing_color = pick("#FF0000","#FFFF00","#00FF00","#00FFFF","#0000FF","#FF00FF")
-			var/obj/item/clothing/under/virtual/C = new
-			var/obj/item/clothing/shoes/virtual/S = new
-			C.set_loc(virtual_character)
-			S.set_loc(virtual_character)
-			C.color = clothing_color
-			S.color = clothing_color
-			virtual_character.equip_if_possible( C, virtual_character.slot_w_uniform )
-			virtual_character.equip_if_possible( S, virtual_character.slot_shoes)
-		virtual_character.real_name = "Virtual [user.real_name]"
+
+		var/clothing_color = pick("#FF0000","#FFFF00","#00FF00","#00FFFF","#0000FF","#FF00FF")
+		var/obj/item/clothing/under/virtual/C = new
+		var/obj/item/clothing/shoes/virtual/S = new
+		C.set_loc(virtual_character)
+		S.set_loc(virtual_character)
+		C.color = clothing_color
+		S.color = clothing_color
+		virtual_character.equip_if_possible( C, virtual_character.slot_w_uniform )
+		virtual_character.equip_if_possible( S, virtual_character.slot_shoes)
+		if(isobserver(user))
+			virtual_character.real_name = "Virtual Spectre #[rand(1, 999)]"
+			virtual_character.isghost = 1
+		else
+			virtual_character.real_name = "Virtual [user.real_name]"
 		user.mind.virtual = virtual_character
 		user.mind.transfer_to(virtual_character)
 		spawn (8)

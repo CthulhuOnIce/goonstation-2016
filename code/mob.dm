@@ -2080,7 +2080,7 @@
 		if (M.client && M.client.deadchatoff)
 			continue
 		//admins can toggle deadchat on and off. This is a proc in admin.dm and is only give to Administrators and above
-		if (M.stat == 2 || istype(M, /mob/wraith) || (M.client && M.client.holder && M.client.deadchat && !M.client.player_mode))
+		if (M.stat == 2 || istype(M, /mob/wraith) || (istype(M, /mob/living/carbon/human/virtual) && M:isghost) || (M.client && M.client.holder && M.client.deadchat && !M.client.player_mode))
 			var/thisR = rendered
 			if (M.client && M.client.holder && src.mind)
 				thisR = "<span class='adminHearing' data-ctx='[M.client.chatOutput.ctxFlag]'>[rendered]</span>"

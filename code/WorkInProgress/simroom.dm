@@ -259,6 +259,10 @@
 	set src in oview(1)
 	set category = "Local"
 
+	if(isobserver(usr)) //let ghosts have their VR fun!
+		Station_VNet.Enter_Vspace(usr, src, src:network)
+		return
+
 	if (usr.stat || usr.stunned || usr.weakened || usr.paralysis)
 		return
 	src.log_in(usr)
