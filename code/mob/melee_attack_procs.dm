@@ -285,8 +285,6 @@
 /mob/living/carbon/human/check_block()
 	if (!stat && !weakened && !stunned && !paralysis && a_intent == "disarm" && stamina > STAMINA_DEFAULT_BLOCK_COST && prob(STAMINA_BLOCK_CHANCE) && !equipped())
 		return 1
-	if (stance == "dodge")
-		return 1
 	return 0
 
 /mob/proc/do_block(var/mob/attacker)
@@ -298,6 +296,16 @@
 		stamina_stun()
 		return 1
 	return 0
+
+/mob/living/carbon/human/do_block(var/mob/attacker)
+	if (stance == "dodge")
+		visible_message("<span style=\"color:red\"><B>[src] narrowly dodges [attacker]'s attack!</span>")
+		playsound(loc, 'sound/weapons/punchmiss.ogg', 50, 1, 1)
+
+		remove_stamina(STAMINA_FLIP_COST * 2)
+		stamina_stun()
+		return 1
+	return ..()
 
 /////////////////////////////////////////////////// Harm intent ////////////////////////////////////////////////////////
 

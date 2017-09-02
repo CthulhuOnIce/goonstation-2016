@@ -134,6 +134,9 @@
 	proc/onLife(var/mob/owner)
 		return
 
+	proc/onHear(var/mob/owner, var/message)
+		return
+
 	Click(location,control,params)
 		if(control)
 			if(control == "traitssetup_[usr.ckey].traitsAvailable")
@@ -506,23 +509,89 @@
 						break
 		return
 
-/obj/trait/spacephobia
-	name = "Spacephobia (+2)"
-	cleanName = "Spacephobia"
-	desc = "Being in space scares you. A lot. While in space you might panic or faint."
-	id = "spacephobia"
-	points = 2
+/obj/trait/phobia
+	name = "Error"
+	cleanName = "Error"
+	desc = "This is an error! Please report this to coders."
+	id = "error"
+	points = 0
 	isPositive = 0
+	category = "phobia"
+	unselectable = 1
+
+	//phobia-specific variables
+	var/list/types = list() //list of horrible things that are classified under this phobia
+	var/list/triggers = list() //list of trigger words to make you TREMBLE IN FEAR
 
 	onLife(var/mob/owner)
-		if(!owner.stat && can_act(owner) && istype(owner.loc, /turf/space))
+		var/severity = 0
+		if(!owner.stat && can_act(owner))
+			for(var/atom/A in view(7, owner))
+				if(!(A.type in types))
+					return
+				if(severity < 1)
+					severity = 1 //Only 1 severity for visibility
+				if(A in view(2, owner)) //TOO CLOSE
+					severity += 1
+
+		if(severity == 1)
+			if(prob(4))
+				owner.emote(pick("pale", "hiccup", "tremble", "shiver", "shudder", "quiver"))
+				owner.stuttering += 2 //ticks of stuttering
+		else if(severity == 2)
 			if(prob(2))
 				owner.emote("faint")
 				owner.paralysis += 7
 			else if (prob(8))
 				owner.emote("scream")
 				owner.stunned += 2
+		else if(severity >= 3) //LOTS AND LOTS OF SPOOKY STUFF!
+			if(prob(4))
+				owner.emote("faint")
+				owner.paralysis += 7
+			else if (prob(10))
+				owner.emote(pick("scream", "weep", "cry", "choke", "panic"))
+				owner.stunned += 2
+			else if(prob(8))
+				owner.emote(pick("pale", "hiccup", "tremble", "shiver", "shudder", "quiver", "choke"))
 		return
+
+	onHear(var/mob/owner, var/message)
+		for(var/T in triggers)
+			if(findtext(message,T))
+				owner.emote(pick("pale", "hiccup", "tremble", "shiver", "shudder", "quiver"))
+
+/obj/trait/phobia/space
+	name = "Spacephobia (+2) \[Phobia\]"
+	cleanName = "Spacephobia"
+	desc = "Being in space scares you. A lot. While in space you might panic or faint."
+	id = "spacephobia"
+	points = 2
+	unselectable = 0
+	types = list(/turf/space)
+	triggers = list("space", "stars", "celestial", "asteroids")
+
+/obj/trait/phobia/monkey
+	name = "Pithecophobia (+2) \[Phobia\]"
+	cleanName = "Pithecophobia"
+	desc = "Monkeys are horrifying. You hate the idea of monkeys being our ancestors!\nSeeing a monkey terrifies you. Being near one might make you panic or faint.\nAvoid groups of monkeys!"
+	id = "pithecophobia"
+	points = 2
+	isPositive = 0
+	unselectable = 0
+	types = list(/mob/living/carbon/human/monkey, /obj/item/wrench/monkey)
+	triggers = list("monkey", "chimp", "ape", "gorilla", "baboon", "simian")
+
+/obj/trait/phobia/robot
+	name = "Robophobia (+2) \[Phobia\]"
+	cleanName = "Robophobia"
+	desc = "Robots are going to take over the world! Fear your metal overlords! Aaaagh!\nSeeing a silicon being terrifies you. Being near one makes you panic or faint.\nAvoid groups of robots!"
+	id = "robophobia"
+	points = 2
+	unselectable = 0
+	types = list(/mob/living/silicon, /obj/machinery/bot, /mob/living/critter/gunbot, /mob/living/critter/drone,\
+				/mob/living/critter/repairbot, /obj/critter/gunbot, /obj/critter/automaton)
+	triggers = list("bot", "tron", "drone", "borg") //"Pass me the bottle!" *GASP*
 
 /obj/trait/robustgenetics
 	name = "Robust Genetics (-2) \[Genetics\]"

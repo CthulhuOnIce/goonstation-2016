@@ -1115,7 +1115,7 @@
 				continue
 		if (M.client && M.client.holder && src.mind)
 			thisR = "<span class='adminHearing' data-ctx='[M.client.chatOutput.ctxFlag]'>[thisR]</span>"
-		M.heard_say(src)
+		M.heard_say(src, message)
 		M.show_message(thisR, 2)
 
 	return processed
