@@ -203,16 +203,13 @@
 //THE ONE AND ONLY.... GO GO GADGET DETECTIVE HAT!!!
 /obj/item/clothing/head/det_hat/gadget
 	name = "DetGadget hat"
-	desc = "Detective's special hat preinstalled with various gadgets and features!"
+	desc = "Detective's special hat you can outfit with various items for easy retrieval!"
 	var/phrase = "go go gadget"
 
-	//TODO: Make this a lot more versatile and allow custom gadget lists as opposed to hardcoding everything
-	var/obj/item/body_bag/B = null
-	var/obj/item/device/detective_scanner/S = null
-	var/obj/item/zippo/L = null
-	var/obj/item/spraybottle/detective/U = null
-	var/obj/item/device/camera_viewer/V = null
-	var/obj/item/camera_test/C = null
+	var/list/items = list("bodybag" = /obj/item/body_bag, "scanner" = /obj/item/device/detective_scanner, "lighter" = /obj/item/zippo,\
+							"spray" = /obj/item/spraybottle, "monitor" = /obj/item/device/camera_viewer, "camera" = /obj/item/camera_test,\
+							"audiolog" = /obj/item/device/audio_log , "flashlight" = /obj/item/device/flashlight, "glasses" = /obj/item/clothing/glasses)
+
 	var/max_cigs = 15
 	var/list/cigs = list()
 
@@ -221,21 +218,18 @@
 		set category = "Local"
 
 		..()
-		usr.show_message("Current activation phrase is \"[phrase]\".")
-		if (B)
-			usr.show_message("The [B] is ready!")
-		if (S)
-			usr.show_message("The [S] is ready!")
-		if (L)
-			usr.show_message("The [L] is ready!")
-		if (U)
-			usr.show_message("The [U] is ready!")
-		if (V)
-			usr.show_message("The [V] is ready!")
-		if (C)
-			usr.show_message("The [C] is ready!")
+		var/str = "<span style=\"color:blue\">Current activation phrase is <b>\"[phrase]\"</b>.</span>"
+		for (var/name in items)
+			var/type = items[name]
+			var/obj/item/I = locate(type) in contents
+			if(I)
+				str += "<br><span style=\"color:blue\">[bicon(I)][I] is ready and bound to the word \"[name]\"!</span>"
+			else
+				str += "<br>There is no [name]!"
 		if (cigs.len)
-			usr.show_message("It contains [cigs.len] cigarettes!")
+			str += "<br><span style=\"color:blue\">It contains <b>[cigs.len]</b> cigarettes!</span>"
+
+		usr.show_message(str)
 		return
 
 	hear_talk(mob/M as mob, msg, real_name, lang_id)
@@ -247,32 +241,15 @@
 		var/gadget = findtext(messages[1], src.phrase) //check the spoken phrase
 		if(gadget)
 			gadget = replacetext(copytext(messages[1], gadget + length(src.phrase)), " ", "") //get rid of spaces as well
+			for (var/name in items)
+				var/type = items[name]
+				var/obj/item/I = locate(type) in contents
+				if(findtext(gadget, name) && I)
+					M.put_in_hand_or_drop(I)
+					M.visible_message("<span style=\"color:red\"><b>[M]</b>'s hat snaps open and pulls out \the [I]!</span>")
+					return
 
-			if(findtext(gadget, "bodybag") && B)
-				M.put_in_hand_or_drop(B)
-				B = null
-				M.visible_message("<span style=\"color:red\"><b>[M]</b>'s hat snaps open and pulls out \the [B]!</span>")
-			else if(findtext(gadget, "scanner") && S)
-				M.put_in_hand_or_drop(S)
-				S = null
-				M.visible_message("<span style=\"color:red\"><b>[M]</b>'s hat snaps open and pulls out \the [S]!</span>")
-			else if(findtext(gadget, "lighter") && L)
-				M.put_in_hand_or_drop(L)
-				L = null
-				M.visible_message("<span style=\"color:red\"><b>[M]</b>'s hat snaps open and pulls out \the [L]!</span>")
-			else if(findtext(gadget, "spray") && U)
-				M.put_in_hand_or_drop(U)
-				L = null
-				M.visible_message("<span style=\"color:red\"><b>[M]</b>'s hat snaps open and pulls out \the [U]!</span>")
-			else if(findtext(gadget, "monitor") && V)
-				M.put_in_hand_or_drop(V)
-				L = null
-				M.visible_message("<span style=\"color:red\"><b>[M]</b>'s hat snaps open and pulls out \the [V]!</span>")
-			else if(findtext(gadget, "camera") && C)
-				M.put_in_hand_or_drop(C)
-				C = null
-				M.visible_message("<span style=\"color:red\"><b>[M]</b>'s hat snaps open and pulls out \the [C]!</span>")
-			else if(findtext(gadget, "cigarette"))
+			if(findtext(gadget, "cigarette"))
 				if (!cigs.len)
 					M.show_text("You're out of cigs, shit! How you gonna get through the rest of the day?", "red")
 					return
@@ -282,11 +259,10 @@
 					var/boop = "hand"
 					if(ishuman(M))
 						var/mob/living/carbon/human/H = M
-						if (H.can_equip(W, H.wear_mask))
-							W.set_loc(H)
-							H.force_equip(W, H.wear_mask) //Put it in their mouth!
+						if (H.equip_if_possible(W, H.slot_wear_mask))
 							boop = "mouth"
 						else
+							H.put_in_hand_or_drop(W) //Put it in their hand
 					else
 						M.put_in_hand_or_drop(W) //Put it in their hand
 						//can't bother to do a "ground" boop case for some dumbass flavor text ok
@@ -298,36 +274,13 @@
 
 	attackby(obj/item/W as obj, mob/M as mob)
 		var/success = 0
-		if (!B && istype(W, /obj/item/body_bag)) //bodybag
-			success = 1
-			M.drop_item()
-			W.set_loc(src)
-			B = W
-		if (!S && istype(W, /obj/item/device/detective_scanner)) //scanner
-			success = 1
-			M.drop_item()
-			W.set_loc(src)
-			S = W
-		if (!L && istype(W, /obj/item/zippo)) //lighter
-			success = 1
-			M.drop_item()
-			W.set_loc(src)
-			L = W
-		if (!U && istype(W, /obj/item/spraybottle/detective)) //luminol bottle
-			success = 1
-			M.drop_item()
-			W.set_loc(src)
-			U = W
-		if (!V && istype(W, /obj/item/device/camera_viewer)) //camera monitor
-			success = 1
-			M.drop_item()
-			W.set_loc(src)
-			V = W
-		if (!C && istype(W, /obj/item/camera_test)) //photocamera
-			success = 1
-			M.drop_item()
-			W.set_loc(src)
-			C = W
+		for (var/name in items)
+			var/type = items[name]
+			if(istype(W, type) && !(locate(type) in contents))
+				success = 1
+				M.drop_item()
+				W.set_loc(src)
+				break
 		if (cigs.len < src.max_cigs && istype(W, /obj/item/clothing/mask/cigarette)) //cigarette
 			success = 1
 			M.drop_item()
