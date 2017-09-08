@@ -662,6 +662,10 @@
 			B.blood_DNA = src.blood_DNA
 		if(B.blood_type)
 			B.blood_type = src.blood_type
+
+		var/icon/I = getFlatIcon(src, src.dir, cache=0) //Since blood decals are very dynamic and constantly change in pixel offset, caching would be pointless.
+		I.MapColors(-1,0,0,0, 0,-1,0,0, 0,0,-1,0, 0,0,0,0.5, 1,1,1,0)
+		B.icon = I
 		..()
 
 /*
@@ -1738,8 +1742,8 @@ obj/decal/fakeobjects/teleport_pad
 /obj/decal/bloodtrace
 	name = "blood trace"
 	desc = "Oh my!!"
-	icon = 'icons/effects/blood.dmi'
-	icon_state = "lum"
+	icon = 'icons/obj/decals.dmi'
+	icon_state = "blank"
 	invisibility = 101
 	blood_DNA = null
 	blood_type = null
