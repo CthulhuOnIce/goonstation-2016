@@ -138,43 +138,38 @@
 	var/active = 0
 	var/target = null
 	mats = 4
-	desc = "Tracks down people from their blood sample! Requires at least 5u of blood to function."
+	desc = "Tracks down people from their blood puddles! Requires you to stand still to function."
 
-	attackby(obj/item/W, mob/user)
-		if (istype(W, /obj/item/reagent_containers/hypospray) || istype(W, /obj/item/reagent_containers/syringe) || istype(W, /obj/item/reagent_containers/emergency_injector))
-			if (W.reagents && W.reagents.has_reagent("blood"))
-				if(active) return
-				var/blood_volume = W.reagents.get_reagent_amount("blood")
-				if (blood_volume < W.reagents.total_volume)
-					user.show_text("This blood is impure!", "red")
-					return
-				if (blood_volume < 5)
-					user.show_text("You need more blood than that!", "red")
-					return
-				active = 1
-				var/datum/reagent/B = W.reagents.get_reagent("blood")
-				for(var/mob/living/carbon/human/H in mobs)
-					if(params2list(B:blood_DNA) == H.bioHolder.Uid)
-						target = H
-						break
-				work(3)
-				user.visible_message("<span style=\"color:blue\"><b>[user]</b> transfers blood to [src].</span>", \
-				"<span style=\"color:blue\">You transfer blood from [W] to [src].</span>")
-				W.reagents.remove_reagent("blood", 5)
+	afterattack(atom/A as mob|obj|turf|area, mob/user as mob)
+		if(!active && istype(A, /obj/decal/cleanable/blood))
+			var/obj/decal/cleanable/blood/B = A
+			if(B.dry)
+				boutput(usr, "<span style=\"color:red\">Targeted blood is too dry to be useful!</span>")
 				return
-		else
-			return ..()
+			for(var/mob/living/carbon/human/H in mobs)
+				if(B.blood_DNA == H.bioHolder.Uid)
+					target = H
+					break
+			active = 1
+			work()
+			user.visible_message("<span style=\"color:blue\"><b>[user]</b> scans [A] with [src]!</span>",\
+			"<span style=\"color:blue\">You scan [A] with [src]!</span>")
 
-	proc/work(var/secs)
+
+
+	proc/work(var/turf/T)
 		if(!active) return
-		if(secs <= 0)
+		if(!T)
+			T = get_turf(src)
+		if(get_turf(src) != T)
 			icon_state = "blood_pinoff"
 			active = 0
+			boutput(usr, "<span style=\"color:red\">[src] shuts down because you moved!</span>")
 			return
 		if(!target)
 			icon_state = "blood_pinonnull"
 			return
-		//src.dir = get_dir(src,target)
+		src.dir = get_dir(src,target)
 		switch(get_dist(src,target))
 			if(0)
 				icon_state = "blood_pinondirect"
@@ -184,5 +179,4 @@
 				icon_state = "blood_pinonmedium"
 			if(16 to INFINITY)
 				icon_state = "blood_pinonfar"
-		secs--
-		spawn(10) .()
+		spawn(5) .(T)
