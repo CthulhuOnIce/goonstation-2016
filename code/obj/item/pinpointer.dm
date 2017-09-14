@@ -124,3 +124,65 @@
 			if(16 to INFINITY)
 				icon_state = "id_pinonfar"
 		spawn(5) .()
+
+/obj/item/bloodtracker
+	name = "BloodTrak"
+	icon = 'icons/obj/bloodtrak.dmi'
+	icon_state = "blood_pinoff"
+	flags = FPRINT | TABLEPASS| CONDUCT | ONBELT
+	w_class = 2.0
+	item_state = "electronic"
+	throw_speed = 4
+	throw_range = 20
+	m_amt = 500
+	var/active = 0
+	var/target = null
+	mats = 4
+	desc = "Tracks down people from their blood sample! Requires at least 5u of blood to function."
+
+	attackby(obj/item/W, mob/user)
+		if (istype(W, /obj/item/reagent_containers/hypospray) || istype(W, /obj/item/reagent_containers/syringe) || istype(W, /obj/item/reagent_containers/emergency_injector))
+			if (W.reagents && W.reagents.has_reagent("blood"))
+				if(active) return
+				var/blood_volume = W.reagents.get_reagent_amount("blood")
+				if (blood_volume < W.reagents.total_volume)
+					user.show_text("This blood is impure!", "red")
+					return
+				if (blood_volume < 5)
+					user.show_text("You need more blood than that!", "red")
+					return
+				active = 1
+				var/datum/reagent/B = W.reagents.get_reagent("blood")
+				for(var/mob/living/carbon/human/H in mobs)
+					if(params2list(B:blood_DNA) == H.bioHolder.Uid)
+						target = H
+						break
+				work(3)
+				user.visible_message("<span style=\"color:blue\"><b>[user]</b> transfers blood to [src].</span>", \
+				"<span style=\"color:blue\">You transfer blood from [W] to [src].</span>")
+				W.reagents.remove_reagent("blood", 5)
+				return
+		else
+			return ..()
+
+	proc/work(var/secs)
+		if(!active) return
+		if(secs <= 0)
+			icon_state = "blood_pinoff"
+			active = 0
+			return
+		if(!target)
+			icon_state = "blood_pinonnull"
+			return
+		//src.dir = get_dir(src,target)
+		switch(get_dist(src,target))
+			if(0)
+				icon_state = "blood_pinondirect"
+			if(1 to 8)
+				icon_state = "blood_pinonclose"
+			if(9 to 16)
+				icon_state = "blood_pinonmedium"
+			if(16 to INFINITY)
+				icon_state = "blood_pinonfar"
+		secs--
+		spawn(10) .()
