@@ -149,6 +149,22 @@
 		usingInner = 1
 
 	if (reach)
+		//If we are targeting turf but there's a mob/living on it, we should attack it.
+		if((istype(target, /obj/decal) || isturf(target)) && (W.force > 0 || W.stamina_damage > 20))
+			var/turf/T
+			if(istype(target, /obj/decal))
+				T = get_turf(target)
+			else
+				T = target
+			var/mob/living/U = null
+			var/lastlayer = null
+			for(var/mob/living/L in T.contents)
+				if(L.layer > lastlayer) //Are layers even useful in this situation?
+					U = L
+					lastlayer = L.layer
+			if(U)
+				return weapon_attack(U, W, reach, params)
+		//weird shit end
 		target.attackby(W, src, params)
 	if (W && (equipped() == W || usingInner))
 		var/pixelable = isturf(target)
