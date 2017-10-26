@@ -30,8 +30,8 @@
 
 	New()
 		..()
-		gen_rate = rand(500000,5000000) // max 5MW
-		gen_level = round(gen_rate / 500000) // levels from 1-10
+		gen_level = rand(1,10) // levels from 1-10
+		gen_rate = 5000 * 1.0715 ** ((gen_level-1)*10 + rand(0,10)) // max 4.99MW
 
 	effect_touch(var/obj/O,var/mob/living/user)
 		if (..())
@@ -82,19 +82,19 @@
 				if (prob(5))
 					playsound(O, "sound/effects/screech2.ogg", 200, 1)
 					O.visible_message("<span style=\"color:red\">[O] rumbles!</span>")
-					for (var/mob/M in range(gen_level+3,T))
+					for (var/mob/M in range(min(5,gen_level),T))
 						shake_camera(M, 5, 1)
 						M.weakened += rand(2,4)
-					for (var/turf/TF in range(max(2,gen_level),T))
+					for (var/turf/TF in range(min(5,gen_level),T))
 						animate_shake(TF,5,1 * get_dist(TF,T),1 * get_dist(TF,T))
 					if (gen_level >= 5)
-						for (var/obj/window/W in range(gen_level-4, T))
+						for (var/obj/window/W in range(min(5,gen_level), T))
 							W.health = 0
 							W.smash()
 				if (prob(5))
 					playsound(O, "sound/effects/screech2.ogg", 200, 1)
 					O.visible_message("<span style=\"color:red\">[O] sparks violently!</span>")
-					for (var/mob/M in range(gen_level+3,T))
+					for (var/mob/M in range(min(5,gen_level),T))
 						arcFlash(O, M, gen_rate/2)
 		else
 			playsound(O, pick(spark_sounds), 200, 1)
