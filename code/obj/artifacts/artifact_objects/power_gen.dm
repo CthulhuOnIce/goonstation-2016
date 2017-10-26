@@ -45,22 +45,22 @@
 			if(isturf(T) && !T.intact)
 				attached = locate() in T
 				if(!attached)
-					boutput(user, "No exposed data terminal here to attach to.")
+					boutput(user, "No exposed cable here to attach to.")
 				else
 					O.anchored = 1
 					mode = 2
-					boutput(user, "[O] connects itself to the terminal. Weird.")
+					boutput(user, "[O] connects itself to the cable. Weird.")
 					playsound(O, "sound/effects/ship_charge.ogg", 200, 1)
 					var/obj/machinery/artifact/power_gen/L = O
 					if (L.light)
 						L.light.enable()
 			else
-				boutput(user, "[O] must be placed over a data terminal to attach to it.")
+				boutput(user, "[O] must be placed over a cable to attach to it.")
 		else
 			O.anchored = 0
 			mode = 0
 			attached = 0
-			boutput(user, "[O] disconnects itself from the terminal.")
+			boutput(user, "[O] disconnects itself from the cable.")
 			playsound(O, "sound/effects/shielddown2.ogg", 200, 1, 0, 2)
 			var/obj/machinery/artifact/power_gen/L = O
 			if (L.light)
