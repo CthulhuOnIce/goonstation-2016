@@ -185,3 +185,9 @@
 					if (owner.mind)
 						owner.mind.traitor_crate_items += item_datum
 				telecrystals += item_datum.cost
+
+
+/obj/storage/crate/loot_crate
+	name = "Loot Crate"
+	desc = "A small, cuboid object with a hinged top and loot filled interior."
+	spawn_contents = list(/obj/random_item_spawner/loot_crate/surplus)
