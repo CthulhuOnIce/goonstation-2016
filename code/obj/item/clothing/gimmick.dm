@@ -785,3 +785,9 @@
 	desc = "Traditional Scottish clothing. A bit drafty in here, isn't it?"
 	icon_state = "kilt"
 	item_state = "kilt"
+
+/obj/item/clothing/under/gimmick/ziggy
+    name = "Familiar Jumpsuit"
+    desc = "A bold jumpsuit, reminiscent of a long lost, but very loved celebrity from long ago."
+    icon_state = "ziggy"
+    item_state = "ziggy"

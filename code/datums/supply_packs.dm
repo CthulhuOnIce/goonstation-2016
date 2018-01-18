@@ -455,6 +455,7 @@
 					/obj/item/clothing/under/gimmick/sealab,
 					/obj/item/clothing/under/gimmick/vault13,
 					/obj/item/clothing/under/gimmick/predator,
+					/obj/item/clothing/under/gimmick/ziggy,
 					/obj/item/clothing/suit/armor/batman,
 					/obj/item/clothing/mask/batman,
 					/obj/item/clothing/head/helmet/batman,
@@ -462,6 +463,7 @@
 					/obj/item/clothing/under/gimmick/mario,
 					/obj/item/clothing/head/mario,
 					/obj/item/clothing/shoes/cowboy,
+					/obj/item/clothing/shoes/ziggy,
 					/obj/item/clothing/head/genki)
 	cost = 15000
 	containertype = /obj/storage/crate
