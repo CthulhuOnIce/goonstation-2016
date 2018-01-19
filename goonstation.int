@@ -1,11 +1,11 @@
 // BEGIN_INTERNALS
 /*
 LAST_COMPILE_TIME: 1457219709
-DIR: code\chui\example code\datums\buildmodes\adventure code\datums\buildmodes\adventure\elements code\datums\critter_mobs\health icons\obj\clothing icons\obj\clothing\uniforms 
+DIR: code code\chui\example code\datums\buildmodes\adventure code\datums\buildmodes\adventure\elements code\datums\critter_mobs\health code\datums\randomevents\gimmick code\datums\randomevents\minor code\mob\living code\mob\living\carbon code\mob\living\carbon\human code\mob\living\carbon\human\procs code\mob\living\critter code\mob\living\silicon icons icons\misc icons\misc\griffening icons\mob icons\obj\artifacts icons\obj\clothing\uniforms icons\turf 
 AUTO_FILE_DIR: OFF
 MAP_ICON_TYPE: 0
 LAST_COMPILE_VERSION: 510.1327
-WINDOW: icons\obj\clothing\item_shoes.dmi;icons\obj\clothing\uniforms\item_js_gimmick.dmi
-FILE: icons\obj\clothing\item_shoes.dmi
+WINDOW: icons\misc\xmas_buddy.dmi;icons\misc\bee.dmi;icons\misc\beach2.dmi;icons\misc\mechanicsExpansion.dmi;icons\misc\rstation.dmi;icons\misc\stickers.dmi;icons\mob\robots.dmi
+FILE: icons\mob\robots.dmi
 */
 // END_INTERNALS
