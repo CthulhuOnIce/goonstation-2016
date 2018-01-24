@@ -54,53 +54,20 @@
 
 	// find a radio! toolbox(es), backpack, belt, headset
 	var/loc = ""
-	var/obj/item/device/R = null //Hide the uplink in a PDA if available, otherwise radio
-	if (!R && istype(traitor_mob.belt, /obj/item/device/pda2))
-		R = traitor_mob.belt
-		loc = "on your belt"
-	if (!R && istype(traitor_mob.r_store, /obj/item/device/pda2))
-		R = traitor_mob.r_store
-		loc = "In your pocket"
-	if (!R && istype(traitor_mob.l_store, /obj/item/device/pda2))
-		R = traitor_mob.l_store
-		loc = "In your pocket"
-	if (!R && istype(traitor_mob.ears, /obj/item/device/radio))
-		R = traitor_mob.ears
-		loc = "on your head"
-	if (!R && traitor_mob.w_uniform && istype(traitor_mob.belt, /obj/item/device/radio))
-		R = traitor_mob.belt
-		loc = "on your belt"
-	if (!R && istype(traitor_mob.l_hand, /obj/item/storage))
-		var/obj/item/storage/S = traitor_mob.l_hand
-		var/list/L = S.get_contents()
-		for (var/obj/item/device/radio/foo in L)
-			R = foo
-			loc = "in the [S.name] in your left hand"
-			break
-	if (!R && istype(traitor_mob.r_hand, /obj/item/storage))
-		var/obj/item/storage/S = traitor_mob.r_hand
-		var/list/L = S.get_contents()
-		for (var/obj/item/device/radio/foo in L)
-			R = foo
-			loc = "in the [S.name] in your right hand"
-			break
-	if (!R && istype(traitor_mob.back, /obj/item/storage))
-		var/obj/item/storage/S = traitor_mob.back
-		var/list/L = S.get_contents()
-		for (var/obj/item/device/radio/foo in L)
-			R = foo
-			loc = "in the [S.name] in your backpack"
-			break
-		if(!R)
-			R = new /obj/item/device/radio/headset(traitor_mob)
-			loc = "in the [S.name] in your backpack"
-			// Everything else failed and there's no room in the backpack either, oh no.
-			// I mean, we can't just drop a super-obvious uplink onto the floor. Hands might be full, too (Convair880).
-			if (traitor_mob.equip_if_possible(R, traitor_mob.slot_in_backpack) == 0)
-				qdel(R)
-				traitor_mob.verbs += /client/proc/gearspawn_traitor
-				traitor_mob << browse(grabResource("html/traitorTips/traitorradiouplinkTips.html"),"window=antagTips;titlebar=1;size=600x400;can_minimize=0;can_resize=0")
-				return
+	var/obj/item/device/pda2/possible_pda = locate() in traitor_mob.contents //Hide the uplink in a PDA if available, otherwise radio
+	var/obj/item/device/radio/possible_radio = locate() in traitor_mob.contents
+	var/obj/item/storage/possible_backpack = locate() in traitor_mob.contents
+	
+	
+	if(!R && possible_pda)
+		R = possible_pda
+		loc = "in your PDA"
+	else if(!R && possible_radio)
+		R = possible_radio
+		loc = "in your headset"
+	else if(!R && possible_backpack)
+		loc = "in your backpack"
+		R = new /obj/item/device/radio/headset(traitor_mob)
 	if (!R)
 		traitor_mob.verbs += /client/proc/gearspawn_traitor
 		traitor_mob << browse(grabResource("html/traitorTips/traitorradiouplinkTips.html"),"window=antagTips;titlebar=1;size=600x400;can_minimize=0;can_resize=0")
