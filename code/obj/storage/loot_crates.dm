@@ -143,7 +143,7 @@
 								items += pick(/obj/item/chem_grenade/incendiary, /obj/item/chem_grenade/cryo, /obj/item/chem_grenade/shock, /obj/item/chem_grenade/pepper, prob(10); /obj/item/chem_grenade/sarin)
 								item_amounts += 1
 				else
-					picker = rand(1,1)
+					picker = rand(1,2)
 					switch(picker)
 						if(1)
 							items += /obj/item/reagent_containers/glass/beaker/large/antitox
@@ -155,6 +155,9 @@
 							items += /obj/item/reagent_containers/glass/beaker/large/epinephrine
 							item_amounts += 1
 							items += /obj/item/reagent_containers/hypospray
+							item_amounts += 1
+						if(2)
+							items += /obj/item/gun/energy/taser_gun
 							item_amounts += 1
 
 			if(5)
