@@ -53,6 +53,7 @@
 		if(href_list["card"])
 			if(src.ID)
 				src.ID.set_loc(src.loc)
+				usr.put_in_hand(src.ID)
 				src.ID = null
 				src.unlocked = 0
 			else
