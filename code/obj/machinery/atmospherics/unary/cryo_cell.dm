@@ -121,6 +121,7 @@
 				build_icon()
 			if(href_list["eject"])
 				beaker:set_loc(src.loc)
+				usr.put_in_hand(beaker)
 				beaker = null
 
 			src.updateUsrDialog()
