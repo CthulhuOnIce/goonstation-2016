@@ -992,8 +992,8 @@
 
 	proc/eject_card()
 		if(src.authid)
+			usr.put_in_hand(src.authid)
 			src.authid.set_loc(get_turf(src))
-
 			src.authid = null
 		return
 
@@ -1225,7 +1225,7 @@
 				src.disk.set_loc(src.host.loc)
 			else
 				src.disk.set_loc(get_turf(src))
-
+			usr.put_in_hand(src.disk)
 			src.disk = null
 		return
 

@@ -93,6 +93,7 @@
 
 		if (href_list["eject"])
 			beaker:set_loc(src.loc)
+			usr.put_in_hand(beaker)
 			beaker = null
 			src.update_icon()
 			src.updateUsrDialog()
@@ -387,6 +388,7 @@
 
 		if (href_list["eject"])
 			beaker:set_loc(src.loc)
+			usr.put_in_hand(beaker)
 			beaker = null
 			src.update_icon()
 			usr.machine = null
@@ -502,6 +504,7 @@
 	proc/eject_card()
 		if (src.user_id)
 			src.user_id.set_loc(get_turf(src))
+			usr.put_in_hand(src.user_id)
 			src.user_id = null
 		return
 
@@ -650,6 +653,7 @@
 			return
 		else if (href_list["eject"])
 			beaker:set_loc(src.loc)
+			usr.put_in_hand(beaker)
 			beaker = null
 			icon_state = "mixer0"
 			src.updateUsrDialog()
