@@ -280,6 +280,31 @@
 		if(prob(50))
 			src.icon_state = "cola-blue"
 
+/obj/item/reagent_containers/food/drinks/cola/random
+	name = "space cola"
+	desc = "You don't recognise this cola brand at all."
+	icon = 'icons/obj/can.dmi'
+	heal_amt = 1
+	rc_flags = RC_FULLNESS
+	initial_volume = 50
+
+	New()
+		..()
+		name = "[pick(COLA_prefixes)] [pick(COLA_suffixes)]"
+		var/n = rand(1,26)
+		icon_state = "cola-[n]"
+		reagents.add_reagent("cola, 20")
+		reagents.add_reagent("VHFCS, 10")
+		reagents.add_reagent(pick(COLA_flavors), 5,3)
+
+///////////
+
+/var/list/COLA_prefixes = strings("chemistry_tools.txt", "COLA_prefixes")
+/var/list/COLA_suffixes = strings("chemistry_tools.txt", "COLA_suffixes")
+/var/list/COLA_flavors = strings("chemistry_tools.txt", "COLA_flavors")
+
+///////////
+
 /obj/item/reagent_containers/food/drinks/milk
 	name = "Creaca's Space Milk"
 	desc = "A bottle of fresh space milk from happy, free-roaming space cows."
