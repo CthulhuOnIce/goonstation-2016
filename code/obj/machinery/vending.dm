@@ -326,6 +326,7 @@
 			product_list += new/datum/data/vending_product("/obj/item/reagent_containers/food/drinks/bottle/lime", 20, cost=5)
 			product_list += new/datum/data/vending_product("/obj/item/reagent_containers/food/drinks/bottle/grones", 20, cost=5)
 			product_list += new/datum/data/vending_product("/obj/item/reagent_containers/food/drinks/bottle/bottledwater", 20, cost=10)
+			product_list += new/datum/data/vending_product("/obj/item/reagent_containers/food/drinks/cola/random", 20, cost=5)
 
 	blue
 		icon_state = "grife"
@@ -343,6 +344,7 @@
 			product_list += new/datum/data/vending_product("/obj/item/reagent_containers/food/drinks/bottle/spooky", 20, cost=2)
 			product_list += new/datum/data/vending_product("/obj/item/reagent_containers/food/drinks/bottle/spooky2",20, cost=2)
 			product_list += new/datum/data/vending_product("/obj/item/reagent_containers/food/drinks/bottle/bottledwater", 20, cost=10)
+			product_list += new/datum/data/vending_product("/obj/item/reagent_containers/food/drinks/cola/random", 20, cost=5)
 
 /obj/machinery/vending/electronics
 	name = "ElecTek Vendomaticotron"
