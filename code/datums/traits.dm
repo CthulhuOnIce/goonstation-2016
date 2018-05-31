@@ -399,11 +399,11 @@
 		return
 		
 /obj/trait/blind
-	name = "Blind (+1)"
+	name = "Blind (+2)"
 	cleanName = "Blind"
 	desc = "Spawn with permanent blindness and a VISOR."
 	id = "blind"
-	points = 1
+	points = 2
 	isPositive = 0
 
 	onAdd(var/mob/owner)
