@@ -397,6 +397,27 @@
 		if(owner.bioHolder && !owner.bioHolder.HasEffect("deaf"))
 			owner.bioHolder.AddEffect("deaf")
 		return
+		
+/obj/trait/blind
+	name = "Blind (+1)"
+	cleanName = "Blind"
+	desc = "Spawn with permanent blindness and a VISOR."
+	id = "blind"
+	points = 1
+	isPositive = 0
+
+	onAdd(var/mob/owner)
+		if(owner.bioHolder)
+			if(istype(owner, /mob/living/carbon/human))
+				var/mob/living/carbon/human/H = owner
+				owner.bioHolder.AddEffect("blind")
+				H.equip_if_possible(new /obj/item/clothing/glasses/visor(H), H.slot_glasses)
+		return
+
+	onLife(var/mob/owner) //Just to be safe.
+		if(owner.bioHolder && !owner.bioHolder.HasEffect("blind"))
+			owner.bioHolder.AddEffect("blind")
+		return
 
 /obj/trait/hemo
 	name = "Hemophilia (+1)"
