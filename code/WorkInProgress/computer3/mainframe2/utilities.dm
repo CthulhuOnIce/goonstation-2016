@@ -782,7 +782,7 @@
 		mainframe_prog_exit
 		return
 
-//Grep.  Sorta.  Look, I'm not going to redo the regex library for High Nerd Marquesas
+//Grep. Search for text in text
 /datum/computer/file/mainframe_program/utility/grep
 	name = "grep"
 	size = 1
@@ -796,51 +796,65 @@
 		if (initlist.len > 1)
 			var/case_sensitive = 1
 			var/print_only_match = 0
+			var/recursive = 0
+			var/no_messages = 1
+
+			. = ""
 
 			if (copytext(initlist[1], 1, 2) == "-")
-				switch (copytext(initlist[1], 2, 4))
-					if ("i")
-						case_sensitive = 0
+				var/options = copytext(initlist[1], 2, 6)
 
-					if ("o")
-						print_only_match = 1
-
-					if ("io","oi")
-						print_only_match = 1
-						case_sensitive = 0
+				if (findtext(options, "i"))
+					case_sensitive = 0
+				if (findtext(options, "o"))
+					print_only_match = 1
+				if (findtext(options, "r"))
+					recursive = 1
+				if (findtext(options, "s"))
+					no_messages = 0
 
 				initlist.Cut(1,2)
-				if (initlist.len < 2)
 
-					mainframe_prog_exit
-					return
+			if (initlist.len < 2)
+				. += "No pattern or target file. Try 'help grep'"
+				mainframe_prog_exit
+				return
 
 			var/pattern = copytext(initlist[1], 1, 20)
 			if (!case_sensitive)
 				pattern = lowertext(pattern)
 
-			. = usr
-			usr = null
 			var/regex/R = new (pattern)
-			usr = .
 			if (!istype(R))
+				. += "No regular expression found."
 				mainframe_prog_exit
 				return
 
-			. = ""
 			var/current = read_user_field("curpath")
 			for (var/i = 2, i <= initlist.len, i++)
-				if (!dd_hasprefix(initlist[i], "/"))
-					initlist[i] = "[current]" + (. == "/" ? null : "/") + initlist[i]
 
-				var/datum/computer/file/to_check = signal_program(1, list("command"=DWAINE_COMMAND_FGET,"path"=initlist[i]))
+				if (!dd_hasprefix(initlist[i], "/"))
+					initlist[i] = "[current]" + (current == "/" ? null : "/") + initlist[i]
+
+				var/datum/computer/to_check = signal_program(1, list("command"=DWAINE_COMMAND_FGET,"path"=initlist[i]))
+
 				if (!istype(to_check))
 					break
 
+				if (!check_read_permission(to_check, useracc))
+					continue
 
-				//WIP
-				if (istype(to_check, /datum/computer/file/record))
+				if (recursive && istype(to_check, /datum/computer/folder))
+					var/datum/computer/folder/listfolder = signal_program(1, list("command"=DWAINE_COMMAND_FGET,"path"=initlist[i]))
+					if (istype(listfolder))
+						for(var/datum/computer/P in listfolder.contents)
+							initlist.Add(initlist[i]+"/"+P.name)
+					. += ""
+
+				else if (istype(to_check, /datum/computer/file/record))
+					var/j = 0
 					for (var/textLine in to_check:fields)
+						j += 1
 						if (!R)
 							R = new (pattern)
 
@@ -849,19 +863,11 @@
 								. += copytext(textLine, R.match, R.index) + "|n"
 
 							else
-								. += "[textLine][to_check:fields[textLine]]|n"
+								. += "[to_check.name]:[j]:" + "[textLine][to_check:fields[textLine]]|n"
 						R = null
-
 				else
-					var/to_check_text = to_check.asText()
-					var/findOffset = 1
-					while (findOffset != 0)
-						if (R.Find(case_sensitive ? to_check_text : lowertext(to_check_text), findOffset))
-							if (print_only_match)
-								. += copytext(to_check_text, R.match, R.index) + "|n"
-							else
-								. += copytext(to_check_text, R.match, findtext(to_check_text, "|n", R.match)) + "|n"
-								findOffset = findtext(to_check_text, "|n", R.match) + 2
+					if(no_messages)
+						. += "[to_check] could not be read.|n"
 
 			if (.)
 				message_user(., "multiline")
