@@ -860,7 +860,7 @@
 
 						if (R.Find(case_sensitive ? "[textLine][to_check:fields[textLine]]" : lowertext("[textLine][to_check:fields[textLine]]")))
 							if (print_only_match)
-								. += copytext(textLine, R.match, R.index) + "|n"
+								. += "[R.match]|n"
 
 							else
 								. += "[to_check.name]:[j]:" + "[textLine][to_check:fields[textLine]]|n"
