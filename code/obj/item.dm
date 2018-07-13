@@ -85,7 +85,7 @@
 	..()
 
 /obj/item/proc/Eat(var/mob/M as mob, var/mob/user)
-	if (!src.edible)
+	if (!src.edible || (user.a_intent == INTENT_HARM))
 		return 0
 	if (!iscarbon(M) && !istype(M, /mob/living/critter))
 		return 0
