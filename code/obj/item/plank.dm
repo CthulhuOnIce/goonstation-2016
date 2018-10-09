@@ -27,3 +27,18 @@
 			return
 		else
 			return
+
+	attackby(obj/item/C as obj, mob/user as mob)
+		if (istype(C, /obj/item/plank))
+			boutput(usr, "<span style=\"color:blue\">Now building wood door. You'll need to stand still.</span>")
+			var/turf/T = get_turf(usr)
+			sleep(30)
+			if(usr.loc == T)
+				if(!locate(/obj/machinery/door/unpowered/wood) in T)
+					new /obj/machinery/door/unpowered/wood(T)
+					qdel(src)
+					qdel(C)
+				boutput(usr, "<span style=\"color:red\">There's already a door here!</span>")
+				return
+			else
+				return
