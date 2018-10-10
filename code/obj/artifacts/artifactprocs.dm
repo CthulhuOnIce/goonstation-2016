@@ -193,6 +193,17 @@
 	if (istype(user,/mob/living/silicon/robot))
 		src.ArtifactStimulus("silitouch", 1)
 
+	if (istype(W, /obj/item/grab))
+		var/obj/item/grab/GRAB = W
+		if (ismob(GRAB.affecting))
+			var/mob/M = GRAB.affecting
+			var/mob/A = GRAB.assailant
+			if (get_dist(src.loc, M.loc) > 1)
+				return
+			src.visible_message("<b>[M.name]</b> is forced to touch [src] by [A.name].")
+			src.ArtifactTouched(M)
+			return 0
+
 	if (istype(W,/obj/item/artifact/activator_key))
 		var/obj/item/artifact/activator_key/ACT = W
 		if (!src.ArtifactSanityCheck())
