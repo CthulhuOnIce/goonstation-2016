@@ -1,6 +1,8 @@
- #define MEAT_NEEDED_TO_CLONE	16
+#define MEAT_NEEDED_TO_CLONE	16
 #define MAXIMUM_MEAT_LEVEL		100
-#define MEAT_USED_PER_TICK		0.6
+
+#define DEFAULT_MEAT_USED_PER_TICK 0.6
+#define DEFAULT_SPEED_BONUS 1
 
 #define MEAT_LOW_LEVEL	MAXIMUM_MEAT_LEVEL * 0.15
 
@@ -15,6 +17,7 @@
 	icon_state = "pod_0_lowmeat"
 	req_access = list(access_medlab) //For premature unlocking.
 	mats = 15
+	var/meat_used_per_tick = DEFAULT_MEAT_USED_PER_TICK // Used to be defined. moving it here so it can be edited by modules
 	var/mob/living/occupant
 	var/heal_level = 90 //The clone is released once its health reaches this level.
 	var/locked = 0
@@ -25,9 +28,16 @@
 	var/previous_heal = 0
 	var/portable = 0 //Are we part of a port-a-clone?
 	var/operating = 0 //Are we currently cloning some duder?
+	var/cloneslave = 0 //Is a traitor enslaving the clones?
+	var/mob/implant_master = null // Who controls the clones?
+	var/datum/bioEffect/BE = null // Any bioeffects to add upon cloning (used with the geneclone module)
+	var/mindwipe = 0 // Are we wiping people's minds?
+	var/is_speedy = 0 // Speed module installed?
+	var/is_efficient = 0 // Efficiency module installed?
 
 	var/gen_analysis = 1 //Are we analysing the genes while reassembling the duder? (read: Do we work faster or do we give a material bonus?)
 	var/gen_bonus = 1 //Normal generation speed
+	var/speed_bonus = DEFAULT_SPEED_BONUS // Multiplier that can be modified by modules
 	power_usage = 200
 
 	var/failed_tick_counter = 0 // goes up while someone is stuck in there and there's not enough meat to clone them, after so many ticks they'll get dumped out
@@ -41,6 +51,8 @@
 
 	var/meat_level = MAXIMUM_MEAT_LEVEL / 4
 
+	var/datum/light/light // An eerie red glow happens if evil is afoot
+
 	New()
 		..()
 		var/datum/reagents/R = new/datum/reagents(100)
@@ -49,6 +61,12 @@
 
 		src.update_icon()
 		genResearch.clonepods.Add(src) //This will be used for genetics bonuses when cloning
+
+		light = new /datum/light/point
+		light.set_brightness(1)
+		light.set_color(1.0, 0.1, 0.1)
+		light.set_height(0.75)
+		light.attach(src)
 
 		spawn(100)
 			if (radio_controller)
@@ -123,7 +141,7 @@
 	if (src.mess)
 		src.icon_state = "pod_g"
 	else
-		src.icon_state = "pod_[src.occupant ? "1" : "0"][src.meat_level ? "" : "_lowmeat"]"
+		src.icon_state = "pod_[src.occupant ? "1" : "0"][src.meat_level ? "" : "_lowmeat"][src.cloneslave ? "_mindslave" : "" ][src.mindwipe ? "_mindwipe" : ""]"
 
 //Start growing a human clone in the pod!
 /obj/machinery/clonepod/proc/growclone(mob/ghost as mob, var/clonename, var/datum/mind/mindref, var/datum/bioHolder/oldholder, var/datum/abilityHolder/oldabilities, var/list/traits)
@@ -183,7 +201,7 @@
 
 	if (clonename)
 		if (prob(10))
-			src.occupant.real_name = "[pick("Almost", "Sorta", "Mostly", "Kinda", "Nearly", "Pretty Much", "Roughly", "Not Quite")] [clonename]"
+			src.occupant.real_name = "[pick("Almost", "Sorta", "Mostly", "Kinda", "Nearly", "Pretty Much", "Roughly", "Not Quite", "Just About", "Something Resembling")] [clonename]"
 		else
 			src.occupant.real_name = clonename
 	else
@@ -212,6 +230,40 @@
 		src.reagents.reaction(src.occupant, 2, 1000)
 		src.reagents.trans_to(src.occupant, 1000)
 
+	// Oh boy someone is cloning themselves up an army!
+	if(cloneslave && implant_master != null)
+
+		// No need to check near as much with a standard implant, as the cloned person is dead and is therefore enslavable upon cloning.
+
+		// How did this happen. Why is someone cloning you as a slave to yourself. WHO KNOWS?!
+		if(implant_master == src.occupant)
+			boutput(src.occupant, "<span style=\"color:red\">You feel utterly strengthened in your resolve! You are the most important person in the universe!</span>")
+		else
+			if (src.occupant.mind && ticker.mode)
+				// ADMINS: YOU SHOULD LOG SOMETHING HERE, BUT ILL LET YOU PICK IF YOU WANT TO OR NOT
+				if (!src.occupant.mind.special_role)
+					src.occupant.mind.special_role = "mindslave"
+				if (!(src.occupant.mind in ticker.mode.Agimmicks))
+					ticker.mode.Agimmicks += src.occupant.mind
+				src.occupant.mind.master = implant_master.ckey
+
+			boutput(src.occupant, "<h2><span style=\"color:red\">You feel an unwavering loyalty to [implant_master.real_name]! You feel you must obey \his every order! Do not tell anyone about this unless your master tells you to!</span></h2>")
+			src.occupant << browse(grabResource("html/mindslave/implanted.html"),"window=antagTips;titlebar=1;size=600x400;can_minimize=0;can_resize=0")
+
+	// Someone is having their brain zapped. 75% chance of them being de-antagged if they were one
+	if(mindwipe)
+		if(prob(75))
+			src.occupant << browse(grabResource("html/mindwipe.html"),"window=antagTips;titlebar=1;size=600x400;can_minimize=0;can_resize=0")
+			boutput(src.occupant, "<h2><span style=\"color:red\">You have awakened with a new outlook on life!</span></h2>")
+			src.occupant.mind.memory = "You cannot seem to remember much from before you were cloned. Weird!<BR>"
+		else
+			boutput(src.occupant, "<span style=\"color:red\">You feel your memories fading away, but you manage to hang on to them!</span>")
+
+
+	// Lucky person - they get a power on cloning!
+	if (src.BE)
+		src.occupant.bioHolder.AddEffectInstance(BE,1)
+
 	previous_heal = src.occupant.health
 	src.attempting = 0
 	src.operating = 1
@@ -236,6 +288,10 @@
 		abort = 1
 		src.occupant.take_toxin_damage(300)
 		src.occupant.death()
+
+	if(src.occupant && src.cloneslave == 1 && prob(10))
+		playsound(src.loc, pick("sound/machines/glitch1.ogg","sound/machines/glitch2.ogg",
+		"sound/machines/genetics.ogg","sound/machines/shieldoverload.ogg"), 50, 1)
 
 	if ((src.occupant) && (src.occupant.loc == src))
 		if ((src.occupant.stat == 2) || (src.occupant.suiciding) || abort)  //Autoeject corpses and suiciding dudes.
@@ -290,7 +346,7 @@
 			//Also heal some oxy ourselves because epinephrine is so bad at preventing it!!
 			src.occupant.take_oxygen_deprivation(-10) // cogwerks: speeding this up too
 
-			src.meat_level = max( 0, src.meat_level - MEAT_USED_PER_TICK)
+			src.meat_level = max( 0, src.meat_level - meat_used_per_tick)
 			if (!src.meat_level)
 				src.connected_message("Additional biomatter required to continue.")
 				src.send_pda_message("Low Biomatter")
@@ -359,6 +415,60 @@
 	else if (istype(W, /obj/item/card/emag))	//This is needed to suppress the SYNDI CAT HITS CLONING POD message *cry
 		return
 	else if (istype(W, /obj/item/reagent_containers/glass))
+		return
+	else if (istype(W, /obj/item/cloneModule/speedyclone)) // speed module
+		if(is_speedy)
+			boutput(user,"<span style=\"color:red\">There's already a speed booster in the slot!</span>")
+			return
+		if(operating)
+			boutput(user,"<span style=\"color:red\">The cloning pod emits an angry boop!</span>")
+			return
+		user.visible_message("[user] installs [W] into [src].", "You install [W] into [src].")
+		speed_bonus += 1
+		meat_used_per_tick *= 3
+		is_speedy = 1
+		user.drop_item()
+		qdel(W)
+		return
+	else if (istype(W, /obj/item/cloneModule/efficientclone)) // efficiency module
+		if(is_efficient)
+			boutput(user,"<span style=\"color:red\">There's already an efficiency booster in the slot!</span>")
+			return
+		if(operating)
+			boutput(user,"<span style=\"color:red\">The cloning pod emits a[pick("n angry", " grumpy", "n annoyed", " cheeky")] [pick("boop","bop", "beep", "blorp", "burp")]!</span>")
+			return
+		user.visible_message("[user] installs [W] into [src].", "You install [W] into [src].")
+		meat_used_per_tick *= 0.5
+		is_efficient = 1
+		user.drop_item()
+		qdel(W)
+		return
+	else if (istype(W, /obj/item/cloneModule/mindslave_module)) // Time to re enact the clone wars
+		if(operating)
+			boutput(user,"<span style=\"color:red\">The cloning pod emits a[pick("n angry", " grumpy", "n annoyed", " cheeky")] [pick("boop","bop", "beep", "blorp", "burp")]!</span>")
+			return
+		cloneslave = 1
+		implant_master = user
+		// Clone armies are not allowed to use speed or efficiency modules under article 7.2 p5 of the space geneva convention
+		is_speedy = 1
+		is_efficient = 1
+		speed_bonus = DEFAULT_SPEED_BONUS
+		meat_used_per_tick = DEFAULT_MEAT_USED_PER_TICK
+		light.enable()
+		qdel(W)
+		return
+	else if(istype(W, /obj/item/screwdriver) && cloneslave == 1) // Wait nevermind the clone wars were a terrible idea
+		boutput(user, "<span style=\"color:blue\">You begin detatching the mindslave cloning module...</span>")
+		playsound(src.loc, "sound/items/Screwdriver.ogg", 50, 1)
+		if(do_after(user,50))
+			new /obj/item/cloneModule/mindslave_module( src.loc )
+			cloneslave = 0
+			implant_master = null
+			boutput(user,"<span style=\"color:red\">The mindslave cloning module falls to the floor with a dull thunk </span>")
+			playsound(src.loc, "sound/effects/thunk.ogg", 50, 0)
+			light.disable()
+		else
+			boutput(user,"<span style=\"color:red\">You were interrupted!</span>")
 		return
 
 	else
@@ -457,11 +567,13 @@ var/list/clonepod_accepted_reagents = list("blood"=0.5,"synthflesh"=1,"beff"=0.7
 /obj/machinery/clonepod/proc/operating_nominally()
 	return operating && src.meat_level && gen_analysis //Only operate nominally for non-shit cloners
 
+
+//TODO: Add in the speed modules
 /obj/machinery/clonepod/proc/healing_multiplier()
 	if (wagesystem.clones_for_cash)
-		return 2 + (!gen_analysis * 0.15)
+		return (2 + (!gen_analysis * 0.15)) * speed_bonus
 	else
-		return 1 + (!gen_analysis * 0.15) //If the analysis feature is disabled, then generate the clone slightly faster
+		return (1 + (!gen_analysis * 0.15)) * speed_bonus //If the analysis feature is disabled, then generate the clone slightly faster
 
 /obj/machinery/clonepod/relaymove(mob/user as mob)
 	if (user.stat)
@@ -757,6 +869,4 @@ var/list/clonepod_accepted_reagents = list("blood"=0.5,"synthflesh"=1,"beff"=0.7
 
 #undef MEAT_NEEDED_TO_CLONE
 #undef MAXIMUM_MEAT_LEVEL
-#undef MEAT_USED_PER_TICK
-
 #undef MEAT_LOW_LEVEL

@@ -91,3 +91,5 @@
 			new /obj/item/storage/firstaid/fire(src)
 		if (prob(5))
 			new /obj/item/storage/toolbox/emergency(src)
+
+
