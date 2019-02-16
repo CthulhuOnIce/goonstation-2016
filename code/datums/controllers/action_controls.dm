@@ -564,6 +564,7 @@ var/datum/action_controller/actions
 						for(var/mob/M in AIviewers(target, 1))
 							M.show_message(text("[] is now running on internals.", src.target), 1)
 						target.internal.add_fingerprint(owner)
+			target.updateLootUI()
 
 /datum/action/bar/icon/handcuffSet //This is used when you try to handcuff someone.
 	duration = 40
@@ -632,6 +633,7 @@ var/datum/action_controller/actions
 			target.drop_from_slot(target.l_hand)
 			target.drop_juggle()
 			target.update_clothing()
+			target.updateLootUI()
 
 			for(var/mob/O in AIviewers(ownerMob))
 				O.show_message("<span style=\"color:red\"><B>[owner] handcuffs [target]!</B></span>", 1)
@@ -675,6 +677,7 @@ var/datum/action_controller/actions
 			H.handcuffed.unequipped(H)
 			H.handcuffed = null
 			H.update_clothing()
+			H.updateLootUI()
 			for(var/mob/O in AIviewers(H))
 				O.show_message("<span style=\"color:red\"><B>[owner] manages to remove [target]'s handcuffs!</B></span>", 1)
 

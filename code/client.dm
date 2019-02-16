@@ -53,6 +53,8 @@
 	var/move_drops = 30
 	var/spiking = 0
 
+	var/chui/window/loot/lootui = null
+
 	var/antag_tokens //Number of antagonist tokens available to the player
 	var/using_antag_token = 0 //Set when the player readies up at round start, and opts to redeem a token.
 
@@ -71,7 +73,7 @@
 	var/datum/chatOutput/chatOutput = null
 	var/resourcesLoaded = 0 //Has this client done the mass resource downloading yet?
 	var/datum/tooltip/tooltip = null
-	
+
 	var/delete_state = DELETE_STOP
 
 /client/Del()

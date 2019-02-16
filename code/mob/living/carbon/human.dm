@@ -2578,6 +2578,7 @@
 		src.l_hand = null
 		W.dropped(src)
 		src.update_inhands()
+	src.updateLootUI()
 
 /mob/living/carbon/human/action(num)
 	if(src.abilityHolder)
@@ -3252,6 +3253,7 @@
 		src.target.set_clothing_icon_dirty()
 	//SN src = null
 	qdel(src)
+	src.target.updateLootUI()
 	return
 	#undef equip_e_slot
 
@@ -3262,31 +3264,252 @@
 /mob/living/carbon/human/proc/show_inv(mob/user as mob)
 	user.machine = src
 	var/dat = {"
-	<B><HR><FONT size=3>[src.name]</FONT></B>
-	<BR><HR>
-	<B>Head:</B> <A href='?src=\ref[src];varname=head;slot=[src.slot_head];item=head'>[(src.head ? src.head : "Nothing")]</A>
-	<BR><B>Mask:</B> <A href='?src=\ref[src];varname=wear_mask;slot=[src.slot_wear_mask];item=mask'>[(src.wear_mask ? src.wear_mask : "Nothing")]</A>
-	<BR><B>Eyes:</B> <A href='?src=\ref[src];varname=glasses;slot=[src.slot_glasses];item=eyes'>[(src.glasses ? src.glasses : "Nothing")]</A>
-	<BR><B>Ears:</B> <A href='?src=\ref[src];varname=ears;slot=[src.slot_ears];item=ears'>[(src.ears ? src.ears : "Nothing")]</A>
-	<BR><B>Left Hand:</B> <A href='?src=\ref[src];varname=l_hand;slot=[src.slot_l_hand];item=l_hand'>[(src.l_hand ? src.l_hand  : "Nothing")]</A>
-	<BR><B>Right Hand:</B> <A href='?src=\ref[src];varname=r_hand;slot=[src.slot_r_hand];item=r_hand'>[(src.r_hand ? src.r_hand : "Nothing")]</A>
-	<BR><B>Gloves:</B> <A href='?src=\ref[src];varname=gloves;slot=[src.slot_gloves];item=gloves'>[(src.gloves ? src.gloves : "Nothing")]</A>
-	<BR><B>Shoes:</B> <A href='?src=\ref[src];varname=shoes;slot=[src.slot_shoes];item=shoes'>[(src.shoes ? src.shoes : "Nothing")]</A>
-	<BR><B>Belt:</B> <A href='?src=\ref[src];varname=belt;slot=[src.slot_belt];item=belt'>[(src.belt ? src.belt : "Nothing")]</A>
-	<BR><B>Uniform:</B> <A href='?src=\ref[src];varname=w_uniform;slot=[src.slot_w_uniform];item=uniform'>[(src.w_uniform ? src.w_uniform : "Nothing")]</A>
-	<BR><B>Outer Suit:</B> <A href='?src=\ref[src];varname=wear_suit;slot=[src.slot_wear_suit];item=suit'>[(src.wear_suit ? src.wear_suit : "Nothing")]</A>
-	<BR><B>Back:</B> <A href='?src=\ref[src];varname=back;slot=[src.slot_back];item=back'>[(src.back ? src.back : "Nothing")]</A> [((istype(src.wear_mask, /obj/item/clothing/mask) && istype(src.back, /obj/item/tank) && !( src.internal )) ? text(" <A href='?src=\ref[];item=internal;slot=internal'>Set Internal</A>", src) : "")]
-	<BR><B>ID:</B> <A href='?src=\ref[src];varname=wear_id;slot=[src.slot_wear_id];item=id'>[(src.wear_id ? src.wear_id : "Nothing")]</A>
-	<BR><B>Left Pocket:</B> <A href='?src=\ref[src];varname=l_store;slot=[src.slot_l_store];item=pockets'>[(src.l_store ? "Something" : "Nothing")]</A>
-	<BR><B>Right Pocket:</B> <A href='?src=\ref[src];varname=r_store;slot=[src.slot_r_store];item=pockets'>[(src.r_store ? "Something" : "Nothing")]</A>
-	<BR>[(src.handcuffed ? text("<A href='?src=\ref[src];slot=handcuff;item=handcuff'>Handcuffed</A>") : text("<A href='?src=\ref[src];item=handcuff;slot=handcuff'>Not Handcuffed</A>"))]
-	<BR>[(src.internal ? text("<A href='?src=\ref[src];slot=internal;item=internal'>Remove Internal</A>") : "")]
-	<BR><A href='?action=mach_close&window=mob[src.name]'>Close</A>
-	<BR>"}
-	user << browse(dat, text("window=mob[src.name];size=340x480"))
-	onclose(user, "mob[src.name]")
+	<style>
+		.grid-container {
+
+		  background-color: #2196F3;
+		  padding: 10px;
+		  margin: auto;
+		  width: 335px;
+		}
+
+		.grid-item {
+		  background-color: rgba(255, 255, 255, 0.8);
+		  border: 1px solid rgba(0, 0, 0, 0.8);
+		  border-radius: 12px;
+		  padding: 3px;
+		  margin: 3px;
+		  min-width: 64px;
+		  min-height: 64px;
+		  max-width: 64px;
+		  max-height: 64px;
+		}
+
+		img.grid-item {
+		  align: middle;
+		  width: 100%;
+		}
+
+		.filler {
+		  background-color: #2196F3;
+		  border: 1px transparent;
+		}
+
+		.missing {
+		  background-color: #9e9e9e;
+		  text-align: center;
+		}
+
+		.tooltip {
+		  position: relative;
+  		  display: inline-block;
+		}
+
+		.tooltip .tooltiptext {
+		  visibility: hidden;
+		  width: 120px;
+		  background-color: black;
+		  color: #fff;
+		  text-align: center;
+		  padding: 5px;
+		  border-radius: 6px;
+		  opacity: 0.85;
+		  bottom: 90%;
+  		  left: 50%;
+  		  margin-left: -60px;
+		  position: absolute;
+		  z-index: 1;
+		}
+
+		.tooltip .tooltiptext::after {
+		  content: " ";
+		  position: absolute;
+		  top: 90%;
+		  left: 50%;
+		  margin-left: -12px;
+		  border-width: 8px;
+		  border-style: solid;
+		  border-color: black transparent transparent transparent;
+		}
+
+		.tooltip:hover .tooltiptext {
+		  visibility: visible;
+		}
+
+		p:hover.tooltiptext {
+		  display: none;
+		}
+	</style>
+	"}
+	var/filler = "<img class='grid-item filler' />"	// dummy grid item for spacing
+
+	dat += "<h1>[src.name]</h1>"	// loot target's name
+
+	var/hud = hud_style_selection[get_hud_style(user)]
+	// loot grid start
+	dat += "<div class ='grid-container'>"
+	dat += filler
+	dat += prepareLootHtml(src.slot_head, hud)
+	dat += filler
+	dat += "<BR>"
+
+	dat += prepareLootHtml(src.slot_ears, hud)
+	dat += prepareLootHtml(src.slot_wear_mask, hud)
+	dat += prepareLootHtml(src.slot_glasses, hud)
+	dat += prepareLootHtml(src.slot_back, hud)
+	dat += "<BR>"
+
+	dat += prepareLootHtml(src.slot_gloves, hud)
+	dat += prepareLootHtml(src.slot_wear_suit, hud)
+	dat += prepareLootHtml(src.slot_wear_id, hud)
+	var/showInternals = istype(src.wear_mask, /obj/item/clothing/mask) && (istype(src.back, /obj/item/tank))
+	var/icon/i = new('icons/misc/abilities.dmi', icon_state = (src.internal ? "airon" : "airoff" ))
+	dat += showInternals ? addLootTopic("<img class='grid-item' src='data:image/png;base64,[icon2base64(i)]' />", "", "internal", "internal", "Toggle internals") : filler
+	dat += "<BR>"
+
+	dat += prepareLootHtml(src.slot_l_hand, hud)
+	dat += prepareLootHtml(src.slot_w_uniform, hud)
+	dat += prepareLootHtml(src.slot_r_hand, hud)
+	dat += src.handcuffed ? addLootTopic(replaceHtmlImgClass("[bicon(src.handcuffed)]", "grid-item"), "", "handcuff", "handcuff", "Unhandcuff") : filler
+	dat += "<BR>"
+
+	dat += prepareLootHtml(src.slot_l_store, hud)
+	dat += prepareLootHtml(src.slot_belt, hud)
+	dat += prepareLootHtml(src.slot_r_store, hud)
+	dat += "<BR>"
+
+	dat += filler
+	dat += prepareLootHtml(src.slot_shoes, hud)
+	dat += filler
+	dat += "<BR>"
+	dat += "</div>"
+	// loot grid end
+
+	var/changelogHtml = grabResource("html/changelog.html")
+	changelogHtml = replacetext(changelogHtml, "<!-- HTML GOES HERE -->", "[dat]")
+	user.client.lootui = new/chui/window/loot(user, src)
+	user.Browse(changelogHtml, "window='loot';size=500x650;title='Loot';")
 	return
-	//	<BR><A href='?src=\ref[src];item=pockets'>Empty Pockets</A>
+
+// Setup html for a specific slot
+/mob/living/carbon/human/proc/prepareLootHtml(slot, hudstyle)
+	var/varname = ""
+	var/item = ""
+	var/obj/item/target_item = null
+	var/alt_name = ""
+	var/icon_state = ""
+	switch(slot)
+		if (slot_back)
+			varname = "back"
+			item = "back"
+			target_item = src.back
+			alt_name = "Back"
+			icon_state = "back"
+		if (slot_wear_mask)
+			varname = "wear_mask"
+			item = "mask"
+			target_item = src.wear_mask
+			alt_name = "Mask"
+			icon_state = "mask"
+		if (slot_l_hand)
+			varname = "l_hand"
+			item = "l_hand"
+			target_item = src.l_hand
+			alt_name = "Left hand"
+			icon_state = "handl0"
+		if (slot_r_hand)
+			varname = "r_hand"
+			item = "r_hand"
+			target_item = src.r_hand
+			alt_name = "Right hand"
+			icon_state = "handr0"
+		if (slot_belt)
+			varname = "belt"
+			item = "belt"
+			target_item = src.belt
+			alt_name = "Belt"
+			icon_state = "belt"
+		if (slot_wear_id)
+			varname = "wear_id"
+			item = "id"
+			target_item = src.wear_id
+			alt_name = "ID"
+			icon_state = "id"
+		if (slot_ears)
+			varname = "ears"
+			item = "ears"
+			target_item = src.ears
+			alt_name = "Ears"
+			icon_state = "ears"
+		if (slot_glasses)
+			varname = "glasses"
+			item = "eyes"
+			target_item = src.glasses
+			alt_name = "Glasses"
+			icon_state = "glasses"
+		if (slot_gloves)
+			varname = "gloves"
+			item = "gloves"
+			target_item = src.gloves
+			alt_name = "Gloves"
+			icon_state = "gloves"
+		if (slot_head)
+			varname = "head"
+			item = "head"
+			target_item = src.head
+			alt_name = "Head"
+			icon_state = "hair"
+		if (slot_shoes)
+			varname = "shoes"
+			item = "shoes"
+			target_item = src.shoes
+			alt_name = "Shoes"
+			icon_state = "shoes"
+		if (slot_wear_suit)
+			varname = "wear_suit"
+			item = "suit"
+			target_item = src.wear_suit
+			alt_name = "Suit"
+			icon_state = "armor"
+		if (slot_w_uniform)
+			varname = "w_uniform"
+			item = "uniform"
+			target_item = src.w_uniform
+			alt_name = "Uniform"
+			icon_state = "center"
+		if (slot_l_store)	// pockets are a special case, you shouldn't see what's in it
+			varname = "l_store"
+			item = "pockets"
+			alt_name = "Left pocket"
+			var/icon/hudcon = new(hudstyle, "pocket", dir = SOUTH)
+			var/icon/something = new ("icons/mob/loot_ui.dmi", icon_state = "something")
+			return addLootTopic((src.l_store ? replaceHtmlImgClass(bicon(something), "grid-item") : replaceHtmlImgClass(bicon(hudcon), "grid-item missing")), varname, slot, item, src.l_store ? "Something" : alt_name)
+		if (slot_r_store)
+			varname = "r_store"
+			item = "pockets"
+			alt_name = "Right pocket"
+			var/icon/hudcon = new(hudstyle, "pocket", dir = SOUTH)
+			var/icon/something = new ("icons/mob/loot_ui.dmi", icon_state = "something")
+			return addLootTopic((src.r_store ? replaceHtmlImgClass(bicon(something), "grid-item") : replaceHtmlImgClass(bicon(hudcon), "grid-item missing")), varname, slot, item, src.r_store ? "Something" : alt_name)
+
+	var/icon/hudcon = new(hudstyle, icon_state, dir = SOUTH)
+	return addLootTopic((target_item ? replaceHtmlImgClass(bicon(target_item), "grid-item") : replaceHtmlImgClass(bicon(hudcon), "grid-item missing")), varname, slot, item, target_item ? target_item.name : alt_name)
+
+// Setup the href for looting items on click
+/mob/living/carbon/human/proc/addLootTopic(html, varname, slot, item, name)
+		return {"<a class='tooltip' href='?src=\ref[src];varname=[varname];slot=[slot];item=[item]'>
+					[html]
+					<p class='tooltiptext'>[name]</p>
+				</a>"}
+
+// Assumes html based off the bicon return value
+/mob/living/carbon/human/proc/replaceHtmlImgClass(html, class)
+	return "<img class='[class]' [copytext(html, findtext(html, "src="))]"
+
+/mob/living/carbon/human/proc/updateLootUI()
+	for (var/mob/M in viewers(1, src))
+		if (M.client && M.client.lootui && M.client.lootui.target == src)	// if looter is next to target then update
+			src.show_inv(M)
 
 /mob/living/carbon/human/MouseDrop(mob/M as mob)
 	..()
@@ -5557,6 +5780,7 @@
 			if (slot != slot_in_backpack && slot != slot_in_belt)
 				I.show_buttons()
 		src.update_clothing()
+		src.updateLootUI()
 
 /mob/living/carbon/human/proc/can_equip(obj/item/I, slot)
 	switch (slot)

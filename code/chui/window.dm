@@ -108,7 +108,7 @@ chui/window
 		var/title = config["title"]
 		var/list/built = list( "js" = list(), "css" = list(), "title" = (title || "1-800 Coder"), data = list( "ref" = name, "flags" = flags ) )//todo, better this.
 		who << browse( theme.generateHeader(built) + theme.generateBody( body, built ) + theme.generateFooter(), "titlebar=0;can_close=0;can_resize=0;can_scroll=0;border=0;[options]" )
-		winset( who, "\ref[src]", "on-close \".chui-close \ref[src]\"" )
+		winset( who, "\ref[src]", "on-close=\".chui-close \ref[src]\"" )
 		//theme.streamToClient( who )
 
 	//Check if a client should actually be subscribed.
@@ -206,7 +206,6 @@ chui/window
 		else
 			OnTopic( href, href_list )
 
-
 //Called when the close button is clicked on both
 /client/verb/chuiclose( var/window as text )
 	set name = ".chui-close"
@@ -219,6 +218,9 @@ chui/window
 	else
 		src << browse( null, "window=[window]" )//Might not be a standard chui window but we'll play along.
 
+	src.lootui = null	 // just reset the loot window, it's too goddamn hard to make this work better
+
+
 //A chui substitute for usr << browse()
 //Mostly the same syntax.
 client/proc/Browse( var/html, var/opts )
@@ -229,3 +231,14 @@ mob/proc/Browse( var/html, var/opts )
 		chui.staticinst.bbrowse( src.client, html, opts )
 
 //#define browse #error Use --.Browse() instead.
+
+// Special class for loot ui
+/chui/window/loot
+	var/mob/source
+	var/mob/target
+
+	New(mob/sourcem, mob/targetm)
+		if (sourcem.client)
+			..()
+			source = sourcem
+			target = targetm
