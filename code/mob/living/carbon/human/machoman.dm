@@ -52,7 +52,7 @@ var/list/snd_macho_idle = list('sound/voice/macho/macho_alert16.ogg', 'sound/voi
 //	movement_delay()
 //		return ..() - 10
 
-	show_inv(mob/user)
+	subscribe_to_inv(mob/user)
 		if (src.stance == "defensive")
 			macho_parry(user)
 			return

@@ -138,6 +138,8 @@
 	var/list/random_emotes = list("drool", "blink", "yawn", "burp", "twitch", "twitch_v",\
 	"cough", "sneeze", "shiver", "shudder", "shake", "hiccup", "sigh", "flinch", "blink_r", "nosepick")
 
+	var/chui/window/loot/lootui = null
+
 /mob/living/carbon/human/New()
 	. = ..()
 
@@ -156,6 +158,7 @@
 	src.attach_hud(zone_sel)
 	src.stamina_bar = new(src)
 	hud.add_object(src.stamina_bar, HUD_LAYER+1, "EAST-1, NORTH")
+	lootui = new(src)
 
 	if (global_sims_mode) // IF YOU ARE HERE TO DISABLE SIMS MODE, DO NOT TOUCH THIS. LOOK IN GLOBAL.DM
 		if (map_setting == "DESTINY")
@@ -3260,256 +3263,14 @@
 // new damage icon system
 // now constructs damage icon for each organ from mask * damage field
 
-
-/mob/living/carbon/human/proc/show_inv(mob/user as mob)
-	user.machine = src
-	var/dat = {"
-	<style>
-		.grid-container {
-
-		  background-color: #2196F3;
-		  padding: 10px;
-		  margin: auto;
-		  width: 335px;
-		}
-
-		.grid-item {
-		  background-color: rgba(255, 255, 255, 0.8);
-		  border: 1px solid rgba(0, 0, 0, 0.8);
-		  border-radius: 12px;
-		  padding: 3px;
-		  margin: 3px;
-		  min-width: 64px;
-		  min-height: 64px;
-		  max-width: 64px;
-		  max-height: 64px;
-		}
-
-		img.grid-item {
-		  align: middle;
-		  width: 100%;
-		}
-
-		.filler {
-		  background-color: #2196F3;
-		  border: 1px transparent;
-		}
-
-		.missing {
-		  background-color: #9e9e9e;
-		  text-align: center;
-		}
-
-		.tooltip {
-		  position: relative;
-  		  display: inline-block;
-		}
-
-		.tooltip .tooltiptext {
-		  visibility: hidden;
-		  width: 120px;
-		  background-color: black;
-		  color: #fff;
-		  text-align: center;
-		  padding: 5px;
-		  border-radius: 6px;
-		  opacity: 0.85;
-		  bottom: 90%;
-  		  left: 50%;
-  		  margin-left: -60px;
-		  position: absolute;
-		  z-index: 1;
-		}
-
-		.tooltip .tooltiptext::after {
-		  content: " ";
-		  position: absolute;
-		  top: 90%;
-		  left: 50%;
-		  margin-left: -12px;
-		  border-width: 8px;
-		  border-style: solid;
-		  border-color: black transparent transparent transparent;
-		}
-
-		.tooltip:hover .tooltiptext {
-		  visibility: visible;
-		}
-
-		p:hover.tooltiptext {
-		  display: none;
-		}
-	</style>
-	"}
-	var/filler = "<img class='grid-item filler' />"	// dummy grid item for spacing
-
-	dat += "<h1>[src.name]</h1>"	// loot target's name
-
-	var/hud = hud_style_selection[get_hud_style(user)]
-	// loot grid start
-	dat += "<div class ='grid-container'>"
-	dat += filler
-	dat += prepareLootHtml(src.slot_head, hud)
-	dat += filler
-	dat += "<BR>"
-
-	dat += prepareLootHtml(src.slot_ears, hud)
-	dat += prepareLootHtml(src.slot_wear_mask, hud)
-	dat += prepareLootHtml(src.slot_glasses, hud)
-	dat += prepareLootHtml(src.slot_back, hud)
-	dat += "<BR>"
-
-	dat += prepareLootHtml(src.slot_gloves, hud)
-	dat += prepareLootHtml(src.slot_wear_suit, hud)
-	dat += prepareLootHtml(src.slot_wear_id, hud)
-	var/showInternals = istype(src.wear_mask, /obj/item/clothing/mask) && (istype(src.back, /obj/item/tank))
-	var/icon/i = new('icons/misc/abilities.dmi', icon_state = (src.internal ? "airon" : "airoff" ))
-	dat += showInternals ? addLootTopic("<img class='grid-item' src='data:image/png;base64,[icon2base64(i)]' />", "", "internal", "internal", "Toggle internals") : filler
-	dat += "<BR>"
-
-	dat += prepareLootHtml(src.slot_l_hand, hud)
-	dat += prepareLootHtml(src.slot_w_uniform, hud)
-	dat += prepareLootHtml(src.slot_r_hand, hud)
-	dat += src.handcuffed ? addLootTopic(replaceHtmlImgClass("[bicon(src.handcuffed)]", "grid-item"), "", "handcuff", "handcuff", "Unhandcuff") : filler
-	dat += "<BR>"
-
-	dat += prepareLootHtml(src.slot_l_store, hud)
-	dat += prepareLootHtml(src.slot_belt, hud)
-	dat += prepareLootHtml(src.slot_r_store, hud)
-	dat += "<BR>"
-
-	dat += filler
-	dat += prepareLootHtml(src.slot_shoes, hud)
-	dat += filler
-	dat += "<BR>"
-	dat += "</div>"
-	// loot grid end
-
-	var/changelogHtml = grabResource("html/changelog.html")
-	changelogHtml = replacetext(changelogHtml, "<!-- HTML GOES HERE -->", "[dat]")
-	user.client.lootui = new/chui/window/loot(user, src)
-	user.Browse(changelogHtml, "window='loot';size=500x650;title='Loot';")
-	return
-
-// Setup html for a specific slot
-/mob/living/carbon/human/proc/prepareLootHtml(slot, hudstyle)
-	var/varname = ""
-	var/item = ""
-	var/obj/item/target_item = null
-	var/alt_name = ""
-	var/icon_state = ""
-	switch(slot)
-		if (slot_back)
-			varname = "back"
-			item = "back"
-			target_item = src.back
-			alt_name = "Back"
-			icon_state = "back"
-		if (slot_wear_mask)
-			varname = "wear_mask"
-			item = "mask"
-			target_item = src.wear_mask
-			alt_name = "Mask"
-			icon_state = "mask"
-		if (slot_l_hand)
-			varname = "l_hand"
-			item = "l_hand"
-			target_item = src.l_hand
-			alt_name = "Left hand"
-			icon_state = "handl0"
-		if (slot_r_hand)
-			varname = "r_hand"
-			item = "r_hand"
-			target_item = src.r_hand
-			alt_name = "Right hand"
-			icon_state = "handr0"
-		if (slot_belt)
-			varname = "belt"
-			item = "belt"
-			target_item = src.belt
-			alt_name = "Belt"
-			icon_state = "belt"
-		if (slot_wear_id)
-			varname = "wear_id"
-			item = "id"
-			target_item = src.wear_id
-			alt_name = "ID"
-			icon_state = "id"
-		if (slot_ears)
-			varname = "ears"
-			item = "ears"
-			target_item = src.ears
-			alt_name = "Ears"
-			icon_state = "ears"
-		if (slot_glasses)
-			varname = "glasses"
-			item = "eyes"
-			target_item = src.glasses
-			alt_name = "Glasses"
-			icon_state = "glasses"
-		if (slot_gloves)
-			varname = "gloves"
-			item = "gloves"
-			target_item = src.gloves
-			alt_name = "Gloves"
-			icon_state = "gloves"
-		if (slot_head)
-			varname = "head"
-			item = "head"
-			target_item = src.head
-			alt_name = "Head"
-			icon_state = "hair"
-		if (slot_shoes)
-			varname = "shoes"
-			item = "shoes"
-			target_item = src.shoes
-			alt_name = "Shoes"
-			icon_state = "shoes"
-		if (slot_wear_suit)
-			varname = "wear_suit"
-			item = "suit"
-			target_item = src.wear_suit
-			alt_name = "Suit"
-			icon_state = "armor"
-		if (slot_w_uniform)
-			varname = "w_uniform"
-			item = "uniform"
-			target_item = src.w_uniform
-			alt_name = "Uniform"
-			icon_state = "center"
-		if (slot_l_store)	// pockets are a special case, you shouldn't see what's in it
-			varname = "l_store"
-			item = "pockets"
-			alt_name = "Left pocket"
-			var/icon/hudcon = new(hudstyle, "pocket", dir = SOUTH)
-			var/icon/something = new ("icons/mob/loot_ui.dmi", icon_state = "something")
-			return addLootTopic((src.l_store ? replaceHtmlImgClass(bicon(something), "grid-item") : replaceHtmlImgClass(bicon(hudcon), "grid-item missing")), varname, slot, item, src.l_store ? "Something" : alt_name)
-		if (slot_r_store)
-			varname = "r_store"
-			item = "pockets"
-			alt_name = "Right pocket"
-			var/icon/hudcon = new(hudstyle, "pocket", dir = SOUTH)
-			var/icon/something = new ("icons/mob/loot_ui.dmi", icon_state = "something")
-			return addLootTopic((src.r_store ? replaceHtmlImgClass(bicon(something), "grid-item") : replaceHtmlImgClass(bicon(hudcon), "grid-item missing")), varname, slot, item, src.r_store ? "Something" : alt_name)
-
-	var/icon/hudcon = new(hudstyle, icon_state, dir = SOUTH)
-	return addLootTopic((target_item ? replaceHtmlImgClass(bicon(target_item), "grid-item") : replaceHtmlImgClass(bicon(hudcon), "grid-item missing")), varname, slot, item, target_item ? target_item.name : alt_name)
-
-// Setup the href for looting items on click
-/mob/living/carbon/human/proc/addLootTopic(html, varname, slot, item, name)
-		return {"<a class='tooltip' href='?src=\ref[src];varname=[varname];slot=[slot];item=[item]'>
-					[html]
-					<p class='tooltiptext'>[name]</p>
-				</a>"}
-
-// Assumes html based off the bicon return value
-/mob/living/carbon/human/proc/replaceHtmlImgClass(html, class)
-	return "<img class='[class]' [copytext(html, findtext(html, "src="))]"
+/mob/living/carbon/human/proc/subscribe_to_inv(mob/user as mob)
+	if (!src.lootui.IsSubscribed(user.client))
+		src.lootui.Subscribe(user.client)
+	else
+		src.lootui.UpdateClient(user.client)
 
 /mob/living/carbon/human/proc/updateLootUI()
-	for (var/mob/M in viewers(1, src))
-		if (M.client && M.client.lootui && M.client.lootui.target == src)	// if looter is next to target then update
-			src.show_inv(M)
+	src.lootui.UpdateSubscribers()
 
 /mob/living/carbon/human/MouseDrop(mob/M as mob)
 	..()
@@ -3518,7 +3279,7 @@
 	if (get_dist(usr,src) > 1) return
 	if (!M.can_strip()) return
 	if (LinkBlocked(usr.loc,src.loc)) return
-	src.show_inv(usr)
+	src.subscribe_to_inv(usr)
 
 /mob/living/carbon/human/verb/fuck()
 	set hidden = 1
@@ -5577,7 +5338,7 @@
 		if (M.stat > 1 && !(M in heard_a) && !istype(M, /mob/dead/target_observer))
 			M.show_message(rendered, 2)
 
-/mob/living/carbon/human/var/const
+/mob/living/carbon/human/var/const/global
 	slot_back = 1
 	slot_wear_mask = 2
 	slot_l_hand = 4

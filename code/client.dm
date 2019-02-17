@@ -53,8 +53,6 @@
 	var/move_drops = 30
 	var/spiking = 0
 
-	var/chui/window/loot/lootui = null
-
 	var/antag_tokens //Number of antagonist tokens available to the player
 	var/using_antag_token = 0 //Set when the player readies up at round start, and opts to redeem a token.
 
