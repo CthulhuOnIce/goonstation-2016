@@ -3,19 +3,21 @@
 	var/mob/living/carbon/human/owner
 	var/const/window_setup = "titlebar=0;can_close=0;can_resize=0;can_scroll=0;border=0;size=380x650;"
 	var/const/icon = "icons/mob/loot_ui.dmi"
+	var/const/grid = "grid-item"
+	var/const/img = "grid-image"
 	var/const/style = {"
 			<style>
 				.grid-container {
+				  display: grid;
+				  grid-template-columns: 64px 64px 64px 64px;
+  				  grid-template-rows: 64px 64px 64px 64px 64px 64px;
 				  padding: 10px;
 				  margin: auto;
 				  width: 335px;
 				}
 
 				.grid-item {
-				  background-color: rgba(255, 255, 255, 0.8);
-				  border: 1px solid rgba(0, 0, 0, 0.8);
 				  border-radius: 12px;
-				  padding: 3px;
 				  margin: 3px;
 				  min-width: 64px;
 				  min-height: 64px;
@@ -23,13 +25,13 @@
 				  max-height: 64px;
 				}
 
-				img.grid-item {
-				  align: middle;
+				.grid-image {
+				  position: absolute;
 				  width: 100%;
+				  align: middle;
 				}
 
 				.filler {
-				  border: 1px transparent;
 				  opacity:0;
 				 }
 
@@ -75,6 +77,8 @@
 			</style>
 		"}
 
+	var/icon/something = new (icon, icon_state = "something")
+
 	New(mob/living/carbon/human/ownerm)
 		..()
 		name = "Inventory"
@@ -88,7 +92,7 @@
 		winset( who, "\ref[src]", "on-close \".chui-close \ref[src]\"" )
 
 	GetBody(hud)
-		var/filler = "<img class='grid-item filler' />"	// dummy grid item for spacing
+		var/filler = "<img class='[grid] filler' />"	// dummy grid item for spacing
 		var/dat = style
 
 		dat += "<h1>[owner.name]</h1>"
@@ -98,37 +102,34 @@
 		dat += filler
 		dat += prepareLootHtml(owner.slot_head, hud)
 		dat += filler
-		dat += "<BR>"
+		dat += filler
 
 		dat += prepareLootHtml(owner.slot_ears, hud)
 		dat += prepareLootHtml(owner.slot_wear_mask, hud)
 		dat += prepareLootHtml(owner.slot_glasses, hud)
 		dat += prepareLootHtml(owner.slot_back, hud)
-		dat += "<BR>"
 
 		dat += prepareLootHtml(owner.slot_gloves, hud)
 		dat += prepareLootHtml(owner.slot_wear_suit, hud)
 		dat += prepareLootHtml(owner.slot_wear_id, hud)
 		var/showInternals = istype(owner.wear_mask, /obj/item/clothing/mask) && (istype(owner.back, /obj/item/tank))
 		var/icon/i = new('icons/misc/abilities.dmi', icon_state = (owner.internal ? "airon" : "airoff" ))
-		dat += showInternals ? addLootTopic("<img class='grid-item' src='data:image/png;base64,[icon2base64(i)]' />", "", "internal", "internal", "Toggle internals") : filler
-		dat += "<BR>"
+		dat += showInternals ? addLootTopic("<img class='[grid] [img]' src='data:image/png;base64,[icon2base64(i)]' />", "", "internal", "internal", "Toggle internals") : filler
 
 		dat += prepareLootHtml(owner.slot_l_hand, hud)
 		dat += prepareLootHtml(owner.slot_w_uniform, hud)
 		dat += prepareLootHtml(owner.slot_r_hand, hud)
-		dat += owner.handcuffed ? addLootTopic(replaceHtmlImgClass("[bicon(owner.handcuffed)]", "grid-item"), "", "handcuff", "handcuff", "Unhandcuff") : filler
-		dat += "<BR>"
+		dat += owner.handcuffed ? addLootTopic(replaceHtmlImgClass("[bicon(owner.handcuffed)]", img), "", "handcuff", "handcuff", "Unhandcuff") : filler
 
 		dat += prepareLootHtml(owner.slot_l_store, hud)
 		dat += prepareLootHtml(owner.slot_belt, hud)
 		dat += prepareLootHtml(owner.slot_r_store, hud)
-		dat += "<BR>"
+		dat += filler
 
 		dat += filler
 		dat += prepareLootHtml(owner.slot_shoes, hud)
 		dat += filler
-		dat += "<BR>"
+		dat += filler
 		dat += "</div>"
 		// loot grid end
 
@@ -136,7 +137,7 @@
 		return changelogHtml = replacetext(changelogHtml, "<!-- HTML GOES HERE -->", dat)
 
 	// Display a slot which is currently unavailable
-	proc/prepareDisabledImg(slot)
+	proc/prepareDisabledImg(slot, icon/hudcon)
 		var/icon/i
 		var/txt = ""
 		switch(slot)
@@ -152,7 +153,8 @@
 			if (owner.slot_wear_id)
 				i = new (icon, icon_state = "disabled")
 				txt = "No uniform"
-		return addNonTopic(replaceHtmlImgClass(bicon(i), "grid-item"), txt)
+		var/html = replaceHtmlImgClass(bicon(hudcon), img) + replaceHtmlImgClass(bicon(i), img)
+		return addNonTopic(html, txt)
 
 	// Setup html for a specific slot
 	proc/prepareLootHtml(slot, hudstyle)
@@ -188,20 +190,22 @@
 				icon_state = "handr0"
 			if (owner.slot_belt)
 				if (!owner.w_uniform)
-					return prepareDisabledImg(slot)	// can't wear a belt without a uniform!
-				varname = "belt"
-				item = "belt"
-				owner_item = owner.belt
-				alt_name = "Belt"
-				icon_state = "belt"
+					return prepareDisabledImg(slot, new/icon(hudstyle, "belt", dir = SOUTH))	// can't wear a belt without a uniform!
+				else
+					varname = "belt"
+					item = "belt"
+					owner_item = owner.belt
+					alt_name = "Belt"
+					icon_state = "belt"
 			if (owner.slot_wear_id)
 				if (!owner.w_uniform)
-					return prepareDisabledImg(slot)	// can't wear an id without a uniform!
-				varname = "wear_id"
-				item = "id"
-				owner_item = owner.wear_id
-				alt_name = "ID"
-				icon_state = "id"
+					return prepareDisabledImg(slot, new/icon(hudstyle, "id", dir = SOUTH))	// can't wear an id without a uniform!
+				else
+					varname = "wear_id"
+					item = "id"
+					owner_item = owner.wear_id
+					alt_name = "ID"
+					icon_state = "id"
 			if (owner.slot_ears)
 				varname = "ears"
 				item = "ears"
@@ -245,36 +249,40 @@
 				alt_name = "Uniform"
 				icon_state = "center"
 			if (owner.slot_l_store)	// pockets are a special case, you shouldn't see what's in it
-				if (!owner.w_uniform)
-					return prepareDisabledImg(slot) // can't use pockets without a uniform!
-				varname = "l_store"
-				item = "pockets"
-				alt_name = "Left pocket"
 				var/icon/hudcon = new(hudstyle, "pocket", dir = SOUTH)
-				var/icon/something = new ("icons/mob/loot_ui.dmi", icon_state = "something")
-				return addLootTopic((owner.l_store ? replaceHtmlImgClass(bicon(something), "grid-item") : replaceHtmlImgClass(bicon(hudcon), "grid-item")), varname, slot, item, owner.l_store ? "Something" : alt_name)
+				if (!owner.w_uniform)
+					return prepareDisabledImg(slot, hudcon) // can't use pockets without a uniform!
+				else
+					var/html = replaceHtmlImgClass(bicon(hudcon), img)
+					if (owner.l_store)
+						html += replaceHtmlImgClass(bicon(something), img)
+					return addLootTopic(html, "l_store", slot, "pockets", owner.l_store ? "Something" : "Left pocket")
 			if (owner.slot_r_store)
-				if (!owner.w_uniform)
-					return prepareDisabledImg(slot) // can't use pockets without a uniform!
-				varname = "r_store"
-				item = "pockets"
-				alt_name = "Right pocket"
 				var/icon/hudcon = new(hudstyle, "pocket", dir = SOUTH)
-				var/icon/something = new ("icons/mob/loot_ui.dmi", icon_state = "something")
-				return addLootTopic((owner.r_store ? replaceHtmlImgClass(bicon(something), "grid-item") : replaceHtmlImgClass(bicon(hudcon), "grid-item")), varname, slot, item, owner.r_store ? "Something" : alt_name)
+				if (!owner.w_uniform)
+					return prepareDisabledImg(slot, hudcon) // can't use pockets without a uniform!
+				else
+					var/html = replaceHtmlImgClass(bicon(hudcon), img)
+					if (owner.r_store)
+						html += replaceHtmlImgClass(bicon(something), img)
+					return addLootTopic(html, "r_store", slot, "pockets", owner.r_store ? "Something" : "Right pocket")
 
 		var/icon/hudcon = new(hudstyle, icon_state, dir = SOUTH)
-		return addLootTopic((owner_item ? replaceHtmlImgClass(bicon(owner_item), "grid-item") : replaceHtmlImgClass(bicon(hudcon), "grid-item")), varname, slot, item, owner_item ? owner_item.name : alt_name)
+		//return addLootTopic((owner_item ? replaceHtmlImgClass(bicon(owner_item), "grid-item") : replaceHtmlImgClass(bicon(hudcon), "grid-item")), varname, slot, item, owner_item ? owner_item.name : alt_name)
+		var/html = replaceHtmlImgClass(bicon(hudcon), img)
+		if (owner_item)
+			html += replaceHtmlImgClass(bicon(owner_item), img)
+		return addLootTopic(html, varname, slot, item, owner_item ? owner_item.name : alt_name)
 
 	proc/addNonTopic(html, text)
-		return {"<span class='tooltip'>
+		return {"<span class='tooltip [grid]'>
 					[html]
 					<p class='tooltiptext'>[text]</p>
 				</span>"}
 
 	// Setup the href for looting items on click
 	proc/addLootTopic(html, varname, slot, item, text)
-		return {"<a class='tooltip' href='?src=\ref[owner];varname=[varname];slot=[slot];item=[item]'>
+		return {"<a class='tooltip [grid]' href='?src=\ref[owner];varname=[varname];slot=[slot];item=[item]'>
 					[html]
 					<p class='tooltiptext'>[text]</p>
 				</a>"}
