@@ -1865,6 +1865,73 @@ obj/decal/fakeobjects/teleport_pad
 		if (get_dir(O.loc, target) == src.dir)
 			return 0
 		return 1
+		
+/obj/decal/tile_edge/floorguide
+	name = "navigation guide"
+	desc = "A navigation guide to help people find the department they're looking for."
+	icon = 'icons/obj/floorguides.dmi'
+	icon_state = "endpiece_s"
+		
+/obj/decal/tile_edge/floorguide/security
+	name = "Security Navigation Guide"
+	desc = "The security department is in this direction."
+	icon_state = "guide_sec"
+	
+/obj/decal/tile_edge/floorguide/science
+	name = "R&D Navigation Guide"
+	desc = "The science department is in this direction."
+	icon_state = "guide_sci"
+	
+/obj/decal/tile_edge/floorguide/mining
+	name = "Mining Navigation Guide"
+	desc = "The mining department is in this direction."
+	icon_state = "guide_mining"
+	
+/obj/decal/tile_edge/floorguide/medbay
+	name = "Medbay Navigation Guide"
+	desc = "The medical department is in this direction."
+	icon_state = "guide_medbay"
+	
+/obj/decal/tile_edge/floorguide/evac
+	name = "Evac Shuttle Navigation Guide"
+	desc = "The evac shuttle bay is in this direction."
+	icon_state = "guide_evac"
+	
+/obj/decal/tile_edge/floorguide/engineering
+	name = "Engineering Navigation Guide"
+	desc = "The engineering department is in this direction."
+	icon_state = "guide_engi"
+	
+/obj/decal/tile_edge/floorguide/command
+	name = "Bridge Navigation Guide"
+	desc = "The station bridge is in this direction."
+	icon_state = "guide_command"
+	
+/obj/decal/tile_edge/floorguide/botany
+	name = "Botany Navigation Guide"
+	desc = "The botany department is in this direction."
+	icon_state = "guide_botany"
+	
+/obj/decal/tile_edge/floorguide/qm
+	name = "QM Navigation Guide"
+	desc = "The quartermaster is in this direction."
+	icon_state = "guide_qm"
+	
+/obj/decal/tile_edge/floorguide/arrow_e
+	name = "Directional Navigation Guide"
+	icon_state = "endpiece_e"
+	
+/obj/decal/tile_edge/floorguide/arrow_w
+	name = "Directional Navigation Guide"
+	icon_state = "endpiece_w"
+	
+/obj/decal/tile_edge/floorguide/arrow_n
+	name = "Directional Navigation Guide"
+	icon_state = "endpiece_n"
+	
+/obj/decal/tile_edge/floorguide/arrow_s
+	name = "Directional Navigation Guide"
+	icon_state = "endpiece_s"
 
 /obj/decal/alienflower
 	name = "strange alien flower"
