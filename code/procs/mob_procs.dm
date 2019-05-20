@@ -500,6 +500,10 @@
 	if (!subject)
 		return "their"
 
+	//down here for clarity. check the mobs bioholder/appearanceholder to see if they want to use neutral pronouns
+	if (subject.bioHolder && subject.bioHolder.mobAppearance && subject.bioHolder.mobAppearance.pronouns)
+		return "their"
+
 	if (subject.gender == "male")
 		return "his"
 	else if (subject.gender == "female")
@@ -509,6 +513,9 @@
 
 /proc/him_or_her(var/mob/subject)
 	if (!subject)
+		return "their"
+
+	if (subject.bioHolder && subject.bioHolder.mobAppearance && subject.bioHolder.mobAppearance.pronouns)
 		return "their"
 
 	if (subject.gender == "male")
@@ -522,6 +529,9 @@
 	if (!subject)
 		return "they"
 
+	if (subject.bioHolder && subject.bioHolder.mobAppearance && subject.bioHolder.mobAppearance.pronouns)
+		return "they"
+
 	if (subject.gender == "male")
 		return "he"
 	else if (subject.gender == "female")
@@ -531,6 +541,9 @@
 
 /proc/himself_or_herself(var/mob/subject)
 	if (!subject)
+		return "themself"
+
+	if (subject.bioHolder && subject.bioHolder.mobAppearance && subject.bioHolder.mobAppearance.pronouns)
 		return "themself"
 
 	if (subject.gender == "male")

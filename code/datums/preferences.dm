@@ -160,6 +160,18 @@ datum/preferences
 		user << browse_rsc(icon(cursors_selection[target_cursor]), "tcursor.png")
 		user << browse_rsc(icon(hud_style_selection[hud_style], "preview"), "hud_preview.png")
 
+		var/display_gender = "Male"
+		if (!AH.pronouns)
+			if (src.gender == MALE)
+				display_gender = "Male (He/Him)"
+			else if (src.gender == FEMALE)
+				display_gender = "Female (She/Her)"
+		else
+			if (src.gender == MALE)
+				display_gender = "Male (They/Them)"
+			else if (src.gender == FEMALE)
+				display_gender = "Female (They/Them)"
+
 		var/dat = "<html><head><meta http-equiv=\"X-UA-Compatible\" content=\"IE=8\"/></head><body><title>Character Setup</title>"
 
 		dat += "<b>Profile Name:</b> "
@@ -176,7 +188,7 @@ datum/preferences
 		dat += "(&reg; = <a href=\"byond://?src=\ref[user];preferences=1;b_random_look=1\">[src.be_random_look ? "Yes" : "No"]</a>)"
 		dat += "<br>"
 
-		dat += "<b>Gender:</b> <a href=\"byond://?src=\ref[user];preferences=1;gender=input\"><b>[src.gender == MALE ? "Male" : "Female"]</b></a><br>"
+		dat += "<b>Gender:</b> <a href=\"byond://?src=\ref[user];preferences=1;gender=input\"><b>[display_gender]</b></a><br>"
 		dat += "<b>Age:</b> <a href='byond://?src=\ref[user];preferences=1;age=input'>[src.age]</a><br>"
 		dat += "<b>Blood Type:</b> <a href='byond://?src=\ref[user];preferences=1;blType=input'>[src.random_blood ? "Random" : src.blType]</a><br>"
 		dat += "<b>Bank PIN:</b> <a href='byond://?src=\ref[user];preferences=1;pin=input'>[src.pin ? src.pin : "Random"]</a> (<a href=\"byond://?src=\ref[user];preferences=1;random_pin=1\">&reg;</a>)<br>"
@@ -784,12 +796,22 @@ datum/preferences
 				AH.u_color = new_ucolor
 
 		if (link_tags["gender"])
-			if (src.gender == MALE)
-				src.gender = FEMALE
-				AH.gender = FEMALE
+			if (!AH.pronouns)
+				if (src.gender == MALE)
+					src.gender = FEMALE
+					AH.gender = FEMALE
+				else if (src.gender == FEMALE)
+					src.gender = MALE
+					AH.gender = MALE
+					AH.pronouns = 1
 			else
-				src.gender = MALE
-				AH.gender = MALE
+				if (src.gender == MALE)
+					src.gender = FEMALE
+					AH.gender = FEMALE
+				else if (src.gender == FEMALE)
+					src.gender = MALE
+					AH.gender = MALE
+					AH.pronouns = 0
 
 		if (link_tags["changelog"])
 			src.view_changelog = !(src.view_changelog)

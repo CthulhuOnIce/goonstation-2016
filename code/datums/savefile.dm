@@ -33,6 +33,7 @@ datum/preferences/proc/savefile_save(client/user, profileNum=1)
 	F["[profileNum]_job_prefs_3"] << src.jobs_low_priority
 	F["[profileNum]_job_prefs_4"] << src.jobs_unwanted
 	if (src.AH)
+		F["[profileNum]_neutral_pronouns"] << AH.pronouns
 		F["[profileNum]_eye_color"] << AH.e_color
 		F["[profileNum]_hair_color"] << AH.customization_first_color
 		F["[profileNum]_facial_color"] << AH.customization_second_color
@@ -154,6 +155,7 @@ datum/preferences/proc/savefile_load(client/user, var/profileNum = 1)
 	F["[profileNum]_job_prefs_3"] >> src.jobs_low_priority
 	F["[profileNum]_job_prefs_4"] >> src.jobs_unwanted
 	if (src.AH)
+		F["[profileNum]_neutral_pronouns"] >> AH.pronouns
 		F["[profileNum]_eye_color"] >> AH.e_color
 		F["[profileNum]_hair_color"] >> AH.customization_first_color
 		F["[profileNum]_facial_color"] >> AH.customization_second_color

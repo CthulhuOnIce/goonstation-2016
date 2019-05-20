@@ -34,7 +34,8 @@ var/list/datum/bioEffect/bioEffectList = list()
 	var/mob/owner = null
 	var/mob/parentHolder = null
 
-	var/gender = NEUTER
+	var/gender = MALE
+	var/pronouns = 0		//1 if using neutral pronouns (they/their);  0 if using gendered pronouns matching their gender var
 
 	proc/CopyOther(var/datum/appearanceHolder/toCopy)
 		//Copies settings of another given holder. Used for the bioholder copy proc and such things.
@@ -55,6 +56,7 @@ var/list/datum/bioEffect/bioEffectList = list()
 		u_color = toCopy.u_color
 
 		gender = toCopy.gender
+		pronouns = toCopy.pronouns
 		return
 
 	// Disabling this for now as I have no idea how to fit it into hex strings
@@ -81,6 +83,7 @@ var/list/datum/bioEffect/bioEffectList = list()
 
 		if (progress > 7 || prob(progress * 10))
 			gender = toCopy.gender
+			pronouns = toCopy.pronouns
 		return
 
 	proc/StaggeredCopyHex(var/hex, var/targetHex, var/adjust_denominator)
