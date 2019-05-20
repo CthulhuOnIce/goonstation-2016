@@ -376,6 +376,49 @@ var/list/radio_brains = list()
 	lockedTries = 8
 	stability_loss = 10
 
+/datum/bioEffect/fitness_buff
+	name = "Physically Fit"
+	desc = "Causes the subject to be naturally more physically fit than the average spaceman."
+	id = "fitness_buff"
+	effectType = effectTypePower
+	probability = 50
+	blockCount = 2
+	blockGaps = 3
+	reclaim_mats = 30
+	msgGain = "You feel slightly more energetic."
+	msgLose = "You feel slightly less energetic."
+	lockProb = 20
+	lockedGaps = 1
+	lockedDiff = 3
+	lockedTries = 8
+	stability_loss = -5
+
+	OnAdd()
+		src.owner.add_stam_mod_regen("g-fitness-buff", 2)
+		src.owner.add_stam_mod_max("g-fitness-buff", 30)
+
+	OnRemove()
+		src.owner.remove_stam_mod_regen("g-fitness-buff")
+		src.owner.remove_stam_mod_max("g-fitness-buff")
+
+/datum/bioEffect/blood_overdrive
+	name = "Hemopoiesis Overdrive"
+	desc = "Subject has regenerates blood far faster than the average spaceman."
+	id = "blood_overdrive"
+	probability = 20
+	effectType = effectTypePower
+	msgGain = "You feel like being stabbed isn't such a big deal anymore."
+	msgLose = "You are once again afraid of being stabbed."
+	stability_loss = 15
+
+	OnLife()
+
+		if (ishuman(owner))
+			var/mob/living/carbon/human/H = owner
+
+			if (H.blood_volume < 500 && H.blood_volume > 0)
+				H.blood_volume += 6
+
 ///////////////////////////
 // Disabled/Inaccessible //
 ///////////////////////////

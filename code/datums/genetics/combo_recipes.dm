@@ -317,3 +317,5 @@
 /datum/geneticsrecipe/skeleton_three
 	required_effects = list("xray","dead_scan")
 	result = /datum/bioEffect/mutantrace/skeleton
+
+

@@ -158,7 +158,7 @@
 		if(!T || istype(T, /area))	return null
 	return T
 
-/proc/do_teleport(atom/movable/M as mob|obj, atom/destination, precision, var/use_teleblocks = 1)
+/proc/do_teleport(atom/movable/M as mob|obj, atom/destination, precision, var/use_teleblocks = 1, var/sparks = 1)
 	if(istype(M, /obj/effects))
 		qdel(M)
 		return
@@ -206,9 +206,10 @@
 
 	M.set_loc(tmploc)
 
-	sleep(2)
+	if (sparks)
+		sleep(2)
 
-	var/datum/effects/system/spark_spread/s = unpool(/datum/effects/system/spark_spread)
-	s.set_up(5, 1, M)
-	s.start()
+		var/datum/effects/system/spark_spread/s = unpool(/datum/effects/system/spark_spread)
+		s.set_up(5, 1, M)
+		s.start()
 	return

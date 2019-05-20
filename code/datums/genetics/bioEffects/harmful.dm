@@ -475,6 +475,150 @@
 	emote_type = "scream"
 	emote_prob = 10
 
+/datum/bioEffect/buzz
+	name = "Nectar Perspiration"
+	desc = "Causes the subject to perspire nectar that attracts abnormally small bees."
+	id = "buzz"
+	effectType = effectTypeDisability
+	isBad = 1
+	msgGain = "Your guts are rumbling."
+	msgLose = "Your guts settle down."
+	probability = 70
+	stability_loss = -10	//maybe 5
+	var/prob_sting = 10;
+
+	OnAdd()
+		if (ishuman(owner))
+			overlay_image = image("icon" = 'icons/effects/genetics2.dmi', "icon_state" = "buzz", layer = MOB_EFFECT_LAYER)
+		..()
+
+	OnLife()
+		var/mob/living/L = owner
+		if (!istype(L) || (L.stat == 2))
+			return
+		if (prob(prob_sting))
+			boutput(src, "<span style=\"color:red\">A bee in your cloud stung you! How rude!</span>")
+			L.reagents.add_reagent("histamine", 2)
+
+/datum/bioEffect/emp_field
+	name = "Electromagnetic Field"
+	desc = "The subject produces small, random electromagnetic pulses around it."
+	id = "emp_field"
+	effectType = effectTypeDisability
+	blockCount = 1
+	probability = 20
+	isBad = 1
+	reclaim_fail = 15
+	stability_loss = -10
+	var/const/radius = 2
+
+	OnLife()
+		..()
+		if (prob(50))
+			return
+
+		var/turf/T
+		//don't really need this but to make it more harmful to the user.
+		if (prob(5))
+			T = get_turf(owner)
+		else
+			T = locate(owner.x + rand(-radius/2,radius+2), owner.y+rand(-radius/2,radius/2), 1)
+
+		var/obj/overlay/pulse = new/obj/overlay(T)
+		pulse.icon = 'icons/effects/effects.dmi'
+		pulse.icon_state = "emppulse"
+		pulse.name = "emp pulse"
+		pulse.anchored = 1
+		spawn (20)
+			if (pulse) qdel(pulse)
+
+		//maybe have this only emp some things on the tile.
+		for (var/atom/O in T.contents)
+			O.emp_act()
+
+/datum/bioEffect/fitness_debuff
+	name = "Physically Unfit"
+	desc = "Causes the subject to be naturally less physically fit than the average spaceman."
+	id = "fitness_debuff"
+	probability = 60
+	isBad = 1
+	effectType = effectTypePower
+	blockCount = 2
+	blockGaps = 3
+	reclaim_mats = 30
+	msgGain = "You feel slightly more energetic."
+	msgLose = "You feel slightly less energetic."
+	lockProb = 20
+	lockedGaps = 1
+	lockedDiff = 3
+	lockedTries = 8
+	stability_loss = 5
+
+	OnAdd()
+		src.owner.add_stam_mod_regen("g-fitness-debuff", -2)
+		src.owner.add_stam_mod_max("g-fitness-debuff", -30)
+
+	OnRemove()
+		src.owner.remove_stam_mod_regen("g-fitness-debuff")
+		src.owner.remove_stam_mod_max("g-fitness-debuff")
+
+/datum/bioEffect/tinnitus
+	name = "Tinnitus"
+	desc = "Causes the subject to almost constantly hear a terrible/annoying ringing in their ears."
+	id = "tinnitus"
+	effectType = effectTypeDisability
+	isBad = 1
+	msgGain = "You hear a ringing in your ears."
+	msgLose = "The ringing has stopped...Finally. Thank the Space-Gods."
+	stability_loss = -5
+	probability = 99
+	var/ring_prob = 6
+	
+	OnLife()
+		if (prob(ring_prob) && owner.client)
+			// owner.client << sound("phone-ringing.wav")		//play sound only for client. Untested, don't know the sound
+			owner.client << sound("sound/items/hellhorn_0.ogg")		//play sound only for client. Untested, don't know the sound
+		
+/datum/bioEffect/anemia
+	name = "Anemia"
+	desc = "Subject has an abnormally low amount of red blood cells."
+	id = "anemia"
+	probability = 55
+	isBad = 1
+	effectType = effectTypePower
+	msgGain = "You feel lightheaded."
+	msgLose = "Your lightheadedness fades."
+	stability_loss = -5
+	var/run = 1
+
+	OnLife()
+
+		if (ishuman(owner))
+			var/mob/living/carbon/human/H = owner
+
+			if (H.blood_volume > 400 && H.blood_volume > 0)
+				H.blood_volume -= 2
+
+/datum/bioEffect/polycythemia
+	name = "Polycythemia"
+	desc = "Subject has an abnormally high amount of red blood cells."
+	id = "polycythemia"
+	probability = 45
+	isBad = 1
+	effectType = effectTypePower
+	msgGain = "Your breathing quickens."
+	msgLose = "Your breathing returns to normal."
+	stability_loss = -5
+	var/run = 1
+
+	OnLife()
+
+		if (ishuman(owner))
+			var/mob/living/carbon/human/H = owner
+
+			if (H.blood_volume < 600 && H.blood_volume > 0)
+				H.blood_volume += 2
+
 ////////////////////////////
 // Disabled for *Reasons* //
 ////////////////////////////

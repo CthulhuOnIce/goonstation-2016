@@ -63,7 +63,7 @@
 			src.remove_object = null
 			qdel(src)
 
-		return
+		return object
 
 	proc/sever(var/mob/user)
 		if (!src.holder) // fix for Cannot read null.loc, hopefully - haine

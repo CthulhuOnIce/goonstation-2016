@@ -15,7 +15,7 @@
 	var/power = 0
 	var/ability_path = /datum/targetable/geneticsAbility/cryokinesis
 	var/datum/targetable/geneticsAbility/ability = /datum/targetable/geneticsAbility/cryokinesis
-
+	
 	New()
 		..()
 		check_ability_owner()
@@ -87,6 +87,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 /datum/bioEffect/power/mattereater
 	name = "Matter Eater"
@@ -1495,6 +1496,257 @@
 			owner.visible_message("<span style=\"color:red\">[owner] sprays ink onto [the_item]!</span>")
 			the_item.color = I.color
 		return 0
+
+/datum/bioEffect/power/shoot_limb
+	name = "Vestigal Ballistics"
+	desc = "Allows the subject to expel one of their limbs with considerable force."
+	id = "shoot_limb"
+	msgGain = "You feel intense pressure in your hip and shoulder joints."
+	msgLose = "You joints feel much better!"
+	cooldown = 600
+	occur_in_genepools = 1
+	probability = 10
+
+	isBad = 1
+	stability_loss = -15
+	ability_path = /datum/targetable/geneticsAbility/shoot_limb
+	var/count = 0
+	var/const/ticks_to_explode = 6
+	var/datum/targetable/geneticsAbility/shoot_limb/AB = null
+
+	OnLife()
+		..()
+
+		if (count < ticks_to_explode)
+			count++
+			return
+		else 
+			count = 0
+
+		if (!src.safety && prob(70))
+
+
+
+			if (ability)
+				//Do I really even need this? I'm just putting it there in case the random turf is null. Which should never happen.
+				var/do_count = 0
+				do
+					var/turf/T = locate(owner.x + rand(-3/2,3+2), owner.y+rand(-3/2,3/2), 1)
+					if (T)
+						ability.cast(T)
+						boutput(owner, "<span style=\"color:red\">The pressure in one of your joints built up too high! One of your limbs flew off!</span>")
+						owner:weakened = 3
+						return
+				while (do_count < 5)
+
+
+/datum/targetable/geneticsAbility/shoot_limb
+	name = "Vestigal Ballistics"
+	desc = "OOOOWWWWWW!!!!!!!!"
+	icon_state = "shoot_limb"
+	icon = 'icons/effects/genetics2.dmi'		//icons/mob/genetics_powers.dmi is where these are normally in code
+	targeted = 1
+	var/range = 7
+	var/throw_power = 1
+	var/limb_force = 20
+
+	cast(atom/target)
+		if (..())	
+			return 1
+
+		if (ishuman(owner))
+			var/mob/living/carbon/human/H = owner
+			var/obj/item/parts/thrown_limb = null
+
+			if (H.has_limb("l_arm"))
+				thrown_limb = H.limbs.l_arm.remove(0)
+			else if (H.has_limb("r_leg"))
+				thrown_limb = H.limbs.r_leg.remove(0)
+			else if (H.has_limb("l_leg"))
+				thrown_limb = H.limbs.l_leg.remove(0)
+			else if (H.has_limb("r_arm"))
+				thrown_limb = H.limbs.r_arm.remove(0)
+			else 
+				return 1
+
+			spawn(1)
+				if (istype(thrown_limb))					
+					//double power if the ability is empowered (doesn't really do anything, but w/e)
+					var/tmp_force = thrown_limb.throwforce
+					thrown_limb.throwforce = limb_force* (throw_power+1)	//double damage if empowered
+					thrown_limb.throw_at(target, range, throw_power * (linked_power.power+1))
+
+					//without snychronizer, you take damage and bleed on usage of the power
+					if (!linked_power.safety)
+						new thrown_limb.streak_decal(owner.loc)
+						var/damage = rand(5,15)
+						random_brute_damage(H, damage)
+						take_bleeding_damage(H, damage)
+						if(prob(60)) owner.emote("scream")
+
+						//reset the time until the ability spontaniously fires
+						var/datum/bioEffect/power/shoot_limb/pwr = linked_power
+						if (istype(pwr))
+							pwr.count = 0
+
+					owner.visible_message("<span style=\"color:red\"><b>[thrown_limb][linked_power.power ? " violently " : " "]bursts off of its socket and flies towards [target]!</b></span>")
+					logTheThing("combat", owner, target, "shoot_limb [!linked_power.safety ? "Accidently" : ""] at [ismob(target)].")
+					spawn(10)
+						if (thrown_limb)
+							thrown_limb.throwforce = tmp_force
+
+/datum/bioEffect/power/apparition
+	name = "Apparate"
+	desc = "Allows the subject teleport to a previously visited location."
+	id = "apparate"
+	msgGain = "You feel like you can teleport."
+	msgLose = "You feel like you can't teleport anymore."
+	effectType = effectTypePower
+	cooldown = 800
+	//occur_in_genepools = 0
+	probability = 1
+	blockCount = 5
+	blockGaps = 2
+	stability_loss = 35
+	ability_path = /datum/targetable/geneticsAbility/apparition
+
+/datum/targetable/geneticsAbility/apparition
+	name = "Apparition"
+	desc = "Allows the subject teleport to a previously visited location."
+	icon_state = "apparition-0"
+	icon = 'icons/effects/genetics2.dmi'		//icons/mob/genetics_powers.dmi is where these are normally in code
+	targeted = 0
+	target_anything = 0
+	var/turf/destination = null
+	// var/interrupted = 0
+	var/const/interrupt_CD = 150		//when you can next try to teleport after failing due to an interruption
+
+
+	//teleports a mob and applies the animations to it. First animate shrinks it, then it teleports, then unshrinks.
+	proc/AAAAPARATEEEEE(var/mob/teleporter)
+		var/tmptransf = teleporter.transform
+		var/matrix/M = matrix(0.1, 0.1, MATRIX_SCALE)
+		animate(teleporter, transform = M, pixel_y = 6, time = 5, alpha = 255, easing = SINE_EASING|EASE_OUT)
+		spawn(5)
+			do_teleport(teleporter, destination, 1, 1, 0) ///You will appear within 1 tile of your destination
+			animate(teleporter, transform = tmptransf, time = 5, alpha = 255, pixel_y = 0, easing = ELASTIC_EASING)
+
+	doCooldown(var/interrupted=0 as num)
+		if (ishuman(owner))
+			var/mob/living/carbon/human/H = owner
+			boutput(usr, "doCool[interrupted]")
+
+			if (interrupted)
+				last_cast = world.time + interrupt_CD
+				H.hud.update_ability_hotbar()
+				spawn(interrupt_CD)
+					if(src)
+						H.hud.update_ability_hotbar()
+						boutput(usr, "updated hotbar")
+
+				return
+			else if (destination)
+				last_cast = world.time + linked_power.cooldown
+
+			if (linked_power.cooldown > 0)
+				spawn(linked_power.cooldown)
+					if(src)
+						H.hud.update_ability_hotbar()
+						boutput(usr, "updated hotbar")
+
+
+	cast()
+		if (..())
+			return 1
+		//you can set dest immediately. Cooldown starts ticking after dest is set
+		if (!destination)
+			destination = get_turf(owner)
+			boutput(usr, "You decide that [destination.name] is the location you want to apparate to.")
+			change_button_image("apparition-1")
+			return 1
+
+		actions.start(new/datum/action/bar/icon/apparate(src), owner)
+
+		return
+	
+	//Because that ability button has two sprites, this changes the sprite and forces the human's ability hotbar to update
+	proc/change_button_image(var/state as text)
+		icon_state = state
+		src.object.icon_state = src.icon_state
+		if (ishuman(owner))
+			var/mob/living/carbon/human/H = owner
+			H.hud.update_ability_hotbar()
+
+	/////////////////Make this a stability loss problem. Doens't exist in 2016 so I just have it called on a prob if the ability isn't synchronized
+	// /mob/living/carbon/human/list_ejectables() looked pretty similar to what I wanted, but I wasn't sure about those probability stuff going in so I made this
+	//drop a non-vital organ or a limb //shamelessly stolen from Harry Potter as is this whole ability
+	proc/splinch(var/mob/M as mob)
+		if (istype(M, /mob/living/carbon/human))
+			var/mob/living/carbon/human/H = M
+
+			var/part_splinched
+			if (prob(50) && H.organHolder)
+				part_splinched = pick("left_eye", "right_eye", "left_lung", "right_lung", "butt", "left_kidney", "right_kidney", "spleen", "pancreas", "appendix", "stomach", "intestines") //add more organs when they actually do something
+				H.organHolder.drop_organ(part_splinched)
+			else if (prob(50))
+				part_splinched = pick("l_arm", "r_arm", "l_leg", "l_leg")
+				H.sever_limb(part_splinched)
+
+			owner.visible_message("<span style=\"color:red\"><b>[owner]</b> splinches themselves and their [part_splinched] falls off!</span>")
+
+/datum/action/bar/icon/apparate //Visible to everyone and has an icon.
+	duration = 30
+	// icon = 'icons/mob/screen1.dmi'	//original location
+	icon = 'icons/effects/genetics2.dmi'
+	icon_state = "apparating"
+	interrupt_flags = INTERRUPT_MOVE | INTERRUPT_ACT | INTERRUPT_ACTION
+	var/datum/targetable/geneticsAbility/apparition/apparate
+
+	New(datum/targetable/geneticsAbility/apparition/apparate)
+		src.apparate = apparate
+
+		..()
+
+	onInterrupt()
+		..()
+		apparate.doCooldown(1)
+
+	onStart()
+		..()
+		boutput(owner, "You hold still and concentrate for a moment in preparation.")
+
+	onEnd()
+		..()
+		owner.visible_message("<span style=\"color:red\"><b>[owner]</b> disapparates from [get_turf(owner)]!</span>")
+
+		var/turf/orig_turf = get_turf(owner)
+		apparate.AAAAPARATEEEEE(owner)
+
+		//ability to teleport more than one person
+		if (apparate.linked_power.power)
+			//loop through mobs grabbed by caster and place them 
+			for (var/obj/item/grab/G in owner.contents)
+				if (G.state >= 1)	//aggressive grab. Not sure if this is stil used
+					apparate.AAAAPARATEEEEE(G.affecting)
+					// logTheThing("combat", owner, "used the [linked_power.name] power on [G.affecting].")
+					logTheThing("combat", owner, G.affecting, "used the [apparate.name] power on %target%.")
+
+		sleep(9)
+		playsound(orig_turf, "sound/effects/suck.ogg", 10, 0)
+		playsound(owner.loc, "sound/effects/suck.ogg", 10, 0)
+		owner.visible_message("<span style=\"color:red\"><b>[owner]</b> apparates to [get_turf(owner)]!</span>")			
+		
+		//no chance to splinch if synchronized	//maybe this should just be moved to the low stability thing
+		if (!apparate.linked_power.safety && prob(10))
+			apparate.splinch(owner)
+
+		//reset dest and icon
+		apparate.destination = null
+		apparate.change_button_image("apparition-0")
+
+	onDelete()
+		..()
+		apparate = null
 
 ////////////////
 // Admin Only //

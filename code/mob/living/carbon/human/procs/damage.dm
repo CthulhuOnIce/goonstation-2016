@@ -320,7 +320,8 @@
 			src.apply_sonic_stun(0, 0, 0, 0, 0, 30, 30)
 
 			var/curprob = 30
-
+			if(src.bioHolder && src.bioHolder.HasEffect("shoot_limb"))
+				curprob += 20
 			if (src.traitHolder && src.traitHolder.hasTrait("explolimbs"))
 				curprob = round(curprob / 2)
 
@@ -336,6 +337,9 @@
 
 			src.apply_sonic_stun(0, 0, 0, 0, 0, 15, 15)
 			var/curprob = 10
+
+			if(src.bioHolder && src.bioHolder.HasEffect("shoot_limb"))
+				curprob += 20
 
 			if (src.traitHolder && src.traitHolder.hasTrait("explolimbs"))
 				curprob = round(curprob / 2)
