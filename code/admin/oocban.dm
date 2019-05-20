@@ -7,9 +7,20 @@ var
 	oocban_keylist.Add(text("[M.ckey]"))
 	oocban_savebanfile()
 
+// /proc/oocban_isbanned(mob/M)
+// 	if (!M || !M.ckey ) return
+// 	if(oocban_keylist.Find(text("[M.ckey]")))
+// 		return 1
+// 	else
+// 		return 0
 /proc/oocban_isbanned(mob/M)
 	if (!M || !M.ckey ) return
-	if(oocban_keylist.Find(text("[M.ckey]")))
+
+	return oocban_isbanned_byckey(M.ckey)
+
+/proc/oocban_isbanned_byckey(var/ckey as text)
+	if (!ckey) return
+	if(oocban_keylist.Find(text("[ckey]")))
 		return 1
 	else
 		return 0

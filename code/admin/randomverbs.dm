@@ -291,6 +291,56 @@
 		src.holder.playeropt(M)
 	return
 
+/client/proc/cmd_admin_ckeyopt(var/ckey as text)
+	set name = "Byond User Options"
+	set category = null
+	if (src.holder)
+		src.holder.ckey_opt(ckey)
+
+	return
+
+/datum/admins/proc/ckey_opt(var/ckey as text)
+	if (!ckey) return
+
+	var/dat = "<html><head><title>Options for [ckey]</title></head><body>"
+	dat += {"<style>
+				a {text-decoration:none}
+				body {padding: 5px;margin: 0;background:white}
+				.optionGroup {padding:5px; margin-bottom:8px; border:1px solid black}
+				.optionGroup .title {display:block; color:white; background:black; padding: 2px 5px; margin: -5px -5px 2px -5px}
+			</style>"}
+	//Admin control options
+	dat += "<div class='optionGroup' style='border-color:#FF6961'><b class='title' style='background:#FF6961'>Control</b>"
+	if (ckey)
+		var/adminRow1
+		var/adminRow2
+		if (ckey)
+			adminRow1 += {"<a href='?src=\ref[src];action=showrules;targetckey=[ckey];origin=adminplayeropts'>Show Rules</a> |
+					<a href='?src=\ref[src];action=prom_demot;targetckey=[ckey];origin=adminplayeropts'>Promote/Demote</a> |
+					<a href='?src=\ref[src];action=toggle_dj;targetckey=[ckey];origin=adminplayeropts'>Give/Remove DJ</a> |
+					<a href='?src=\ref[src];action=forcespeech;targetckey=[ckey];origin=adminplayeropts'>Force to Say</a> |"}
+			adminRow2 += {"[!ckey ? " | " : ""]<a href='?src=\ref[src];action=warn;targetckey=[ckey];origin=adminplayeropts'>Warn</a> |
+							<a href='?src=\ref[src];action=boot;targetckey=[ckey];origin=adminplayeropts'>Kick</a>"}
+		if (ckey)
+			adminRow2 += {"<a href='?src=\ref[src];action=addban;targetckey=[ckey];origin=adminplayeropts'>Ban</a> |
+					<a href='?src=\ref[src];action=jobbanpanel;targetckey=[ckey];origin=adminplayeropts'>Jobban</a> |
+					<a href='?src=\ref[src];action=notes;targetckey=[ckey];origin=adminplayeropts'>Notes</a> |
+					<a href='?src=\ref[src];action=viewcompids;targetckey=[ckey];origin=adminplayeropts'>CompIDs</a> | "}
+			if (oocban_isbanned_byckey(ckey))
+				adminRow2 += " <a href='?src=\ref[src];action=banooc;targetckey=[ckey];origin=adminplayeropts'>OOC - Unban</a>  "
+			else
+				adminRow2 += " <a href='?src=\ref[src];action=banooc;targetckey=[ckey];origin=adminplayeropts'>OOC - Ban</a>  "
+
+			adminRow2 += "|  <a href='?src=\ref[src];action=giveantagtoken;targetckey=[ckey];origin=adminplayeropts'>Antag Tokens</a>"
+
+			adminRow1 += "<a href='?src=\ref[src];action=respawntarget;targetckey=[ckey];origin=adminplayeropts'>Respawn</a>"
+		dat += "[adminRow1]<br>[adminRow2]"
+		dat += "</div>"
+
+		dat += "</body></html>"
+		usr << browse(dat, "window=adminplayeropts[ckey];size=505x150")
+
+
 /datum/admins/proc/playeropt(mob/M)
 	if (!ismob(M))
 		alert("Unable to auto-refresh the panel. Manual refresh required.")
