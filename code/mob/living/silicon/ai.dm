@@ -135,6 +135,7 @@ var/list/ai_emotions = list("Happy" = "ai_happy",\
 		src.radio3.broadcasting = 0
 		src.internal_pda.name = "AI's Internal PDA Unit"
 		src.internal_pda.owner = "AI"
+		src.ears = new /obj/item/device/radio/headset/ai(src)
 		if (src.brain && src.key)
 			src.brain.name = "neural net processor"
 			src.brain.owner = src.mind

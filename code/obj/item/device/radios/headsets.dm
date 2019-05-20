@@ -17,6 +17,23 @@
 	secure_frequencies = list("h" = R_FREQ_COMMAND)
 	secure_colors = list("h" = RADIOC_COMMAND)
 
+/obj/item/device/radio/headset/ai
+	name = "\improper AI Headset"
+	desc = "A radio headset capable of communicating over additional, secure frequencies"
+	icon_state = "command headset"
+	secure_frequencies = list("h" = R_FREQ_COMMAND,\
+	"g" = R_FREQ_SECURITY,\
+	"e" = R_FREQ_ENGINEERING,\
+	"r" = R_FREQ_RESEARCH,\
+	"m" = R_FREQ_MEDICAL,\
+	"c" = R_FREQ_CIVILIAN)
+	secure_colors = list("h" = RADIOC_COMMAND,\
+	"g" = RADIOC_SECURITY,\
+	"e" = RADIOC_ENGINEERING,\
+	"r" = RADIOC_RESEARCH,\
+	"m" = RADIOC_MEDICAL,\
+	"c" = RADIOC_CIVILIAN)
+
 /obj/item/device/radio/headset/command/captain
 	secure_frequencies = list("h" = R_FREQ_COMMAND,\
 	"g" = R_FREQ_SECURITY,\

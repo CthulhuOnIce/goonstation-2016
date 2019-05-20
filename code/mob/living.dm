@@ -508,6 +508,10 @@
 							message = copytext(message, 3)
 
 						else
+							if (isAI(src))
+								message_mode = "secure headset"
+								secure_headset_mode = lowertext(copytext(message,2,3))
+								skip_open_mics_in_range = 1 // First AI intercom broadcasts everything by default.
 							message = copytext(message, 3)
 
 				else
