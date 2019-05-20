@@ -677,3 +677,15 @@
 	max_charge = 400.0
 	cycle = 0
 	recharge_rate = 40.0
+
+/obj/item/ammo/power_cell/self_charging/lawgiver
+	name = "Power Cell - Lawgiver Charger"
+	desc = "A self-contained radioisotope power cell that slowly recharges an internal capacitor. Holds 300PU."
+	icon = 'icons/obj/ammo.dmi'
+	icon_state = "recharger_cell"
+	m_amt = 18000
+	g_amt = 38000
+	charge = 300.0
+	max_charge = 300.0
+	cycle = 0
+	recharge_rate = 10.0

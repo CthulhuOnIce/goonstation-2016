@@ -136,7 +136,7 @@
 #ifdef MAP_OVERRIDE_DESTINY
 	announce_on_join = 1
 #endif
-	slot_belt = /obj/item/gun/energy/taser_gun
+	slot_belt = /obj/item/gun/energy/lawgiver
 	slot_poc1 = /obj/item/device/pda2/hos
 	slot_jump = /obj/item/clothing/under/rank/head_of_securityold
 	slot_suit = /obj/item/clothing/suit/armor/vest

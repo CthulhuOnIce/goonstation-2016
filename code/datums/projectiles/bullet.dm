@@ -249,6 +249,14 @@ toxic - poisons
 	on_hit(atom/hit)
 		explosion_new(null, get_turf(hit), 1)
 
+	lawgiver
+		name = "lawgiver"
+		power = 10
+		cost = 150
+
+		on_hit(atom/hit)
+			explosion_new(null, get_turf(hit), 5)
+
 /datum/projectile/bullet/abg
 	name = "rubber slug"
 	shot_sound = 'sound/weapons/shotgunshot.ogg'
@@ -614,3 +622,32 @@ toxic - poisons
 
 	on_hit(atom/hit)
 		explosion_new(null, get_turf(hit), 5)
+
+/datum/projectile/bullet/clownshot
+	name = "clownshot"
+	power = 1
+	cost = 15				//This should either cost a lot or a little I don't know. On one hand if it costs nothing you can truly tormet clowns with it, but on the other hand if it costs your full charge, then the clown will know how much you hate it because of how much you sacraficed to harm it. I settled for a med amount...
+	damage_type = D_KINETIC
+	hit_type = DAMAGE_BLUNT
+	implanted = null
+	shot_sound = 'sound/effects/snap.ogg'
+	icon_turf_hit = "bhole-staple"
+	casing = null
+	hit_ground_chance = 50
+	icon_state = "random_thing"	//actually exists, looks funny enough to use as the projectile image for this
+
+	on_hit(atom/hit, dirflag)
+		if (ishuman(hit))
+			var/mob/living/carbon/human/H = hit
+			if (src.hit_type)
+				if (H.job == "Clown")
+					H.drop_from_slot(H.shoes)
+					var/turf/target = get_offset_target_turf(H, rand(5)-rand(5), rand(5)-rand(5))
+					spawn(0)
+						H.throw_at(target, rand(2,4), 2)
+					H.emote("twitch_v")
+					playsound(H, 'sound/items/bikehorn.ogg', 50, 1)
+
+				random_brute_damage(H, 1)
+
+		return
