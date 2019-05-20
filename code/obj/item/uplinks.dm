@@ -598,6 +598,7 @@ Note: Add new traitor items to syndicate_buylist.dm, not here.
 		src.spells += new /datum/SWFuplinkspell/summongolem(src)
 		src.spells += new /datum/SWFuplinkspell/animatedead(src)
 		src.spells += new /datum/SWFuplinkspell/pandemonium(src)
+		src.spells += new /datum/SWFuplinkspell/grease(src)
 		//src.spells += new /datum/SWFuplinkspell/shockwave(src)
 		src.spells += new /datum/SWFuplinkspell/bull(src)
 
@@ -797,6 +798,13 @@ Note: Add new traitor items to syndicate_buylist.dm, not here.
 	desc = "This spell causes random effects to happen. Best used only by skilled wizards."
 	cooldown = 40
 	assoc_spell = /datum/targetable/spell/pandemonium
+
+/datum/SWFuplinkspell/grease
+	name = "Grease"
+	eqtype = "Utility"
+	desc = "This spell lubes the floor around the target area"
+	cooldown = 40
+	assoc_spell = /datum/targetable/spell/grease
 
 /obj/item/SWF_uplink/proc/explode()
 	var/turf/location = get_turf(src.loc)
