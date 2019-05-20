@@ -269,3 +269,9 @@
 	permeability_coefficient = 0.20
 	protective_temperature = 1250
 	heat_transfer_coefficient = 0.03
+
+obj/item/clothing/shoes/zigboot
+	name = "Familiar Boots"
+	desc = "A pair of striking red boots. Though they look clean, the soles are absolutely coated in a really fine, white powder."
+	icon_state = "ziggy"
+	permeability_coefficient = 0.25
