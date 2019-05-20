@@ -91,6 +91,53 @@
 			return A
 		return null
 
+/datum/supply_packs/necessities_vending_restock
+	name = "Necessities Vending Machine Restocking Pack"
+	desc = "Various Vending Machine Restock Cartridges for necessities"
+	contains = list(/obj/item/vending/restock_cartridge/coffee,
+					/obj/item/vending/restock_cartridge/snack,
+					/obj/item/vending/restock_cartridge/cigarette,
+					/obj/item/vending/restock_cartridge/alcohol,
+					/obj/item/vending/restock_cartridge/cola,
+					/obj/item/vending/restock_cartridge/kitchen,
+					/obj/item/vending/restock_cartridge/monkey,
+					/obj/item/vending/restock_cartridge/standard)
+	cost = 3000
+	containertype = /obj/storage/crate
+	containername = "Necessities Vending Machine Restocking Pack"
+
+/datum/supply_packs/med_hydro_vending_restock
+	name = "Medical/Hydroponics Vending Machine Restocking Pack"
+	desc = "Various Vending Machine Restock Cartridges for Med/Hydro"
+	contains = list(/obj/item/vending/restock_cartridge/hydroponics,
+					/obj/item/vending/restock_cartridge/medical,
+					/obj/item/vending/restock_cartridge/medical_public,
+					/obj/item/vending/restock_cartridge/kitchen)
+	cost = 3000
+	containertype = /obj/storage/crate
+	containername = "Med/Hydro Vending Machine Restocking Pack"
+
+/datum/supply_packs/security_vending_restock
+	name = "Security Vending Machine Restocking Pack"
+	desc = "Various Vending Machine Restock Cartridges for security"
+	contains = list(/obj/item/vending/restock_cartridge/security,
+					/obj/item/vending/restock_cartridge/security_ammo)
+	cost = 5000
+	containertype = /obj/storage/crate
+	containername = "Security Vending Machine Restocking Pack"
+
+/datum/supply_packs/electronics_vending_restock
+	name = "Electronics Vending Machine Restocking Pack"
+	desc = "Various Vending Machine Restock Cartridges for electronics"
+	contains = list(/obj/item/vending/restock_cartridge/electronics,
+					/obj/item/vending/restock_cartridge/mechanics,
+					/obj/item/vending/restock_cartridge/computer3,
+					/obj/item/vending/restock_cartridge/floppy,
+					/obj/item/vending/restock_cartridge/pda)
+	cost = 4000
+	containertype = /obj/storage/crate
+	containername = "Electronics Vending Machine Restocking Pack"
+
 /datum/supply_packs/emptycrate
 	name = "Empty Crate"
 	desc = "Nothing (crate only)"

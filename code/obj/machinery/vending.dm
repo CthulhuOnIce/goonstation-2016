@@ -1028,6 +1028,25 @@
 	else if (istype(W, /obj/item/device/multitool))
 		return src.attack_hand(user)
 
+	if (istype(W, /obj/item/vending/restock_cartridge))
+		//check if cartridge type matches the vending machine
+		var/obj/item/vending/restock_cartridge/Q = W
+		if (istype(src, text2path("/obj/machinery/vending/[Q.vendingType]")))
+
+		// if (istype(src, text2path("/obj/machinery/vending/[W:vendingType]")))
+			//remove all producs, reinitialize array and then create the products like new
+			src.product_list = new() 
+			src.create_products()
+			src.generate_HTML(1)
+
+			boutput(user, "<span style=\"color:blue\">You restocked the items in [src].</span>")
+			playsound(src.loc ,"sound/items/Deconstruct.ogg", 80, 0)
+			user.u_equip(W)
+			qdel(W)
+			return
+		else
+			boutput(user, "<span style=\"color:red\">[W] is not compatible with [src].</span>")
+
 	else
 		..()
 		if (W && W.force >= 5 && prob(4 + (W.force - 5)))
