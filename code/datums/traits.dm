@@ -134,6 +134,9 @@
 	proc/onLife(var/mob/owner)
 		return
 
+	proc/onHear(var/mob/owner, var/message)
+		return
+
 	Click(location,control,params)
 		if(control)
 			if(control == "traitssetup_[usr.ckey].traitsAvailable")
@@ -292,6 +295,14 @@
 	points = -1
 	isPositive = 1
 
+/obj/trait/jailbird
+	name = "Jailbird (0)"
+	cleanName = "Jailbird"
+	desc = "You have a criminal record and are currently on the run!"
+	id = "jailbird"
+	points = 0
+	isPositive = 0
+
 /obj/trait/clericalerror
 	name = "Clerical Error (0)"
 	cleanName = "Clerical Error"
@@ -398,6 +409,29 @@
 			owner.bioHolder.AddEffect("deaf")
 		return
 
+//Todo: make this an actual harmful bioEffect?
+//TODO: Perhaps use the same systems drones do to hide people faces and names in examinetext, context menu and bottom-left display?
+/*
+/obj/trait/prosopagnosia
+	name = "Prosopagnosia (+2)"
+	cleanName = "Prosopagnosia"
+	desc = "Also known as face blindness, makes everyone's faces indistinguishable to you."
+	id = "prosopagnosia"
+	points = 2
+	isPositive = 0
+
+	onAdd(var/mob/owner)
+		if(owner.bioHolder)
+			if(istype(owner, /mob/living/carbon/human))
+				var/mob/living/carbon/human/H = owner
+				owner.bioHolder.AddEffect("prosopagnosia")
+		return
+
+	onLife(var/mob/owner) //Just to be safe.
+		if(owner.bioHolder && !owner.bioHolder.HasEffect("prosopagnosia"))
+			owner.bioHolder.AddEffect("prosopagnosia")
+		return
+*/
 /obj/trait/hemo
 	name = "Hemophilia (+1)"
 	cleanName = "Hemophilia"
@@ -475,23 +509,89 @@
 						break
 		return
 
-/obj/trait/spacephobia
-	name = "Spacephobia (+2)"
-	cleanName = "Spacephobia"
-	desc = "Being in space scares you. A lot. While in space you might panic or faint."
-	id = "spacephobia"
-	points = 2
+/obj/trait/phobia
+	name = "Error"
+	cleanName = "Error"
+	desc = "This is an error! Please report this to coders."
+	id = "error"
+	points = 0
 	isPositive = 0
+	category = "phobia"
+	unselectable = 1
+
+	//phobia-specific variables
+	var/list/types = list() //list of horrible things that are classified under this phobia
+	var/list/triggers = list() //list of trigger words to make you TREMBLE IN FEAR
 
 	onLife(var/mob/owner)
-		if(!owner.stat && can_act(owner) && istype(owner.loc, /turf/space))
+		var/severity = 0
+		if(!owner.stat && can_act(owner))
+			for(var/atom/A in view(7, owner))
+				if(!(A.type in types))
+					return
+				if(severity < 1)
+					severity = 1 //Only 1 severity for visibility
+				if(A in view(2, owner)) //TOO CLOSE
+					severity += 1
+
+		if(severity == 1)
+			if(prob(4))
+				owner.emote(pick("pale", "hiccup", "tremble", "shiver", "shudder", "quiver"))
+				owner.stuttering += 2 //ticks of stuttering
+		else if(severity == 2)
 			if(prob(2))
 				owner.emote("faint")
 				owner.paralysis += 7
 			else if (prob(8))
 				owner.emote("scream")
 				owner.stunned += 2
+		else if(severity >= 3) //LOTS AND LOTS OF SPOOKY STUFF!
+			if(prob(4))
+				owner.emote("faint")
+				owner.paralysis += 7
+			else if (prob(10))
+				owner.emote(pick("scream", "weep", "cry", "choke", "panic"))
+				owner.stunned += 2
+			else if(prob(8))
+				owner.emote(pick("pale", "hiccup", "tremble", "shiver", "shudder", "quiver", "choke"))
 		return
+
+	onHear(var/mob/owner, var/message)
+		for(var/T in triggers)
+			if(findtext(message,T))
+				owner.emote(pick("pale", "hiccup", "tremble", "shiver", "shudder", "quiver"))
+
+/obj/trait/phobia/space
+	name = "Spacephobia (+2) \[Phobia\]"
+	cleanName = "Spacephobia"
+	desc = "Being in space scares you. A lot. While in space you might panic or faint."
+	id = "spacephobia"
+	points = 2
+	unselectable = 0
+	types = list(/turf/space)
+	triggers = list("space", "stars", "celestial", "asteroids")
+
+/obj/trait/phobia/monkey
+	name = "Pithecophobia (+2) \[Phobia\]"
+	cleanName = "Pithecophobia"
+	desc = "Monkeys are horrifying. You hate the idea of monkeys being our ancestors!\nSeeing a monkey terrifies you. Being near one might make you panic or faint.\nAvoid groups of monkeys!"
+	id = "pithecophobia"
+	points = 2
+	isPositive = 0
+	unselectable = 0
+	types = list(/mob/living/carbon/human/monkey, /obj/item/wrench/monkey)
+	triggers = list("monkey", "chimp", "ape", "gorilla", "baboon", "simian")
+
+/obj/trait/phobia/robot
+	name = "Robophobia (+2) \[Phobia\]"
+	cleanName = "Robophobia"
+	desc = "Robots are going to take over the world! Fear your metal overlords! Aaaagh!\nSeeing a silicon being terrifies you. Being near one makes you panic or faint.\nAvoid groups of robots!"
+	id = "robophobia"
+	points = 2
+	unselectable = 0
+	types = list(/mob/living/silicon, /obj/machinery/bot, /mob/living/critter/gunbot, /mob/living/critter/drone,\
+				/mob/living/critter/repairbot, /obj/critter/gunbot, /obj/critter/automaton)
+	triggers = list("bot", "tron", "drone", "borg") //"Pass me the bottle!" *GASP*
 
 /obj/trait/robustgenetics
 	name = "Robust Genetics (-2) \[Genetics\]"
@@ -544,6 +644,84 @@
 	id = "leftfeet"
 	points = 1
 	isPositive = 0
+
+/obj/trait/meathead
+	name = "Meathead (-1) \[Stats\]"
+	cleanName = "Meathead"
+	desc = "Can take quite a beating! Suffers from brain trauma, though."
+	id = "meathead"
+	category = "stats"
+	points = -1
+	isPositive = 1
+
+	onAdd(var/mob/owner)
+		if(istype(owner, /mob/living/carbon/human))
+			var/mob/living/carbon/human/H = owner
+			H.max_health = 150
+			H.health = 150
+			H.brainloss = 60
+		return
+
+	onLife(var/mob/owner) //Just to be safe.
+		if(istype(owner, /mob/living/carbon/human))
+			var/mob/living/carbon/human/H = owner
+			H.max_health = 150
+			if(H.brainloss < 60)
+				H.brainloss = 60
+		return
+
+/obj/trait/athletic
+	name = "Athletic (-2) \[Stats\]"
+	cleanName = "Athletic"
+	desc = "Great stamina! Frail body."
+	id = "athletic"
+	category = "stats"
+	points = -2
+	isPositive = 1
+
+	onAdd(var/mob/owner)
+		if(istype(owner, /mob/living/carbon/human))
+			var/mob/living/carbon/human/H = owner
+			H.add_stam_mod_max("trait", STAMINA_MAX * 0.1)
+			H.add_stam_mod_regen("trait", STAMINA_REGEN * 0.2)
+			H.max_health = 80
+			H.health = 80
+		return
+
+/obj/trait/bigbruiser
+	name = "Big Bruiser (-2) \[Stats\]"
+	cleanName = "Big Bruiser"
+	desc = "Stronger punches but higher stamina cost!"
+	id = "bigbruiser"
+	category = "stats"
+	points = -2
+	isPositive = 1
+
+/obj/trait/glasscannon
+	name = "Glass cannon (-2) \[Stats\]"
+	cleanName = "Glass cannon"
+	desc = "You have 1 stamina max. Attacks no longer cost you stamina and\nyou deal double the normal damage with most melee weapons."
+	id = "glasscannon"
+	category = "stats"
+	points = -2
+	isPositive = 1
+
+	onAdd(var/mob/owner)
+		if(istype(owner, /mob/living/carbon/human))
+			var/mob/living/carbon/human/H = owner
+			H.add_stam_mod_max("trait", -(STAMINA_MAX - 1))
+		return
+
+/obj/trait/matrixflopout
+	name = "Matrix Flopout (-2) \[Skill\]"
+	cleanName = "Matrix Flopout"
+	desc = "Flipping lets you dodge bullets and attacks for a higher stamina cost!"
+	id = "matrixflopout"
+	category = "skill"
+	points = -2
+	isPositive = 1
+
+
 /*
 /obj/trait/lizard
 	name = "Lizard (-1) \[Race\]"
@@ -624,22 +802,6 @@
 		if(istype(owner, /mob/living/carbon/human))
 			var/mob/living/carbon/human/H = owner
 			H.max_health = 50
-		return
-
-/obj/trait/glasscannon
-	name = "Glass cannon (-1) \[Stats\]"
-	cleanName = "Glass cannon"
-	desc = "You have 1 stamina max. Attacks no longer cost you stamina and\nyou deal double the normal damage with most melee weapons."
-	id = "glasscannon"
-	category = "stats"
-	points = -1
-	isPositive = 1
-	unselectable = 1
-
-	onAdd(var/mob/owner)
-		if(istype(owner, /mob/living/carbon/human))
-			var/mob/living/carbon/human/H = owner
-			H.add_stam_mod_max("trait", -(STAMINA_MAX - 1))
 		return
 
 /obj/trait/fat

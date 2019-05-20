@@ -84,7 +84,7 @@
 	//The spooky UNKILLABLE MAN
 	var/unkillable = 0
 
-	// TODO: defensive/offensive stance intents for combat
+	//Use this as a variable for things like matrix flopout or whatever??
 	var/stance = "normal"
 
 	var/mob/living/carbon/target = null
@@ -1677,6 +1677,13 @@
 									animate_spin(src, "R", 1, 0)
 								else
 									animate_spin(src, "L", 1, 0)
+							//TACTICOOL FLOPOUT
+							if (src.traitHolder.hasTrait("matrixflopout") && src.stance != "dodge")
+								message = "<B>[src]</B> does a tactical flip!"
+								src.stance = "dodge"
+								spawn(5) //I'm sorry for my transgressions there's probably a way better way to do this
+									if(src && src.stance == "dodge")
+										src.stance = "normal"
 							for (var/obj/table/T in oview(1, null))
 								if ((!istype(usr.equipped(), /obj/item/grab)) && (src.dir == get_dir(src, T)))
 									if (iswrestler(src))
@@ -6214,7 +6221,13 @@
 	..()
 	src.handle_regular_sight_updates()
 
-/mob/living/carbon/human/heard_say(var/mob/other)
+/mob/living/carbon/human/heard_say(var/mob/other, var/message)
+	//Trait-based hearing
+	if(src.traitHolder)
+		for(var/T in src.traitHolder.traits)
+			var/obj/trait/O = getTraitById(T)
+			O.onHear(src, message)
+
 	if (!sims)
 		return
 	if (other != src)

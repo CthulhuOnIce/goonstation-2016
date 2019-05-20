@@ -59,6 +59,7 @@
 	var/incidence = 0 // reflection normal on the current tile (NORTH if projectile came from the north, etc.)
 	var/list/crossing = list()
 	var/list/special_data = list()
+	var/list/penetrated = list() //keep track of already-penetrated targets
 	var/curr_t = 0
 
 	var/wx = 0
@@ -98,6 +99,10 @@
 			// never collide with the original shooter
 			return
 
+		if (A in penetrated)
+			// we already hit this guy once
+			return
+
 		// Necessary because the check in human.dm is ineffective (Convair880).
 		var/immunity = check_target_immunity(A)
 		if (immunity)
@@ -116,6 +121,16 @@
 				if (D.on)
 					D.disrupt(A)
 					src.visible_message("<span style=\"color:blue\"><b>[A]'s disguiser is disrupted!</b></span>")
+
+		penetrated += A //do this before dodge check so we don't two-hit the guy
+
+		if (ishuman(A))
+			var/mob/living/carbon/human/H = A
+			H.remove_stamina(STAMINA_FLIP_COST * 2)
+			H.stamina_stun()
+			if(H.stance == "dodge") //matrix dodge flip
+				A.visible_message("<b><span style=\"color:red\">The projectile narrowly misses [A]!</span></b>") //Todo: prevent spam by preventing duplicate collisions on the same mob.
+				return
 
 		// also run the atom's general bullet act
 		var/atom/B = A.bullet_act(src) //If bullet_act returns an atom, do all bad stuff to that atom instead

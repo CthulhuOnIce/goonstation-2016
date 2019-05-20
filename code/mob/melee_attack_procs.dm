@@ -297,6 +297,16 @@
 		return 1
 	return 0
 
+/mob/living/carbon/human/do_block(var/mob/attacker)
+	if (stance == "dodge")
+		visible_message("<span style=\"color:red\"><B>[src] narrowly dodges [attacker]'s attack!</span>")
+		playsound(loc, 'sound/weapons/punchmiss.ogg', 50, 1, 1)
+
+		remove_stamina(STAMINA_FLIP_COST * 2)
+		stamina_stun()
+		return 1
+	return ..()
+
 /////////////////////////////////////////////////// Harm intent ////////////////////////////////////////////////////////
 
 /mob/living/carbon/human/proc/stun_glove_attack(var/mob/living/target)
@@ -819,6 +829,10 @@
 
 	if (src.bioHolder.HasEffect("hulk"))
 		damage += 5
+
+	if (src.traitHolder.hasTrait("bigbruiser"))
+		msgs.stamina_self -= STAMINA_HTH_COST //Double the cost since this is stacked on top of default
+		msgs.stamina_target -= STAMINA_HTH_DMG
 
 	return damage
 

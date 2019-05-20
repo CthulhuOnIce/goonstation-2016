@@ -70,12 +70,56 @@
 
 	M.fields["traits"] = traitStr
 
-	S.fields["criminal"] = "None"
-	S.fields["mi_crim"] = "None"
-	S.fields["mi_crim_d"] = "No minor crime convictions."
-	S.fields["ma_crim"] = "None"
-	S.fields["ma_crim_d"] = "No major crime convictions."
-	S.fields["notes"] = "No notes."
+	if(H.traitHolder.hasTrait("jailbird"))
+		S.fields["criminal"] = "*Arrest*"
+		S.fields["mi_crim"] = pick(\
+								"Public urination.",\
+								"Reading highly-confidential private information.",\
+								"Vandalism.",\
+								"Illegal Manufacturing.",\
+								"Tresspassing.",\
+								"Killing a monkey.",\
+								"Negligence.",\
+								"Pushing down and farting on an officer of the law.",\
+								"Throwing a toolbox at an officer of the law.",\
+								"Being drunk.",\
+								"Being high.",\
+								"Excessive Force.",\
+								"Impersonating a Security Officer.",\
+								"Stealing shoes.",\
+								"Littering.",\
+								"Existing.",\
+								"Illegal haircutting.",\
+								"Staring at a bee for over an hour.",\
+								"Not showering before entering pool.",\
+								"Rampant idiocy.")
+		S.fields["mi_crim_d"] = "No details provided."
+		S.fields["ma_crim"] = pick(\
+								"Grand theft apidae.",\
+								"Bee murder.",\
+								"Superfarted on Captain.",\
+								"Released Singularity.",\
+								"Stole Captain's ID.",\
+								"Arson, Murder, Jaywalking.",\
+								"Arson.",\
+								"Murder.",\
+								"Jaywalking.",\
+								"Skating right through the bounds of real-space. Wicked sick, but highly illegal.",\
+								"Being a really really bad surgeon.",\
+								"Distributing meth.",\
+								"Dismemberment and decapitation.",\
+								"Running around with a chainsaw.",\
+								"Throwing explosive tomatoes at people.",\
+								"Caused multiple seemingly unrelated accidents.")
+		S.fields["ma_crim_d"] = "No details provided."
+		S.fields["notes"] = pick("Huge nerd.", "Total jerkface.", "Absolute dingus.", "Insanely endearing.", "Worse than clown.", "Massive crapstain.");
+	else
+		S.fields["criminal"] = "None"
+		S.fields["mi_crim"] = "None"
+		S.fields["mi_crim_d"] = "No minor crime convictions."
+		S.fields["ma_crim"] = "None"
+		S.fields["ma_crim_d"] = "No major crime convictions."
+		S.fields["notes"] = "No notes."
 
 	B.fields["job"] = H.job
 	B.fields["current_money"] = 100.0
