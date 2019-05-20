@@ -371,11 +371,18 @@
 				return 0*/
 
 	medicaldirector // so much copy/pasted stuff  :(
-		dr_acula
+		dr_acula_escapes
 			explanation_text = "Ensure that Dr. Acula escapes on the shuttle."
 			check_completion()
 				for (var/obj/critter/bat/doctor/Dr in world)
 					if (istype(get_area(Dr),/area/shuttle/escape/centcom) && Dr.alive)
+						return 1
+				return 0
+		dr_acula_feeds
+			explanation_text = "Ensure that Dr. Acula survives and drinks 1000 units of blood by the end of the shift."
+			check_completion()
+				for (var/obj/critter/bat/doctor/Dr in world)
+					if (Dr.blood_volume >= 1000 && Dr.alive)
 						return 1
 				return 0
 		headsurgeon

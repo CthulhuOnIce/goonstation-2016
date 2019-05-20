@@ -306,6 +306,129 @@ obj/critter/bear/care
 	firevuln = 1
 	brutevuln = 1
 
+	var/blood_volume = 0		//This will count all the blood that Dr. Acula has fed on. Cheaper than having a reagent_holder holding blood I suppose
+	var/atom/drink_target		//this would be the mob or obj/item/reagent_container that contains blood that we drink from
+	var/last_drink				//world.time last time this bat drank blood. Just so that they don't just drink a whole 300u of an iv bag without prompting in under a minute.
+	var/sips_taken = 0			//for calculating how many times a bat should drink at a souce before they are satiated for a time.
+	var/const/sips_to_take = 5	//amount of sips of blood a bat will take from a source of blood.
+	var/const/blood_sip_amt = 5	//amount of blood a single sip this bat takes contains.
+
+
+	MouseDrop(atom/over_object as mob|obj)
+		//if this bat is attacking/chasing someone, they won't stop just because you point at blood. Come on.
+		if (src.target)
+			return ..()
+
+		if (src.task == "wandering" || src.task == "thinking")
+			if (ishuman(over_object) && usr == over_object)
+				var/mob/living/carbon/human/H = over_object
+				if (H && !H.restrained() && !H.stat && in_range(src, H))
+					src.task = "drink mob"
+					src.drink_target = H
+					src.set_loc(H.loc)
+					src.visible_message("[usr] offers up [his_or_her(usr)] arm to feed [src].")
+					if (prob(30))
+						take_bleeding_damage(usr, null, 5, DAMAGE_CUT, 0, get_turf(src))
+						src.visible_message("<span style=\"color:red\"><B>Whoops, looks like [src] bit down a bit too hard.</span>")
+
+			//stand next to bat, and point towards some blood, the bat will try to drink it
+			else if (istype(over_object,/obj/item/reagent_containers/) && get_dist(usr, src) <= 1)
+				src.task = "chasing blood"
+				src.drink_target = over_object
+				src.visible_message("[usr] gestures towards [over_object] to try to get [src] to drink from it.")
+		else
+			boutput(usr, "[src] looks a bit too preoccupied for you to direct it anywhere.")
+			return ..()
+
+	//stolen first part from the seek_target in parent that seeks for food/snack. in here we'll search for reagent containers with blood
+	proc/seek_blood()
+		if (src.target)
+			src.task = "chasing"
+			return 0
+
+		//gotta wait 2 min from the last drink before the bat goes looking for blood on its own again.
+		if (last_drink+1200 > world.time)
+			return 0
+
+		for (var/obj/item/reagent_containers/S  in view(src.seekrange,src))
+			if (S.reagents && S.reagents.has_reagent("blood"))
+				src.drink_target = S
+				src.task = "chasing blood"
+				return 1
+		return 0
+
+	proc/drink_blood(var/atom/target)
+		if (ishuman(target))
+			var/mob/living/carbon/human/H = target
+			if (H.blood_volume < blood_sip_amt)
+				H.blood_volume = 0
+			else
+				H.blood_volume -= blood_sip_amt
+				src.blood_volume += blood_sip_amt*2			//fresh blood is the quenchiest. Bats get more blood points this way
+			src.health += 2
+
+		else if (istype(target,/obj/item/reagent_containers/))
+			var/obj/item/reagent_containers/container = target
+			container.reagents.remove_reagent("blood", blood_sip_amt)
+			blood_volume += blood_sip_amt
+			src.health ++
+
+		else return 0
+
+		last_drink = world.time
+		sips_taken++
+		if (prob(30))
+			playsound(src.loc,"sound/items/drink.ogg", rand(10,50), 1)
+		// if (prob(20))		uncomment this for the eat animation
+		//	eat_twitch(src)
+
+		if (sips_taken >= sips_to_take) 
+			src.task = "thinking"
+			src.visible_message("[src]'s finishes drinking blood from [drink_target] for now. That cutie looks pretty satisfied.")
+			src.drink_target = null
+			src.sips_taken = 0
+		return 1
+
+
+
+	//overriding ai_think, adding new switch cases for bats. If these new ones (or overridden "think") get hit, special action happens here and we return. otherwise call parent.
+	ai_think()
+		switch (task)
+			if ("thinking")
+				src.attack = 0
+				src.target = null
+				walk_to(src,0)
+
+				if (seek_blood()) return 1
+				if (src.aggressive) seek_target()
+				if (src.wanderer && src.mobile && !src.target) src.task = "wandering"
+				return 0
+
+			if ("chasing blood")
+				if (!drink_target || !isobj(drink_target) || get_dist(src, src.drink_target) > 3)
+					src.task = "thinking"
+					drink_target = null
+				else if (get_dist(src, src.drink_target) <= 0)
+					src.task = "drink obj"
+				else
+					walk_to(src, src.drink_target,0,4)
+				return 0
+
+			if ("drink obj")
+				if (!drink_target || get_dist(src, src.drink_target) > 0)
+					src.task = "thinking"
+				else
+					drink_blood(drink_target)
+				return 0
+
+			if ("drink mob")
+				if (!src.drink_target || get_dist(src, src.drink_target) > src.attack_range)
+					src.task = "thinking"
+				else
+					drink_blood(drink_target)
+				return 0
+		..()
+
 	CritterDeath()
 		..()
 		src.reagents.add_reagent("woolofbat", 50, null)
@@ -314,7 +437,12 @@ obj/critter/bear/care
 	CritterAttack(mob/M)
 		src.attacking = 1
 		src.visible_message("<span class='combat'><B>[src]</B> bites [src.target]!</span>")
+		//steal blood
 		random_brute_damage(src.target, 1)
+		drink_blood(M)
+		if (prob(20))
+			take_bleeding_damage(usr, null, 5, DAMAGE_CUT, 0, get_turf(src))
+
 		spawn(10)
 			src.attacking = 0
 
@@ -381,6 +509,10 @@ obj/critter/bear/care
 		src.attacking = 1
 		src.visible_message("<span class='combat'><B>[src]</B> bites and claws at [src.target]!</span>")
 		random_brute_damage(src.target, rand(3,5))
+		drink_blood(M)
+		if (prob(20))
+			take_bleeding_damage(usr, null, 5, DAMAGE_CUT, 0, get_turf(src))
+
 		spawn(10)
 			src.attacking = 0
 
