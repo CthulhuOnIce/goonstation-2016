@@ -43,10 +43,23 @@
 							items += /obj/item/device/voltron
 							item_amounts += 1
 				else if (tier == 2)
-					picker = rand(1,1)
+					picker = rand(1,2)
 					switch(picker)
 						if(1)
 							items += pick(/obj/critter/bear)
+							item_amounts += 1
+						else
+							items += /obj/item/reagent_containers/glass/beaker/large/salbutamol
+							item_amounts += 1
+							items += /obj/item/reagent_containers/glass/beaker/large/omnizine
+							item_amounts += 1
+							items += /obj/item/reagent_containers/glass/beaker/large/atropine
+							item_amounts += 1
+							items += /obj/item/reagent_containers/glass/beaker/large/pentetic_acid
+							item_amounts += 1
+							items += /obj/item/reagent_containers/glass/beaker/large/morphine
+							item_amounts += 1
+							items += /obj/item/reagent_containers/hypospray
 							item_amounts += 1
 				else
 					picker = rand(1,3)
