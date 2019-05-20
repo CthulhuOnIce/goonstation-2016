@@ -254,6 +254,17 @@
 	"atropine", "ephedrine", "haloperidol","methamphetamine","THC","capsaicin","psilocybin","hairgrownium",
 	"ectoplasm","bathsalts","itching","crank","krokodil","catdrugs","histamine")
 
+/datum/plantmutation/cannabis/brown
+	name = "Brownweed"
+	iconmod = "brownweed"
+	crop = /obj/item/plant/herb/cannabis/brown
+	assoc_reagents = list("fartonium")
+
+/datum/plantmutation/cannabis/clown
+	name = "Clownweed"
+	iconmod = "clownweed"
+	crop = /obj/item/plant/herb/cannabis/clown
+	assoc_reagents = list("fartonium","honkfartium")
 // Fungus Mutations
 
 /datum/plantmutation/fungus/psilocybin

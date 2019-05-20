@@ -633,10 +633,25 @@
 	category = "genetics"
 
 /obj/trait/loyalist
-	name = "NT loyalist (-1) \[Trinkets\]"
-	cleanName = "NT loyalist"
-	desc = "Start with a Nanotrasen Beret as your trinket."
+	name = "NT Loyalist (-1)"
+	cleanName = "NT Loyalist"
+	desc = "Start implanted with a Loyalty Implant and a Tracking Implant."
 	id = "loyalist"
+	points = -1
+	isPositive = 1
+	onLife(/var/mob/owner)
+		if(istype(owner, /mob/living/carbon/human))
+			if (ticker && ticker.mode && istype(ticker.mode, /datum/game_mode/revolution))
+				if (H.mind in ticker.mode:head_revolutionaries)
+					return
+			H.implant.Add(/obj/implant/antirev)
+			H.implant.Add(/obj/implant/tracking)		
+
+/obj/trait/fanatic
+	name = "Corporate Fanatic (-1) \[Trinkets\]"
+	cleanName = "Corporate Fanatic"
+	desc = "Start with a Nanotrasen Beret as your trinket."
+	id = "fanatic"
 	points = -1
 	isPositive = 1
 	category = "trinkets"

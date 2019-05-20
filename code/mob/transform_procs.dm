@@ -443,32 +443,96 @@
 	return 0
 
 /mob/proc/make_meatcube(var/life = 10, var/turf/T)
-	var/mob/living/carbon/wall/meatcube/W = new/mob/living/carbon/wall/meatcube(src)
-	if (!T || !isturf(T))
-		T = get_turf(src)
-	W.life_timer = life
 
-	if (!(T && isturf(T)) || (isrestrictedz(T.z) && !(src.client && src.client.holder)))
-		var/ASLoc = pick(latejoin)
-		if (ASLoc)
-			W.set_loc(ASLoc)
+	//okay lets see if my shitcode can actually work
+	
+	if (src.mind.assigned_role == "Clown")
+		var/mob/living/carbon/wall/meatcube/clown/W = new/mob/living/carbon/wall/meatcube/clown(src)
+		if (!T || !isturf(T))
+			T = get_turf(src)
+		W.life_timer = life
+
+		if (!(T && isturf(T)) || (isrestrictedz(T.z) && !(src.client && src.client.holder)))
+			var/ASLoc = pick(latejoin)
+			if (ASLoc)
+				W.set_loc(ASLoc)
+			else
+				W.set_loc(locate(1, 1, 1))
 		else
-			W.set_loc(locate(1, 1, 1))
+			W.set_loc(T)
+		W.gender = src.gender
+		W.real_name = src.real_name
+		if (src.mind)
+			src.mind.transfer_to(W)
+			src.mind.assigned_role = "Meatcube"
+		else
+			if (src.client)
+				var/key = src.client.key
+				src.client.mob = W
+				W.mind = new /datum/mind()
+				ticker.minds += W.mind
+				W.mind.key = key
+				W.mind.current = W
+		spawn(1)
+			qdel(src)
+		return W
+	else if(src.mind.assigned_role == "Cluwne")
+		var/mob/living/carbon/wall/meatcube/cluwne/W = new/mob/living/carbon/wall/meatcube/cluwne(src)
+		if (!T || !isturf(T))
+			T = get_turf(src)
+		W.life_timer = life
+
+		if (!(T && isturf(T)) || (isrestrictedz(T.z) && !(src.client && src.client.holder)))
+			var/ASLoc = pick(latejoin)
+			if (ASLoc)
+				W.set_loc(ASLoc)
+			else
+				W.set_loc(locate(1, 1, 1))
+		else
+			W.set_loc(T)
+		W.gender = src.gender
+		W.real_name = src.real_name
+		if (src.mind)
+			src.mind.transfer_to(W)
+			src.mind.assigned_role = "Meatcube"
+		else
+			if (src.client)
+				var/key = src.client.key
+				src.client.mob = W
+				W.mind = new /datum/mind()
+				ticker.minds += W.mind
+				W.mind.key = key
+				W.mind.current = W
+		spawn(1)
+			qdel(src)
+		return W
 	else
-		W.set_loc(T)
-	W.gender = src.gender
-	W.real_name = src.real_name
-	if (src.mind)
-		src.mind.transfer_to(W)
-		src.mind.assigned_role = "Meatcube"
-	else
-		if (src.client)
-			var/key = src.client.key
-			src.client.mob = W
-			W.mind = new /datum/mind()
-			ticker.minds += W.mind
-			W.mind.key = key
-			W.mind.current = W
-	spawn(1)
-		qdel(src)
-	return W
+		var/mob/living/carbon/wall/meatcube/W = new/mob/living/carbon/wall/meatcube(src)
+		if (!T || !isturf(T))
+			T = get_turf(src)
+		W.life_timer = life
+
+		if (!(T && isturf(T)) || (isrestrictedz(T.z) && !(src.client && src.client.holder)))
+			var/ASLoc = pick(latejoin)
+			if (ASLoc)
+				W.set_loc(ASLoc)
+			else
+				W.set_loc(locate(1, 1, 1))
+		else
+			W.set_loc(T)
+		W.gender = src.gender
+		W.real_name = src.real_name
+		if (src.mind)
+			src.mind.transfer_to(W)
+			src.mind.assigned_role = "Meatcube"
+		else
+			if (src.client)
+				var/key = src.client.key
+				src.client.mob = W
+				W.mind = new /datum/mind()
+				ticker.minds += W.mind
+				W.mind.key = key
+				W.mind.current = W
+		spawn(1)
+			qdel(src)
+		return W

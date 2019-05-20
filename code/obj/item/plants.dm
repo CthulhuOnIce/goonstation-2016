@@ -133,6 +133,41 @@
 		R.add_reagent("catdrugs", 40)
 		R.add_reagent("histamine", 40)
 
+/obj/item/plant/herb/cannabis/brown
+		name = "brown cannabis leaf"
+		desc = "Brown leaves with a pungent, egg-like odor. Gross."
+		icon = 'icons/obj/hydroponics/hydromisc.dmi'
+		icon_state = "brownweed"
+		brewable = 1
+		brew_result = list("THC", "fartonium")
+
+/obj/item/plant/herb/cannabis/brown/spawnable
+	New()
+		..()
+		var/datum/reagents/R = new/datum/reagents(85)
+		reagents = R
+		R.my_atom = src
+		R.add_reagent("THC", 40)
+		R.add_reagent("fartonium", 40)
+
+/obj/item/plant/herb/cannabis/clown
+		name = "funny-looking cannabis leaf"
+		desc = "What the fuck is this? Is that a face?"
+		icon = 'icons/obj/hydroponics/hydromisc.dmi'
+		icon_state = "clownweed"
+		brewable = 1
+		brew_result = list("THC", "honkfartium", "fartonium") //honkfartium doesn't appear to be in the 2016 release, RIP
+
+/obj/item/plant/herb/cannabis/clown/spawnable
+	New()
+		..()
+		var/datum/reagents/R = new/datum/reagents(85)
+		reagents = R
+		R.my_atom = src
+		R.add_reagent("THC", 20)
+		R.add_reagent("honkfartium", 30)
+		R.add_reagent("fartonium", 30)
+
 /obj/item/plant/wheat
 	name = "wheat"
 	desc = "Never eat shredded wheat."

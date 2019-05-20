@@ -101,7 +101,8 @@
 	genome = 2
 	assoc_reagents = list("THC")
 	mutations = list(/datum/plantmutation/cannabis/rainbow,/datum/plantmutation/cannabis/death,
-	/datum/plantmutation/cannabis/white,/datum/plantmutation/cannabis/ultimate)
+	/datum/plantmutation/cannabis/white,/datum/plantmutation/cannabis/ultimate,
+	/datum/plantmutation/cannabis/brown,/datum/plantmutation/cannabis/clown)
 	commuts = list(/datum/plant_gene_strain/resistance_drought,/datum/plant_gene_strain/yield/stunted)
 
 /datum/plant/catnip

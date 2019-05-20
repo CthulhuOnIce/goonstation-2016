@@ -138,6 +138,170 @@
 				src.suiciding = 0
 				return
 
+/mob/living/carbon/wall/meatcube/clown
+
+name = "clown cube"
+	real_name = "clown cube"
+	icon_state = "clowncube-squish" //be sure to actually, ya know, put the sprites in
+	opacity = 0
+	var/life_timer = 10
+
+	Life(datum/controller/process/mobs/parent)
+		if (..(parent))
+			return 1
+
+		if (src.client)
+			src.antagonist_overlay_refresh(0, 0)
+
+		if (istype(loc, /obj/machinery/deep_fryer))
+			return
+
+		if (prob(30))
+			src.visible_message("<span style=\"color:red\"><b>[src] [pick("quivers","pulsates","squirms","flollops","shudders","twitches","willomies","squeaks","giggles")] [pick("sadly","disgustingly","horrifically","unpleasantly","disturbingly","worryingly","pathetically","floopily","comedically","funnily","morbidly")]!</b></span>")
+
+		if (life_timer-- > 0)
+			return
+
+		for (var/i = 3, i > 0, i--)
+			var/obj/item/reagent_containers/food/snacks/ingredient/meat/mysterymeat/meat = new /obj/item/reagent_containers/food/snacks/ingredient/meat/mysterymeat(src.loc)
+			meat.name = "cube steak"
+			meat.desc = "It smells like banana... What the fuck?"
+
+		playsound(src.loc, "sound/effects/splat.ogg", 75, 1)
+		src.visible_message("<span style=\"color:red\"><b>The clown cube pops!</b></span>")
+		src.gib(1)
+		return
+
+	say_quote(var/text)
+		if(src.emote_allowed)
+			if(!(src.client && src.client.holder))
+				src.emote_allowed = 0
+			
+			
+			if (narrator_mode)
+				playsound(src.loc, 'sound/vox/honk.ogg', 80, 0, 0, src.get_age_pitch())
+			else
+				playsound(get_turf(src), 'sound/item/bikehorn.ogg', 50, 1)
+
+			spawn(50)
+				src.emote_allowed = 1
+			return "honks!"
+		else
+			return pick("gurgles.","shivers.","twitches.","shakes.","squirms.","cries.","squeaks.","giggles.")
+
+	verb/suicide()
+		set hidden = 1
+
+		if (src.stat == 2)
+			boutput(src, "You're already dead!")
+			return
+
+		if (suiciding)
+			boutput(src, "You're already committing suicide! Be patient!")
+			return
+
+		suiciding = 1
+
+		var/confirm = alert("Are you sure you want to commit suicide?", "Confirm Suicide", "Yes", "No")
+
+		if(confirm == "Yes")
+			logTheThing("combat", src, null, "commits suicide")
+
+			var/obj/machinery/deep_fryer/fryer = locate() in orange(1, src)
+			if (istype(fryer) && fryer.suicide(src))
+				src.unlock_medal("Damned", 1)
+				src.suiciding = 0
+				return
+			else
+				src.visible_message("<span style=\"color:red\"><b>The clown cube pops!</b></span>")
+				src.gib(1)
+				/obj/item/clothing/mask/clown_hat.set_loc(get_turf(src))
+				src.unlock_medal("Damned", 1)
+				src.suiciding = 0
+				return
+
+name = "cluwne cube"
+	real_name = "cluwne cube"
+	icon_state = "cluwnecube-squish" //be sure to actually, ya know, put the sprites in
+	opacity = 0
+	var/life_timer = 10
+
+	Life(datum/controller/process/mobs/parent)
+		if (..(parent))
+			return 1
+
+		if (src.client)
+			src.antagonist_overlay_refresh(0, 0)
+
+		if (istype(loc, /obj/machinery/deep_fryer))
+			return
+
+		if (prob(30))
+			src.visible_message("<span style=\"color:red\"><b>[src] [pick("quivers","pulsates","squirms","flollops","shudders","twitches","willomies","squeaks","giggles","hyperventilates","panics")] [pick("sadly","disgustingly","horrifically","unpleasantly","disturbingly","worryingly","pathetically","floopily","comedically","funnily","cursedly","distressingly")]!</b></span>")
+
+		if (life_timer-- > 0)
+			return
+
+		for (var/i = 3, i > 0, i--)
+			var/obj/item/reagent_containers/food/snacks/ingredient/meat/mysterymeat/meat = new /obj/item/reagent_containers/food/snacks/ingredient/meat/mysterymeat(src.loc)
+			meat.name = "cube steak"
+			meat.desc = "Well, at least they're out of their misery..."
+
+		playsound(src.loc, "sound/effects/splat.ogg", 75, 1)
+		src.visible_message("<span style=\"color:red\"><b>The cluwne cube pops!</b></span>")
+		src.gib(1)
+		return
+
+	say_quote(var/text)
+		if(src.emote_allowed)
+			if(!(src.client && src.client.holder))
+				src.emote_allowed = 0
+			
+			
+			if (narrator_mode)
+				playsound(src.loc, 'sound/vox/honk.ogg', 80, 0, 0, src.get_age_pitch())
+			else
+				var/CluwneNoise = pick('sound/items/hellhorn_0','sound/items/hellhorn_1','sound/items/hellhorn_2','sound/items/hellhorn_3','sound/items/hellhorn_4','sound/items/hellhorn_5','sound/items/hellhorn_6','sound/items/hellhorn_7','sound/items/hellhorn_8','sound/items/hellhorn_9','sound/items/hellhorn_10','sound/items/hellhorn_11','sound/items/hellhorn_12')
+				playsound(get_turf(src),var/CluwneNoise, 50, 1)
+
+			spawn(50)
+				src.emote_allowed = 1
+			return "makes a distressingly weird noise!"
+		else
+			return pick("gurgles.","shivers.","twitches.","shakes.","squirms.","cries.","squeaks.","giggles.","suffers.","visually begs for mercy")
+
+	verb/suicide()
+		set hidden = 1
+
+		if (src.stat == 2)
+			boutput(src, "You're already dead!")
+			return
+
+		if (suiciding)
+			boutput(src, "You're already committing suicide! Be patient!")
+			return
+
+		suiciding = 1
+
+		var/confirm = alert("Are you sure you want to commit suicide?", "Confirm Suicide", "Yes", "No")
+
+		if(confirm == "Yes")
+			logTheThing("combat", src, null, "commits suicide")
+
+			var/obj/machinery/deep_fryer/fryer = locate() in orange(1, src)
+			if (istype(fryer) && fryer.suicide(src))
+				src.unlock_medal("Damned", 1)
+				src.suiciding = 0
+				return
+			else
+				src.visible_message("<span style=\"color:red\"><b>The meat cube pops!</b></span>")
+				src.gib(1)
+				/obj/item/clothing/mask/cursedclown_hat.set_loc(get_turf(src))
+				src.unlock_medal("Damned", 1)
+				src.suiciding = 0
+				return
+
+
 /mob/living/carbon/wall/meatcube/krampus
 	name = "Krampus 2.0"
 	life_timer = INFINITY
