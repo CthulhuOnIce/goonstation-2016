@@ -357,6 +357,25 @@
 		return ..()
 	return
 
+//Basically the same as above. This is useful so you can get cigs from packs when you only have one arm
+/obj/item/cigpacket/attack_self(var/mob/user as mob)
+	if (src.cigcount == 0)
+		user.show_text("You're out of cigs, shit! How you gonna get through the rest of the day?", "red")
+		return
+	else
+		var/obj/item/clothing/mask/cigarette/W = new src.cigtype(user)
+
+		if (src.cigcount != -1)
+			src.cigcount--
+
+		if (user.put_in_hand(W))
+			user.show_text("You stylishly knock a cig out of [src] into your other hand.", "blue")
+		else 
+			W.set_loc(get_turf(user))
+			user.show_text("You knock a cig out of [src] onto the ground. What a pro.", "red")
+
+	src.update_icon()
+
 /obj/item/cigbutt
 	name = "cigarette butt"
 	desc = "A manky old cigarette butt."
