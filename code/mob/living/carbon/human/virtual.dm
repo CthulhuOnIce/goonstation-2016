@@ -1,6 +1,7 @@
 /mob/living/carbon/human/virtual
 	real_name = "Virtual Human"
 	var/mob/body = null
+	var/isghost = 0
 
 	New()
 		..()
@@ -45,3 +46,31 @@
 		if(severity == 1)
 			src.death()
 		return
+
+	say(var/message) //Handle Virtual Spectres
+		if(!isghost)
+			return ..()
+
+		message = trim(copytext(sanitize(message), 1, MAX_MESSAGE_LEN))
+		if (!message)
+			return
+
+		if (dd_hasprefix(message, "*"))
+			return src.emote(copytext(message, 2),1)
+
+		if (src.client && src.client.ismuted())
+			boutput(src, "You are currently muted and may not speak.")
+			return
+
+		. = src.say_dead(message, 1)
+
+	emote(var/act, var/voluntary = 0)
+		if(isghost)
+			if (findtext(act, " ", 1, null))
+				var/t1 = findtext(act, " ", 1, null)
+				act = copytext(act, 1, t1)
+			var/txt = lowertext(act)
+			if (txt == "custom" || txt == "customh" || txt == "customv" || txt == "me")
+				alert("Nice try.")
+				return
+		..()
