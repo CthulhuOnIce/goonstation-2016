@@ -19,6 +19,19 @@ obj/structure
 			state = 2
 			desc = "A reinforced metal support for an incomplete wall. Reinforced metal could turn it into a reinforced wall, or it could be disassembled with various tools."
 
+	windoor_frame
+		name = "interior door frame"
+		icon = 'icons/obj/doors/windoor.dmi'
+		icon_state = "left"
+		anchored = 1
+		density = 0
+		var/stage = 1
+		var/list/accessbuffer = null
+
+		reinforced
+			name = "reinforced interior door frame"
+			icon_state = "leftsecure"
+
 	blob_act(var/power)
 		if (power < 30)
 			return
@@ -209,6 +222,190 @@ obj/structure/ex_act(severity)
 		return
 	else
 		return ..()
+
+//////////////////////////////////////WINDOOR PROCS AND VERBS\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+/obj/structure/windoor_frame/examine()
+	..()
+	switch (src.stage)
+		if (0)
+			boutput(usr,"You could hit it with a screwdriver to anchor the door, or a wrench to fully deconstruct the frame. Hit it with an ID to copy the access.")
+		if (1)
+			boutput(usr,"You could hit it with some cable to start constructing it, use a screwdriver to unanchor it, or a wrench to fully deconstruct the frame. Hit it with an ID to copy the access.")
+		if (2)
+			boutput(usr,"You could hit it with some a wrench to continue construction, or wirecutters to cut the wires. Hit it with an ID to copy the access.")
+		if (3)
+			boutput(usr,"You could hit it with a welder to construct it, or a wrench to unsecure the door. Hit it with an ID to copy the access.")
+/obj/structure/windoor_frame/attackby(obj/item/I as obj, mob/user as mob)
+	if (istype(I, /obj/item/card/id))
+		var/obj/item/card/id/A = I
+		src.accessbuffer = A.access
+		user.show_text("Access scanned!", "blue")
+		return
+	switch (src.stage)
+		if (0)												//this is only used when the windoor is unanchored so the user can't continue to build it
+			if (istype(I, /obj/item/screwdriver))
+				src.anchored = !(src.anchored)
+				user.show_text("You secure the frame to the floor.", "red")
+				src.stage = 1
+				playsound(src.loc, "sound/items/Screwdriver.ogg", 75, 1)
+				return
+			if (istype(I, /obj/item/cable_coil))
+				user.show_text("[src] is not anchored!", "red")
+				return
+			if (istype(I, /obj/item/wrench))
+				user.show_text("You start deconstructing [src].", "blue")
+				playsound(src.loc, "sound/items/Ratchet.ogg", 75, 1)
+				if (do_after(user, 30))
+					user.show_text("You disassemble [src]", "red")
+					var/obj/item/sheet/A = new /obj/item/sheet(get_turf(src))
+					if (src.material)
+						A.setMaterial(src.material)
+						if (istype(src, /obj/structure/windoor_frame/reinforced))
+							A.set_reinforcement(getCachedMaterial("steel"))
+					else
+						var/datum/material/M = getCachedMaterial("glass")
+						A.setMaterial(M)
+						if (istype(src, /obj/structure/windoor_frame/reinforced))
+							A.set_reinforcement(getCachedMaterial("steel"))
+					qdel(src)
+				return
+
+		if (1)
+			if (istype(I, /obj/item/cable_coil))
+				var/obj/item/cable_coil/C = I
+				if (C.amount < 6)
+					user.show_text("You need at least 6 pieces of cable!", "red")
+					return
+				C.use(6)
+				user.show_text("You start adding cable to [src].", "blue")
+				if (do_after(user, 20))
+					src.stage = 2
+					user.show_text("You add the cable to [src].", "blue")
+				return
+			if (istype(I, /obj/item/screwdriver))
+				src.anchored = !(src.anchored)
+				user.show_text("You unsecure [src] from the floor.", "red")
+				src.stage = 0
+				playsound(src.loc, "sound/items/Screwdriver.ogg", 75, 1)
+				return
+			if (istype(I, /obj/item/wrench))
+				user.show_text("You start deconstructing [src].", "blue")
+				playsound(src.loc, "sound/items/Ratchet.ogg", 75, 1)
+				if (do_after(user, 30))
+					user.show_text("You disassemble [src]", "red")
+					var/obj/item/sheet/A = new /obj/item/sheet(get_turf(src))
+					if (src.material)
+						A.setMaterial(src.material)
+						if (istype(src, /obj/structure/windoor_frame/reinforced))
+							A.set_reinforcement(getCachedMaterial("steel"))
+					else
+						var/datum/material/M = getCachedMaterial("glass")
+						A.setMaterial(M)
+						if (istype(src, /obj/structure/windoor_frame/reinforced))
+							A.set_reinforcement(getCachedMaterial("steel"))
+					A.amount = 2
+					qdel(src)
+
+		if (2)
+			if (istype(I, /obj/item/wrench))
+				user.show_text("You start securing the bolts into place.", "blue")
+				playsound(src.loc, "sound/items/Ratchet.ogg", 75, 1)
+				if (do_after(user, 30))
+					user.show_text("You finish securing the bolts.", "blue")
+					if (istype(src, /obj/structure/windoor_frame/reinforced))
+						src.stage = 3
+						user.show_text("You finish wrenching the bolts into place.", "blue")
+					else
+						var/obj/machinery/door/window/D = new /obj/machinery/door/window(src.loc)
+
+						if (!(src.dir in cardinal))
+							if (src.dir == NORTHWEST || src.dir == SOUTHEAST)
+								src.dir = turn(src.dir, 45)
+							else if (src.dir == NORTHEAST || src.dir == SOUTHWEST)
+								src.dir = turn(src.dir, -45)
+
+						if (src.material)
+							D.setMaterial(src.material)
+						else
+							var/datum/material/M = getCachedMaterial("glass")
+							D.setMaterial(M)
+
+						D.dir = src.dir
+						D.req_access = src.accessbuffer
+						qdel(src)
+					return
+			if (istype(I, /obj/item/wirecutters))
+				user.show_text("You start cutting the wires in [src]", "blue")
+				playsound(src.loc, "sound/items/Wirecutter.ogg", 75, 1)
+				if (do_after(user, 20))
+					src.stage = 1
+					user.show_text("You finish cutting the wires.", "blue")
+					var/obj/item/cable_coil/C = new /obj/item/cable_coil(get_turf(src))
+					C.amount = 6
+				return
+		if (3)
+			if (istype(I, /obj/item/weldingtool) )
+				var/obj/item/weldingtool/W = I
+				if (!(W.welding))
+					return
+				if (W.get_fuel() < 3)
+					user.show_text("Need more fuel!", "red")
+					return
+				W.eyecheck(user)
+				user.show_text("You start constructing the shield.", "blue")
+				playsound(src.loc, "sound/items/Welder2.ogg", 75, 1)
+				if (do_after(user, 30))
+					W.use_fuel(3)
+					user.show_text("You finish constructing the shield.", "blue")
+					var/obj/machinery/door/window/brigdoor/generic/D = new /obj/machinery/door/window/brigdoor/generic(src.loc)
+
+					if (!(src.dir in cardinal))
+						if (src.dir == NORTHWEST || src.dir == SOUTHEAST)
+							src.dir = turn(src.dir, 45)
+						else if (src.dir == NORTHEAST || src.dir == SOUTHWEST)
+							src.dir = turn(src.dir, -45)
+
+					if (src.material)
+						D.setMaterial(src.material)
+					else
+						var/datum/material/M = getCachedMaterial("glass")
+						D.setMaterial(M)
+
+					D.dir = src.dir
+					D.req_access = src.accessbuffer
+					qdel(src)
+				return
+			if (istype(I, /obj/item/wrench))
+				user.show_text("You start disconnecting the main bolts.", "blue")
+				playsound(src.loc, "sound/items/Ratchet.ogg", 75, 1)
+				if (do_after(user, 30))
+					src.stage = 2
+					user.show_text("You finish disconnecting the main bolts.", "blue")
+	return ..()
+
+/obj/structure/windoor_frame/verb/rotate()
+	set name = "Rotate Frame"
+	set src in oview(1)
+	set category = "Local"
+
+	if (!(src.dir in cardinal))
+		return
+	if (src.anchored)
+		boutput(usr, "It is fastened to the floor; therefore, you can't rotate it!")
+		return 0
+
+	var/action = input(usr,"Rotate it which way?","Frame Rotation",null) in list("Clockwise ->","Anticlockwise <-","180 Degrees")
+	if (!action) return
+
+	switch(action)
+		if ("Clockwise ->") src.dir = turn(src.dir, -90)
+		if ("Anticlockwise <-") src.dir = turn(src.dir, 90)
+		if ("180 Degrees") src.dir = turn(src.dir, 180)
+
+	return
+
+///////////////////////////////////////BARRICADE\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 /obj/structure/woodwall
 	name = "wooden barricade"

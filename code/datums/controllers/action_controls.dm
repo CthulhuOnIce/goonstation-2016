@@ -308,6 +308,13 @@ var/datum/action_controller/actions
 		R.setMaterial(mat)
 		if (istype(R))
 			R.amount = amount
+
+		if (!(owner.dir in cardinal))
+			if (owner.dir == NORTHWEST || owner.dir == SOUTHEAST)
+				owner.dir = turn(owner.dir, 45)
+			else if (owner.dir == NORTHEAST || owner.dir == SOUTHWEST)
+				owner.dir = turn(owner.dir, -45)
+
 		R.dir = owner.dir
 		sheet.consume_sheets(cost)
 		logTheThing("station", owner, null, "builds [objname] (<b>Material:</b> [mat && istype(mat) && mat.mat_id ? "[mat.mat_id]" : "*UNKNOWN*"]) at [log_loc(owner)].")

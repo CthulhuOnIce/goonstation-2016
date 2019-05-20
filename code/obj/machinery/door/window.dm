@@ -16,6 +16,9 @@
 	opacity = 0
 	brainloss_stumble = 1
 	autoclose = 1
+	power_usage = 30		//more efficient than airlocks
+	var/disabled = 0
+	var/shield = 0			//defined here to prevent runtimes
 
 	New()
 		..()
@@ -35,6 +38,84 @@
 	attackby(obj/item/I as obj, mob/user as mob)
 		if (user.stunned || user.weakened || user.stat || user.restrained())
 			return
+
+		if (istype(I, /obj/item/screwdriver))
+			src.p_open = !(src.p_open)
+			user.show_text("You [src.p_open ? "open" : "close"] the access panel of [src].", "blue")
+			return
+
+		if (istype(I, /obj/item/wirecutters) && src.p_open)
+			if (istype(src, /obj/machinery/door/window/brigdoor) && src.shield)
+				user.show_text("The protective shield is up!", "red")
+				return
+			src.disabled = !(src.disabled)
+			if (!src.disabled)
+				src.power_usage = 30
+				user.show_text("You mend [src] with [I].", "red")
+				user.visible_message("<span style=\"color:red\"><b>[user]</b> repairs [src]'s power wire.</span>")
+			else
+				src.power_usage = 0
+				user.show_text("You disable [src] with [I].", "red")
+				user.visible_message("<span style=\"color:red\"><b>[user]</b> cuts [src]'s power wire.</span>")
+			return
+
+		if (istype(I, /obj/item/wrench) && src.p_open && !(src.shield) && src.disabled)
+			user.show_text("You start to unwrench the main bolts.", "red")
+			playsound(src.loc, "sound/items/Ratchet.ogg", 75, 1)
+			if (do_after(user, 30))
+				user.show_text("You unsecure the bolts holding [src] together.", "red")
+				user.visible_message("<span style=\"color:red\"><b>[user]</b> deconstructs [src] into a frame.</span>")
+				if (istype(src, /obj/machinery/door/window/brigdoor))
+					var/obj/structure/windoor_frame/reinforced/D = new /obj/structure/windoor_frame/reinforced(src.loc)
+					D.stage = 2
+					D.dir = src.dir
+					D.accessbuffer = src.req_access
+					if (src.material)
+						D.setMaterial(src.material)
+					else
+						var/datum/material/M = getCachedMaterial("glass")
+						D.setMaterial(M)
+
+					D.dir = src.dir
+					D.accessbuffer = src.req_access
+				else
+					var/obj/structure/windoor_frame/D = new /obj/structure/windoor_frame(src.loc)
+					D.stage = 2
+					D.dir = src.dir
+					D.accessbuffer = src.req_access
+					if (src.material)
+						D.setMaterial(src.material)
+					else
+						var/datum/material/M = getCachedMaterial("glass")
+						D.setMaterial(M)
+
+					D.dir = src.dir
+					D.accessbuffer = src.req_access
+
+				qdel(src)
+			return
+		if (istype(I, /obj/item/crowbar))
+			src.unpowered_open_close(user)
+			return
+
+		if (istype(src, /obj/machinery/door/window/brigdoor) && istype(I, /obj/item/weldingtool) && src.p_open)
+			var/obj/item/weldingtool/W = I
+			if (!(W.welding))
+				return
+			if (W.get_fuel() < 2)
+				user.show_text("Need more fuel!", "red")
+				return
+			W.eyecheck(user)
+			user.show_text("You start to [src.shield ? "cut" : "repair"] the protective shield.", "red")
+			playsound(src.loc, "sound/items/Welder.ogg", 75, 1)
+			if (do_after(user, 30))
+				W.use_fuel(2)
+				src.shield = !src.shield
+				user.show_text("You [src.shield ? "repair" : "slice open"] the protective shield.", "red")
+				user.visible_message("<span style=\"color:red\"><b>[user]</b> [src.shield ? "repairs" : "slices open"] [src]'s shield.</span>")
+				return
+			return
+
 		if (src.isblocked() == 1)
 			return
 		if (src.operating)
@@ -61,6 +142,15 @@
 			if (src.density)
 				flick(text("[]deny", src.base_state), src)
 
+		return
+
+	examine()
+		..()
+		boutput(usr, "The access panel is [src.p_open ? "open" : "closed"].")
+		if (src.disabled || (stat & NOPOWER))
+			boutput(usr, "The power light is off!")
+		if (istype(src, /obj/machinery/door/window/brigdoor) && src.p_open && !(src.shield))
+			boutput(usr, "The protective shielding is sliced open!")
 		return
 
 	emp_act()
@@ -144,6 +234,8 @@
 			return 0
 		if (src.operating)
 			return 0
+		if ((stat & NOPOWER) || (src.disabled))
+			return 0
 		src.operating = 1
 
 		flick(text("[]opening", src.base_state), src)
@@ -171,6 +263,8 @@
 			return 0
 		if (src.operating)
 			return 0
+		if ((stat & NOPOWER) || (src.disabled))
+			return 0
 		src.operating = 1
 
 		flick(text("[]closing", src.base_state), src)
@@ -187,6 +281,48 @@
 				src.operating = 0
 
 		return 1
+
+	proc/unpowered_open_close(mob/user as mob)
+		if (!src || !istype(src))
+			return
+
+		if ((src.density) && !( src.operating ) && ((stat & NOPOWER) || src.disabled) && !( src.locked ))
+			user.show_text("You begin to pry open [src].", "red")
+			if (do_after(user, 35))
+				src.operating = 1
+
+				flick(text("[]opening", src.base_state), src)
+				src.icon_state = text("[]open", src.base_state)									//totally didn't just copy the above code nope haha
+
+				spawn (10)
+					if (src)
+						src.density = 0
+						src.RL_SetOpacity(0)
+						src.update_nearby_tiles()
+						src.operating = 0
+				user.show_text("You pry open the [src].", "red")
+				return 1
+
+		if ((!src.density) && !( src.operating ) && ((stat & NOPOWER) || src.disabled) && !( src.locked ))
+			user.show_text("You begin to pry closed [src].", "red")
+			if (do_after(user, 35))
+				src.operating = 1
+
+				flick(text("[]closing", src.base_state), src)
+				src.icon_state = text("[]", src.base_state)
+
+				src.density = 1
+				if (src.visible)
+					src.RL_SetOpacity(1)
+				src.update_nearby_tiles()
+
+				spawn (10)
+					if (src)
+						src.operating = 0
+				user.show_text("You pry closed the [src].", "red")
+			return 1
+
+		return 0
 
 	// Since these things don't have a maintenance panel or any other place to put this, really (Convair880).
 	verb/toggle_autoclose()
@@ -231,6 +367,7 @@
 	var/id = 1.0
 	req_access = list(access_brig)
 	autoclose = 0 //brig doors close only when the cell timer starts
+	shield = 1 //brig doors have a shield that protects against wire cutting (can be broken with welder)
 
 	// Please keep synchronizied with these lists for easy map changes:
 	// /obj/storage/secure/closet/brig/automatic (secure_closets.dm)
@@ -596,6 +733,11 @@
 			dir = SOUTH
 			icon_state = "rightsecure"
 			base_state = "rightsecure"
+	generic
+		name = "secure interior door"
+		id = 99999999.0			//some random id that will hopefully never be used
+		req_access = null
+		autoclose = 1
 
 /////////////////////////////////////////////////////////// Opaque door //////////////////////////////////////
 

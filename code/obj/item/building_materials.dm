@@ -237,6 +237,7 @@ MATERIAL
 		if (src.material && src.material.material_flags & MATERIAL_CRYSTAL)
 			L["smallwindow"] = "Thin Window"
 			L["bigwindow"] = "Large Window (2 Sheets)"
+			L["windoor"] = "Windoor Frame (3 Sheets)"
 
 		for(var/t in L)
 			counter++
@@ -457,6 +458,19 @@ MATERIAL
 					a_icon_state = "window"
 					a_name = "a full window"
 					a_callback = /proc/window_reinforce_full_callback
+
+				if("windoor")
+					if (!amount_check(3,usr)) return
+					if (src.reinforcement)
+						a_type = /obj/structure/windoor_frame/reinforced
+						a_icon_state = "leftsecure"
+					else
+						a_type = /obj/structure/windoor_frame
+						a_icon_state = "left"
+					a_amount = 1
+					a_cost = 3
+					a_icon = 'icons/obj/doors/windoor.dmi'
+					a_name = "a windoor"
 
 				if("retable")
 					if (!amount_check(2,usr)) return

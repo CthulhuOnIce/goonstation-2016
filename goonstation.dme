@@ -1196,6 +1196,7 @@ var/datum/preMapLoad/preMapLoad = new
 #include "libs\Base64\binary.dm"
 #include "libs\Base64\hexadecimal.dm"
 #include "libs\Base64\text.dm"
+#include "maps\placeholders\map_placeholders.dm"
 #include "maps\config\map.dm"
 #include "maps\_disposaltester.dm"
 // END_INCLUDE
