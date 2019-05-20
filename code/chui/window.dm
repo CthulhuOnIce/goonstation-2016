@@ -206,7 +206,6 @@ chui/window
 		else
 			OnTopic( href, href_list )
 
-
 //Called when the close button is clicked on both
 /client/verb/chuiclose( var/window as text )
 	set name = ".chui-close"
@@ -218,6 +217,7 @@ chui/window
 		win.Unsubscribe( src )
 	else
 		src << browse( null, "window=[window]" )//Might not be a standard chui window but we'll play along.
+
 
 //A chui substitute for usr << browse()
 //Mostly the same syntax.

@@ -453,8 +453,7 @@
 		RHITM:layer = initial(RHITM:layer)
 
 	if(pickup && !src.r_hand)
-		pickup.set_loc(src)
-		src.r_hand = pickup
+		src.equip_if_possible(pickup, src.slot_r_hand)
 
 	src.set_clothing_icon_dirty()
 

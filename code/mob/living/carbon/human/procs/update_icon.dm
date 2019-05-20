@@ -469,12 +469,6 @@
 			UpdateOverlays(I.implant_overlay, "implant--\ref[I]")
 			implant_images += I
 
-	for (var/mob/M in viewers(1, src))
-		if ((M.client && M.machine == src))
-			spawn (0)
-				src.show_inv(M)
-				return
-
 	src.last_b_state = src.stat
 
 #undef wear_sanity_check
@@ -597,6 +591,7 @@
 
 	UpdateOverlays(i_r_hand, "i_r_hand")
 	UpdateOverlays(i_l_hand, "i_l_hand")
+	src.updateLootUI()
 
 /mob/living/carbon/human/proc/update_hair_layer()
 	if (src.wear_suit && src.head && src.wear_suit.over_hair && src.head.seal_hair)
