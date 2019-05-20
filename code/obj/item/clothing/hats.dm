@@ -13,6 +13,46 @@
 	cold_resistance = 10
 	heat_resistance = 5
 
+	//add lot or cash to a hat
+	attackby(obj/item/O as obj, mob/user as mob)
+		if (!user.find_in_hand(src))
+			boutput(user, "Trying to put something into a hat that you're not holding? Science hasn't come that far yet.")
+		else
+
+			if (istype(O, /obj/item/paper) || istype(O, /obj/item/spacecash))
+				if (src.contents.len < 20)
+					src.contents += O
+					user.u_equip(O)
+					user.visible_message("<span style=\"color:blue\">[user] adds [O] to [src].</span>")
+				else
+					boutput(user, "You can't fit anything else into [src].")
+			else
+				..()
+
+
+	//remove lot from hat
+	attack_hand(mob/user as mob)
+		if (user.find_in_hand(src))
+			if (src.contents.len > 0)
+				var/obj/O = pick(src.contents)
+				user.put_in_hand_or_drop(O)
+				user.visible_message("<span style=\"color:red\">[user] draws [O] out of [src]!</span>")
+				src.contents -= O
+			else
+				..()
+		else
+			..()
+
+	//empty out hat
+	attack_self(mob/user as mob)
+		if (src.contents.len > 0)
+			user.visible_message("<span style=\"color:red\">[user] empties the contents of [src].</span>")
+			for (var/obj/item/O in src.contents)
+				O.set_loc(get_turf(src))
+				src.contents -= O
+		else
+			..()
+
 /obj/item/clothing/head/red
 	desc = "A knit cap in red."
 	icon_state = "red"
@@ -170,6 +210,7 @@
 		return
 
 	afterattack(atom/target, mob/user as mob)
+		..()
 		if (src.on && !ismob(target) && target.reagents)
 			boutput(usr, "<span style=\"color:blue\">You heat \the [target.name]</span>")
 			target.reagents.temperature_reagents(2500,10)
@@ -486,12 +527,40 @@
 	icon_state = "wizard"
 	item_state = "wizard"
 	magical = 1
+	var/ready = 1
 
 	handle_other_remove(var/mob/source, var/mob/living/carbon/human/target)
 		. = ..()
 		if (prob(75))
 			source.show_message(text("<span style=\"color:red\">\The [src] writhes in your hands as though it is alive! It just barely wriggles out of your grip!</span>"), 1)
 			. = 0
+
+	attack_hand(mob/user as mob)
+
+		//if it has something in it, do normal stuff
+		if (src.contents.len > 0 || !user.find_in_hand(src))
+			..()
+			
+		else if (iswizard(user))
+			if (ready)
+				ready = 0
+				user.say("Hocus Pocus!")
+				spawn (10)
+					user.visible_message("<span style=\"color:red\">[user] pulls a rabbit from [src] and it \"hops\" onto the floor!</span>")
+					new /obj/item/photo/rabbit(get_turf(src))
+					playsound(user.loc, "sound/effects/mag_teleport.ogg", 25, 1, -1)
+
+				//create dumb rabbit critter/sprite for comedy
+				spawn (600)
+					ready = 1
+			else
+				boutput(user, "<span style=\"color:red\">You don't feel powerful enough to conjure a rabbit from your hat just yet.</span>")
+		else
+			..()
+/obj/item/photo/rabbit
+	name = "photo of a rabbit"
+	desc = "You can see a rabbit on the photo. You feel let down?"
+	icon_state = "photo-rabbit"
 
 /obj/item/clothing/head/wizard/red
 	name = "red wizard hat"

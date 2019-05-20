@@ -2976,6 +2976,17 @@
 				M.stun_glove_attack(src)
 				return
 
+			//things can fall out of your hat when attacked and you're not on harm intent //Can probably remove. I only added it because of the HoS berret dropping "rude" papers comment.
+			if (src.a_intent == INTENT_HELP || (src.a_intent != INTENT_HARM) && prob(50))
+				if (M.zone_sel.selecting == "head" && src.head && (istype(src.head, /obj/item/clothing/head/helmet/HoS) || istype(src.head, /obj/item/clothing/head/hosberet)))
+					var/obj/item/clothing/head/hat = src.head
+					if (hat && hat.contents.len > 0)
+						spawn(2)
+							var/obj/O = pick(hat.contents)
+							M.visible_message("<span style=\"color:red\">[O] falls out of [src]\'s [hat]!</span>")
+							O.set_loc(get_turf(src))
+							hat.contents -= O
+						
 			M.melee_attack(src)
 
 	return
