@@ -50,6 +50,14 @@
 	protective_temperature = 1300
 	var/already_worn = 0
 
+//change to be security HUD in modern code
+/obj/item/clothing/glasses/sunglasses/camera
+	name = "camera sunglasses"
+	desc = "Strangely ancient technology used to help provide rudimentary eye cover. Enhanced shielding blocks many flashes. It's also a camera"
+	icon_state = "sun"
+	item_state = "sunglasses"
+	var/obj/machinery/security_monitor/connected_monitor	//connected monitor screen to display image on. Only one for now. I guess another monitor connecting to one will overwrite it, I think that's fine.
+
 /obj/item/clothing/glasses/sunglasses/equipped(var/mob/user, var/slot)
 	var/mob/living/carbon/human/H = user
 	if(istype(H) && slot == "eyes")

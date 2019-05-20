@@ -45,8 +45,10 @@
 	var/list/L = list()
 	for (var/obj/machinery/camera/C in machines)
 		L.Add(C)
-
 	L = camera_sort(L)
+	for (var/obj/machinery/security_monitor/M in machines)
+		L.Add(M)
+
 
 	//var/list/D = list()
 	//D["Cancel"] = "Cancel"
@@ -58,6 +60,9 @@
 			//D[.] = C
 			user << output("<a href='byond://?src=\ref[src];camera=\ref[C]' style='display:block;'><div>[.]</div></a>", "camera_console.camlist")
 
+	for (var/obj/machinery/security_monitor/M in machines)
+		if (M.network == src.network)
+			user << output("<a href='byond://?src=\ref[src];monitor=\ref[M]' style='display:block;'><div>[M.monitor_id]</div></a>", "camera_console.camlist")
 
 	onclose(user, "camera_console", src)
 	winset(user, "camera_console.exitbutton", "command=\".windowclose \ref[src]\"")
@@ -112,6 +117,19 @@
 		else
 			src.current = C
 			usr.set_eye(C)
+			use_power(50)
+
+	else if (href_list["monitor"])
+		var/obj/machinery/security_monitor/M = locate(href_list["monitor"])
+		if (!istype(M, /obj/machinery/security_monitor))
+			return
+		if ((!istype(usr, /mob/living/silicon/ai)))
+			M.detect_cameras()
+
+			var/key = input(usr, "Select a camera") in M.cameras
+			M.pair_camera(key)
+			return
+		else
 			use_power(50)
 
 /obj/machinery/computer/security/attackby(I as obj, user as mob)

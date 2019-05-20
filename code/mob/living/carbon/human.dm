@@ -2842,6 +2842,13 @@
 		hud.update_pulling()
 		. = ..()
 
+	//security monitor tracking on mob movement when worn
+	if (istype(src.glasses, /obj/item/clothing/glasses/sunglasses/camera))
+		var/obj/item/clothing/glasses/sunglasses/camera/g = src.glasses
+		if (g.connected_monitor && g.connected_monitor.current_camera == g)
+			g.connected_monitor.get_picture()
+
+
 /mob/living/carbon/human/UpdateName()
 	if ((src.wear_mask && !(src.wear_mask.see_face)) || (src.head && !(src.head.see_face))) // can't see the face
 		if (istype(src.wear_id) && src.wear_id:registered)
