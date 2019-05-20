@@ -12,7 +12,8 @@
 	var/uses_ammunition = 0
 	var/remaining_ammunition = 0
 
-	icon_state = "m_w_system"
+	icon = 'icons/obj/podweapons.dmi'		//remove this line.  or leave it. Could put these sprites in ship.dmi like how the original is
+	icon_state = "class-a"
 	power_used = 65
 	system = "Main Weapon"
 	opencomputer(mob/user as mob)
@@ -80,11 +81,13 @@
 /obj/item/shipcomponent/mainweapon/light_longrange
 	name = "Class-AX Light Long-range Phaser"
 	desc = "A phaser designed for scout vehicles. Features a more focused energy discharge, leading to an increased range."
+	icon_state = "class-a"
 	current_projectile = new/datum/projectile/laser/light/longrange
 
 /obj/item/shipcomponent/mainweapon/mining
 	name = "Plasma Cutter System"
 	desc = "A high-temperature rock cutter for pods. Use with extreme caution."
+	icon_state = "plasma-cutter"
 	power_used = 130
 	weapon_score = 0.7
 	current_projectile = new/datum/projectile/laser/mining
@@ -93,6 +96,7 @@
 
 /obj/item/shipcomponent/mainweapon/taser
 	name = "Mk.1 Combat Taser"
+	icon_state = "combat-taser"
 	power_used = 50
 	appearanceString = "pod_weapon_taser"
 	weapon_score = 0.2
@@ -101,12 +105,14 @@
 
 /obj/item/shipcomponent/mainweapon/phaser
 	name = "Mk 1.5 Light Phaser"
+	icon_state = "class-a"
 	weapon_score = 0.3
 	appearanceString = "pod_weapon_ltlaser"
 	current_projectile = new/datum/projectile/laser/light
 
 /obj/item/shipcomponent/mainweapon/laser
 	name = "Mk.2 Scout Laser"
+	icon_state = "mk-2-scout"
 	weapon_score = 0.4
 	appearanceString = "pod_weapon_laser"
 	power_used = 100
@@ -114,12 +120,14 @@
 
 /obj/item/shipcomponent/mainweapon/russian
 	name = "Svet-Oruzhiye Mk.4"
+	icon_state = "strelka"
 	weapon_score = 0.6
 	current_projectile = new/datum/projectile/laser/glitter
 	firerate = 5
 
 /obj/item/shipcomponent/mainweapon/disruptor_light
 	name = "Mk.3 Disruptor"
+	icon_state = "disruptor-l"
 	weapon_score = 0.6
 	current_projectile = new/datum/projectile/disruptor
 
@@ -133,6 +141,7 @@
 
 /obj/item/shipcomponent/mainweapon/gun
 	name = "SPK-12 Ballistic System"
+	icon_state = "spacker"
 	weapon_score = 1.25
 	current_projectile = new/datum/projectile/bullet/a12
 	appearanceString = "pod_weapon_gun_off"
@@ -140,6 +149,7 @@
 
 /obj/item/shipcomponent/mainweapon/laser_ass // hehhh
 	name = "Mk.4 Assault Laser"
+	icon_state = "assult-laser"
 	weapon_score = 1.25
 	power_used = 350
 	firerate = 35
@@ -148,6 +158,7 @@
 
 /obj/item/shipcomponent/mainweapon/rockdrills
 	name = "Rock Drilling Rig"
+	icon_state = "rock-drill"
 	power_used = 100
 	weapon_score = 1.0
 	current_projectile = new/datum/projectile/laser/drill
@@ -157,6 +168,7 @@
 /obj/item/shipcomponent/mainweapon/disruptor
 	name = "Heavy Disruptor Array"
 	desc = "Huh."
+	icon_state = "disruptor-h"
 	power_used = 180
 	weapon_score = 1.25
 	current_projectile = new/datum/projectile/disruptor/high
@@ -166,6 +178,7 @@
 /obj/item/shipcomponent/mainweapon/artillery
 	name = "40mm Grenade Launcher Platform"
 	desc = "A slow but extremely destructive weapon that fires explosive 40mm shells."
+	icon_state = "grenade-launcher"
 	current_projectile = new/datum/projectile/bullet/autocannon
 
 	uses_ammunition = 1
@@ -229,6 +242,7 @@
 /obj/item/shipcomponent/mainweapon/foamer
 	name = "Industrial Utility Arms"
 	desc = "A pair of robotic arms equipped with metalfoam nozzles and cutter blades."
+	icon_state = "util-arms"
 	current_projectile = new/datum/projectile/laser/drill/cutter
 	firerate = 60
 	var/mode = 0
