@@ -7,11 +7,7 @@ macro "macro"
 		name = "CENTER+REP"
 		command = ".center"
 		is-disabled = false
-	elem "escape"
-		name = "ESCAPE"
-		command = ".winset \"mapwindow.map.focus=true;mainwindow.input.text=\"\"\""
-		is-disabled = false
-	elem 
+	elem
 		name = "SPACE"
 		command = ".hotkey \"space\""
 		is-disabled = false
@@ -147,6 +143,10 @@ macro "macro"
 		name = "F3"
 		command = "mentorhelp"
 		is-disabled = false
+	elem "exitabil"
+		name = "ESCAPE"
+		command = "exitabil"
+		is-disabled = false
 
 macro "wasd"
 	elem "togglewasd"
@@ -157,11 +157,7 @@ macro "wasd"
 		name = "CENTER+REP"
 		command = ".center"
 		is-disabled = false
-	elem "escape"
-		name = "ESCAPE"
-		command = ".winset \"mapwindow.map.focus=true;mainwindow.input.text=\"\"\""
-		is-disabled = false
-	elem 
+	elem
 		name = "SPACE"
 		command = ".hotkey \"space\""
 		is-disabled = false
@@ -201,43 +197,43 @@ macro "wasd"
 		name = "DELETE"
 		command = "togglethrow"
 		is-disabled = false
-	elem 
+	elem
 		name = "0"
 		command = ".action 10"
 		is-disabled = false
-	elem 
+	elem
 		name = "1"
 		command = ".action 1"
 		is-disabled = false
-	elem 
+	elem
 		name = "2"
 		command = ".action 2"
 		is-disabled = false
-	elem 
+	elem
 		name = "3"
 		command = ".action 3"
 		is-disabled = false
-	elem 
+	elem
 		name = "4"
 		command = ".action 4"
 		is-disabled = false
-	elem 
+	elem
 		name = "5"
 		command = ".action 5"
 		is-disabled = false
-	elem 
+	elem
 		name = "6"
 		command = ".action 6"
 		is-disabled = false
-	elem 
+	elem
 		name = "7"
 		command = ".action 7"
 		is-disabled = false
-	elem 
+	elem
 		name = "8"
 		command = ".action 8"
 		is-disabled = false
-	elem 
+	elem
 		name = "9"
 		command = ".action 9"
 		is-disabled = false
@@ -249,7 +245,7 @@ macro "wasd"
 		name = "A+REP"
 		command = ".west"
 		is-disabled = false
-	elem 
+	elem
 		name = "B"
 		command = "togglepoint 0"
 		is-disabled = false
@@ -257,7 +253,7 @@ macro "wasd"
 		name = "CTRL+B"
 		command = "say \"*burp\""
 		is-disabled = false
-	elem 
+	elem
 		name = "B+UP"
 		command = "togglepoint 1"
 		is-disabled = false
@@ -417,6 +413,10 @@ macro "wasd"
 		name = "F3"
 		command = "mentorhelp"
 		is-disabled = false
+	elem "exitabil_wasd"
+		name = "ESCAPE"
+		command = "exitabil"
+		is-disabled = false
 
 macro "zqsd"
 	elem "togglewasd"
@@ -427,11 +427,7 @@ macro "zqsd"
 		name = "CENTER+REP"
 		command = ".center"
 		is-disabled = false
-	elem "escape"
-		name = "ESCAPE"
-		command = ".winset \"mapwindow.map.focus=true;mainwindow.input.text=\"\"\""
-		is-disabled = false
-	elem 
+	elem
 		name = "SPACE"
 		command = ".hotkey \"space\""
 		is-disabled = false
@@ -471,43 +467,43 @@ macro "zqsd"
 		name = "DELETE"
 		command = "togglethrow"
 		is-disabled = false
-	elem 
+	elem
 		name = "0"
 		command = ".action 10"
 		is-disabled = false
-	elem 
+	elem
 		name = "1"
 		command = ".action 1"
 		is-disabled = false
-	elem 
+	elem
 		name = "2"
 		command = ".action 2"
 		is-disabled = false
-	elem 
+	elem
 		name = "3"
 		command = ".action 3"
 		is-disabled = false
-	elem 
+	elem
 		name = "4"
 		command = ".action 4"
 		is-disabled = false
-	elem 
+	elem
 		name = "5"
 		command = ".action 5"
 		is-disabled = false
-	elem 
+	elem
 		name = "6"
 		command = ".action 6"
 		is-disabled = false
-	elem 
+	elem
 		name = "7"
 		command = ".action 7"
 		is-disabled = false
-	elem 
+	elem
 		name = "8"
 		command = ".action 8"
 		is-disabled = false
-	elem 
+	elem
 		name = "9"
 		command = ".action 9"
 		is-disabled = false
@@ -515,7 +511,7 @@ macro "zqsd"
 		name = "A"
 		command = ".northwest"
 		is-disabled = false
-	elem 
+	elem
 		name = "B"
 		command = "togglepoint 0"
 		is-disabled = false
@@ -523,7 +519,7 @@ macro "zqsd"
 		name = "CTRL+B"
 		command = "say \"*burp\""
 		is-disabled = false
-	elem 
+	elem
 		name = "B+UP"
 		command = "togglepoint 1"
 		is-disabled = false
@@ -683,10 +679,14 @@ macro "zqsd"
 		name = "F3"
 		command = "mentorhelp"
 		is-disabled = false
+	elem "exitabil_zqsd"
+		name = "ESCAPE"
+		command = "exitabil"
+		is-disabled = false
 
 
 menu "menu"
-	elem 
+	elem
 		name = "&File"
 		command = ""
 		category = ""
@@ -695,7 +695,7 @@ menu "menu"
 		group = ""
 		is-disabled = false
 		saved-params = "is-checked"
-	elem 
+	elem
 		name = "&Reconnect"
 		command = ".reconnect\n.output browseroutput:output Reconnecting..."
 		category = "&File"
@@ -704,7 +704,7 @@ menu "menu"
 		group = ""
 		is-disabled = false
 		saved-params = "is-checked"
-	elem 
+	elem
 		name = "&Quick screenshot\tF2"
 		command = ".screenshot auto\n.output browseroutput:output Screenshot taken"
 		category = "&File"
@@ -713,7 +713,7 @@ menu "menu"
 		group = ""
 		is-disabled = false
 		saved-params = "is-checked"
-	elem 
+	elem
 		name = "&Save screenshot as...\tShift+F2"
 		command = ".screenshot"
 		category = "&File"
@@ -722,7 +722,7 @@ menu "menu"
 		group = ""
 		is-disabled = false
 		saved-params = "is-checked"
-	elem 
+	elem
 		name = ""
 		command = ""
 		category = "&File"
@@ -731,7 +731,7 @@ menu "menu"
 		group = ""
 		is-disabled = false
 		saved-params = "is-checked"
-	elem 
+	elem
 		name = "&Quit"
 		command = ".quit"
 		category = "&File"
@@ -740,7 +740,7 @@ menu "menu"
 		group = ""
 		is-disabled = false
 		saved-params = "is-checked"
-	elem 
+	elem
 		name = "&Icons"
 		command = ""
 		category = ""
@@ -785,7 +785,7 @@ menu "menu"
 		group = "size"
 		is-disabled = false
 		saved-params = "is-checked"
-	elem 
+	elem
 		name = ""
 		command = ""
 		category = "&Icons"
@@ -803,7 +803,7 @@ menu "menu"
 		group = ""
 		is-disabled = false
 		saved-params = "is-checked"
-	elem 
+	elem
 		name = "&Help"
 		command = ""
 		category = ""
@@ -812,7 +812,7 @@ menu "menu"
 		group = ""
 		is-disabled = false
 		saved-params = "is-checked"
-	elem 
+	elem
 		name = "&Admin help\tF1"
 		command = "adminhelp"
 		category = "&Help"
@@ -3836,4 +3836,3 @@ window "traitssetup"
 		highlight-color = #000000
 		style = ""
 		is-list = false
-

@@ -71,7 +71,7 @@
 	var/datum/chatOutput/chatOutput = null
 	var/resourcesLoaded = 0 //Has this client done the mass resource downloading yet?
 	var/datum/tooltip/tooltip = null
-	
+
 	var/delete_state = DELETE_STOP
 
 /client/Del()
@@ -521,6 +521,11 @@ var/global/curr_day = null
 /client/verb/ping()
 	set name = "Ping"
 	boutput(usr, "Pong")
+
+/client/verb/exitabil()
+	set name = "exitabil"
+	usr.targeting_spell = null
+	usr.update_cursor()
 
 /*
 /client/verb/Newcastcycle()
