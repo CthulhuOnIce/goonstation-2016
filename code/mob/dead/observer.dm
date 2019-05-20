@@ -121,7 +121,12 @@
 	set desc = "Leave your lifeless body behind and become a ghost."
 
 	if(src.stat != 2)
-		if(prob(5))
+		if (src.hibernate == 1)
+			var/confirm = alert("Are you sure you want to enter long term cryogenic storage and  observe? You will not be able to play this round!", "Observe?", "Yes", "No")
+			if(confirm)
+				src.ghostize()
+				qdel(src) 
+		else if(prob(5))
 			src.show_text("You strain really hard. I mean, like, really, REALLY hard but you still can't become a ghost!", "blue")
 		else
 			src.show_text("You're not dead yet!", "red")

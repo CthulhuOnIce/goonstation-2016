@@ -4,13 +4,11 @@
 	gender = MALE
 	var/list/stomach_contents = list()
 	var/last_eating = 0
-
 	var/oxyloss = 0
 	var/toxloss = 0
 	var/brainloss = 0
 	//var/brain_op_stage = 0.0
 	//var/heart_op_stage = 0.0
-
 	var/stamina = STAMINA_MAX
 	var/stamina_max = STAMINA_MAX
 	var/stamina_regen = STAMINA_REGEN
