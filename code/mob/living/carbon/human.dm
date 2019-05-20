@@ -3320,6 +3320,8 @@
 // now constructs damage icon for each organ from mask * damage field
 
 /mob/living/carbon/human/proc/subscribe_to_inv(mob/user as mob)
+	if(!lootui)
+		return
 	if (!src.lootui.IsSubscribed(user.client))
 		src.lootui.Subscribe(user.client)
 	else

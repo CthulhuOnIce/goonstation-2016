@@ -57,10 +57,7 @@
 	var/sound_fart = 'sound/misc/poo2.ogg'
 	var/sound_snap = 'sound/effects/snap.ogg'
 	var/sound_fingersnap = 'sound/effects/fingersnap.ogg'
-
-#ifdef MAP_OVERRIDE_DESTINY
 	var/hibernating = 0 // if they're stored in the cryotron, Life() gets skipped
-#endif
 
 /mob/living/New()
 	vision = new()

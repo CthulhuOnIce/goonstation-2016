@@ -510,7 +510,6 @@
 					/obj/item/clothing/under/gimmick/mario,
 					/obj/item/clothing/head/mario,
 					/obj/item/clothing/shoes/cowboy,
-					/obj/item/clothing/shoes/ziggy,
 					/obj/item/clothing/head/genki)
 	cost = 15000
 	containertype = /obj/storage/crate

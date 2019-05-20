@@ -58,6 +58,7 @@
 	var/obj/item/device/radio/possible_radio = locate() in traitor_mob.contents
 	var/obj/item/storage/possible_backpack = locate() in traitor_mob.contents
 	
+	var/obj/item/device/R = null //Hide the uplink in a PDA if available, otherwise radio
 	
 	if(!R && possible_pda)
 		R = possible_pda

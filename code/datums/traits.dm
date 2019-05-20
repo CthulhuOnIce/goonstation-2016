@@ -641,11 +641,12 @@
 	isPositive = 1
 	onLife(/var/mob/owner)
 		if(istype(owner, /mob/living/carbon/human))
+			var/mob/living/carbon/human/H = owner
 			if (ticker && ticker.mode && istype(ticker.mode, /datum/game_mode/revolution))
 				if (H.mind in ticker.mode:head_revolutionaries)
 					return
-			H.implant.Add(/obj/implant/antirev)
-			H.implant.Add(/obj/implant/tracking)		
+			H.implant.Add(/obj/item/implant/antirev)
+			H.implant.Add(/obj/item/implant/tracking)		
 
 /obj/trait/fanatic
 	name = "Corporate Fanatic (-1) \[Trinkets\]"

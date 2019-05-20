@@ -92,7 +92,7 @@
 			prob(20)
 				new /obj/critter/wendigo(T),
 			prob(30)
-				new /obj/critter/maneater(T);
+				new /obj/critter/maneater(T),
 			prob(30)
 				new /obj/critter/spider/spacerachnid(T),
 			prob(30)

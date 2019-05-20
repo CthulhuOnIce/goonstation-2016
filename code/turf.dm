@@ -795,13 +795,13 @@ var/global/client/ff_debugger = null
 					playsound(src, H.shoes.step_sound, 20, 1)
 					
 		if (M.type == /mob/living/carbon/wall/meatcube)
-			playsound(src, sound/vox/squish.ogg, 50, 1)
+			playsound(src, 'sound/vox/squish.ogg', 50, 1)
 		
 		if (M.type == /mob/living/carbon/wall/meatcube/clown)
-			playsound(src, pick(sound/clownstep1.ogg, sound/clownstep2.ogg), 50, 1) //oh god i hope my shitcode works
+			playsound(src, pick('sound/misc/clownstep1.ogg', 'sound/misc/clownstep2.ogg'), 50, 1) //oh god i hope my shitcode works
 		
 		if (M.type == /mob/living/carbon/wall/meatcube/cluwne)
-			playsound(src, pick(sound/voice/cluwnelaugh1.ogg, sound/voice/cluwnelaugh2.ogg, sound/voice/cluwnelaugh3.ogg), 50, 1) //oh god i hope my shitcode works
+			playsound(src, pick('sound/voice/cluwnelaugh1.ogg', 'sound/voice/cluwnelaugh2.ogg', 'sound/voice/cluwnelaugh3.ogg'), 50, 1) //oh god i hope my shitcode works
 		
 		if (!M.throwing)
 			switch (src.wet)
