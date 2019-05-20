@@ -124,3 +124,59 @@
 			if(16 to INFINITY)
 				icon_state = "id_pinonfar"
 		spawn(5) .()
+
+/obj/item/bloodtracker
+	name = "BloodTrak"
+	icon = 'icons/obj/bloodtrak.dmi'
+	icon_state = "blood_pinoff"
+	flags = FPRINT | TABLEPASS| CONDUCT | ONBELT
+	w_class = 2.0
+	item_state = "electronic"
+	throw_speed = 4
+	throw_range = 20
+	m_amt = 500
+	var/active = 0
+	var/target = null
+	mats = 4
+	desc = "Tracks down people from their blood puddles! Requires you to stand still to function."
+
+	afterattack(atom/A as mob|obj|turf|area, mob/user as mob)
+		if(!active && istype(A, /obj/decal/cleanable/blood))
+			var/obj/decal/cleanable/blood/B = A
+			if(B.dry)
+				boutput(usr, "<span style=\"color:red\">Targeted blood is too dry to be useful!</span>")
+				return
+			for(var/mob/living/carbon/human/H in mobs)
+				if(B.blood_DNA == H.bioHolder.Uid)
+					target = H
+					break
+			active = 1
+			work()
+			user.visible_message("<span style=\"color:blue\"><b>[user]</b> scans [A] with [src]!</span>",\
+			"<span style=\"color:blue\">You scan [A] with [src]!</span>")
+
+
+
+	proc/work(var/turf/T)
+		if(!active) return
+		if(!T)
+			T = get_turf(src)
+		if(get_turf(src) != T)
+			icon_state = "blood_pinoff"
+			active = 0
+			boutput(usr, "<span style=\"color:red\">[src] shuts down because you moved!</span>")
+			return
+		if(!target)
+			icon_state = "blood_pinonnull"
+			return
+		src.dir = get_dir(src,target)
+		switch(get_dist(src,target))
+			if(0)
+				icon_state = "blood_pinondirect"
+			if(1 to 8)
+				icon_state = "blood_pinonclose"
+			if(9 to 16)
+				icon_state = "blood_pinonmedium"
+			if(16 to INFINITY)
+				icon_state = "blood_pinonfar"
+		spawn(5) .(T)

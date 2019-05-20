@@ -68,11 +68,13 @@ Contains:
 /obj/item/device/detective_scanner
 	name = "forensic scanner"
 	desc = "Used to scan objects for DNA and fingerprints."
-	icon_state = "forensicscanner"
+	icon_state = "fs"
 	w_class = 2 // PDA fits in a pocket, so why not the dedicated scanner (Convair880)?
 	item_state = "electronic"
 	flags = FPRINT | TABLEPASS | ONBELT | CONDUCT | SUPPRESSATTACK
 	mats = 3
+	var/active = 0
+	var/target = null
 
 	attack_self(mob/user as mob)
 
@@ -107,7 +109,43 @@ Contains:
 		user.visible_message("<span style=\"color:red\"><b>[user]</b> has scanned [A].</span>")
 		boutput(user, scan_forensic(A)) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
 		src.add_fingerprint(user)
-		return
+
+		if(!active && istype(A, /obj/decal/cleanable/blood))
+			var/obj/decal/cleanable/blood/B = A
+			if(B.dry)
+				boutput(user, "<span style=\"color:red\">Targeted blood is too dry to be useful!</span>")
+				return
+			for(var/mob/living/carbon/human/H in mobs)
+				if(B.blood_DNA == H.bioHolder.Uid)
+					target = H
+					break
+			active = 1
+			work()
+
+	proc/work(var/turf/T)
+		if(!active) return
+		if(!T)
+			T = get_turf(src)
+		if(get_turf(src) != T)
+			icon_state = "fs"
+			active = 0
+			boutput(usr, "<span style=\"color:red\">[src] shuts down because you moved!</span>")
+			return
+		if(!target)
+			icon_state = "fs"
+			active = 0
+			return
+		src.dir = get_dir(src,target)
+		switch(get_dist(src,target))
+			if(0)
+				icon_state = "fs_pindirect"
+			if(1 to 8)
+				icon_state = "fs_pinclose"
+			if(9 to 16)
+				icon_state = "fs_pinmedium"
+			if(16 to INFINITY)
+				icon_state = "fs_pinfar"
+		spawn(5) .(T)
 
 ///////////////////////////////////// Health analyzer ////////////////////////////////////////
 
