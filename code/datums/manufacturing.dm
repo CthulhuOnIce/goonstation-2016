@@ -1569,6 +1569,16 @@
 	create = 1
 	category = "Resource"
 
+/datum/manufacture/crewcabin
+	name = "Crew Cabin"
+	item_paths = list("MET-2")
+	item_names = list("Sturdy Metal")
+	item_amounts = list(30)
+	item_outputs = list(/obj/item/shipcomponent/secondary_system/crewcabin)
+	time = 12
+	create = 1
+	category = "Resource"
+
 /datum/manufacture/shipRCD
 	name = "Duracorp Construction Device"
 	item_paths = list("MET-3","DEN-1","CON-1")

@@ -822,9 +822,17 @@
 		var/floor = get_turf(src)
 		O.set_loc(floor)
 
+	// There might be a more efficient way to do this by only making the check if there is no room in pod. But I'm drunk so I dunno.
 	if (src.capacity <= src.passengers)
-		boutput(boarder, "There is no more room!")
-		return
+		if (istype(src.sec_system, /obj/item/shipcomponent/secondary_system/crewcabin))
+			var/obj/item/shipcomponent/secondary_system/crewcabin/SSCC = src.sec_system
+			if (src.capacity + SSCC.maxcap <= src.passengers)
+				boutput(boarder, "There is no more room in the cockpit or the crew cabin!")
+				return
+		else
+			boutput(boarder, "There is no more room!")
+			return
+
 	boarder.make_shipcrewmember(src.weapon_class)
 	for(var/obj/item/shipcomponent/S in src.components)
 		S.mob_activate(boarder)

@@ -1722,7 +1722,7 @@
 	free_resource_amt = 2
 	free_resources = list(/obj/item/material_piece/mauxite,/obj/item/material_piece/pharosium,/obj/item/material_piece/molitz)
 	available = list(/datum/manufacture/putt/engine,/datum/manufacture/putt/boards,/datum/manufacture/putt/control,/datum/manufacture/putt/parts,/datum/manufacture/pod/engine,/datum/manufacture/pod/boards,/datum/manufacture/pod/armor_light,/datum/manufacture/pod/armor_heavy,
-/datum/manufacture/pod/armor_industrial,/datum/manufacture/pod/control,/datum/manufacture/pod/parts,/datum/manufacture/cargohold,
+/datum/manufacture/pod/armor_industrial,/datum/manufacture/pod/control,/datum/manufacture/pod/parts,/datum/manufacture/cargohold,/datum/manufacture/crewcabin,
 /datum/manufacture/conclave,/datum/manufacture/pod/weapon/mining,/datum/manufacture/pod/weapon/ltlaser,/datum/manufacture/engine2,
 /datum/manufacture/engine3,/datum/manufacture/pod/lock)
 

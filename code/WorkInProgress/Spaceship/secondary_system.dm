@@ -115,6 +115,12 @@
 			I.set_loc(T)
 		return
 
+/obj/item/shipcomponent/secondary_system/crewcabin
+	name = "Crew Cabin"
+	desc = "Allows the ship to carry 3 extra crew members and transport them in the comfort and luxury to which a Nanotrasen employee is accustomed."
+	var/maxcap = 3 //how many PEOPLE it can hold
+	f_active = 0
+
 /obj/item/shipcomponent/secondary_system/cargo
 	name = "Cargo Hold"
 	desc = "Allows the ship to load crates and transport them."
