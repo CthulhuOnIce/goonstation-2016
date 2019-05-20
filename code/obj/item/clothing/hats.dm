@@ -200,6 +200,130 @@
 	icon_state = "detective"
 	armor_value_melee = 3
 
+//THE ONE AND ONLY.... GO GO GADGET DETECTIVE HAT!!!
+/obj/item/clothing/head/det_hat/gadget
+	name = "DetGadget hat"
+	desc = "Detective's special hat you can outfit with various items for easy retrieval!"
+	var/phrase = "go go gadget"
+
+	var/list/items = list("bodybag" = /obj/item/body_bag, "scanner" = /obj/item/device/detective_scanner, "lighter" = /obj/item/zippo,\
+							"spray" = /obj/item/spraybottle, "monitor" = /obj/item/device/camera_viewer, "camera" = /obj/item/camera_test,\
+							"audiolog" = /obj/item/device/audio_log , "flashlight" = /obj/item/device/flashlight, "glasses" = /obj/item/clothing/glasses)
+
+	var/max_cigs = 15
+	var/list/cigs = list()
+
+	examine()
+		set src in view()
+		set category = "Local"
+
+		..()
+		var/str = "<span style=\"color:blue\">Current activation phrase is <b>\"[phrase]\"</b>.</span>"
+		for (var/name in items)
+			var/type = items[name]
+			var/obj/item/I = locate(type) in contents
+			if(I)
+				str += "<br><span style=\"color:blue\">[bicon(I)][I] is ready and bound to the word \"[name]\"!</span>"
+			else
+				str += "<br>There is no [name]!"
+		if (cigs.len)
+			str += "<br><span style=\"color:blue\">It contains <b>[cigs.len]</b> cigarettes!</span>"
+
+		usr.show_message(str)
+		return
+
+	hear_talk(mob/M as mob, msg, real_name, lang_id)
+		var/turf/T = get_turf(src)
+		if (M in range(1, T))
+			src.talk_into(M, msg, null, real_name, lang_id)
+
+	talk_into(mob/M as mob, messages, param, real_name, lang_id)
+		var/gadget = findtext(messages[1], src.phrase) //check the spoken phrase
+		if(gadget)
+			gadget = replacetext(copytext(messages[1], gadget + length(src.phrase)), " ", "") //get rid of spaces as well
+			for (var/name in items)
+				var/type = items[name]
+				var/obj/item/I = locate(type) in contents
+				if(findtext(gadget, name) && I)
+					M.put_in_hand_or_drop(I)
+					M.visible_message("<span style=\"color:red\"><b>[M]</b>'s hat snaps open and pulls out \the [I]!</span>")
+					return
+
+			if(findtext(gadget, "cigarette"))
+				if (!cigs.len)
+					M.show_text("You're out of cigs, shit! How you gonna get through the rest of the day?", "red")
+					return
+				else
+					var/obj/item/clothing/mask/cigarette/W = cigs[cigs.len] //Grab the last cig entry
+					cigs.Cut(cigs.len) //Get that cig outta there
+					var/boop = "hand"
+					if(ishuman(M))
+						var/mob/living/carbon/human/H = M
+						if (H.equip_if_possible(W, H.slot_wear_mask))
+							boop = "mouth"
+						else
+							H.put_in_hand_or_drop(W) //Put it in their hand
+					else
+						M.put_in_hand_or_drop(W) //Put it in their hand
+						//can't bother to do a "ground" boop case for some dumbass flavor text ok
+
+					M.visible_message("<span style=\"color:red\"><b>[M]</b>'s hat snaps open and puts \the [W] in [his_or_her(M)] [boop]!</span>")
+			else
+				M.show_text("Requested object missing or nonexistant!", "red")
+				return
+
+	attackby(obj/item/W as obj, mob/M as mob)
+		var/success = 0
+		for (var/name in items)
+			var/type = items[name]
+			if(istype(W, type) && !(locate(type) in contents))
+				success = 1
+				M.drop_item()
+				W.set_loc(src)
+				break
+		if (cigs.len < src.max_cigs && istype(W, /obj/item/clothing/mask/cigarette)) //cigarette
+			success = 1
+			M.drop_item()
+			W.set_loc(src)
+			cigs.Add(W)
+		if (cigs.len < src.max_cigs && istype(W, /obj/item/cigpacket)) //cigarette packet
+			var/obj/item/cigpacket/packet = W
+			if(packet.cigcount == 0)
+				M.show_text("Oh no! There's no more cigs in [packet]!", "red")
+				return
+			else
+				var/count = packet.cigcount
+				for(var/i=0, i<count, i++) //not sure if "-1" cigcount packets will work.
+					if(cigs.len >= src.max_cigs)
+						break
+					var/obj/item/clothing/mask/cigarette/C = new packet.cigtype(src)
+					C.set_loc(src)
+					cigs.Add(C)
+					packet.cigcount--
+				success = 1
+
+		if(success)
+			M.visible_message("<span style=\"color:red\"><b>[M]</b> [pick("awkwardly", "comically", "impossibly", "cartoonishly")] stuffs [W] into [src]!</span>")
+			return
+
+		return ..()
+
+	verb/set_phrase()
+		set name = "Set Activation Phrase"
+		set desc = "Change the activation phrase for the DetGadget hat!"
+		set category = "Local"
+
+		set src in usr
+		var/n_name = input(usr, "What would you like to set the activation phrase to?", "Activation Phrase", null) as null|text
+		if (!n_name)
+			return
+		n_name = copytext(html_encode(n_name), 1, 32)
+		if (((src.loc == usr || (src.loc && src.loc.loc == usr)) && usr.stat == 0))
+			src.phrase = n_name
+			logTheThing("say", usr, null, "sets the activation phrase on DetGadget hat: [n_name]")
+		src.add_fingerprint(usr)
+
+
 /obj/item/clothing/head/powdered_wig
 	name = "powdered wig"
 	desc = "A powdered wig"
