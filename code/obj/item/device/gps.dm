@@ -1,12 +1,16 @@
 /obj/item/device/gps
 	name = "space GPS"
 	desc = "Tells you your coordinates based on the nearest coordinate beacon."
-	icon_state = "gps"
+	icon = 'icons/new_stuff.dmi'
+
+	icon_state = "gps-off"
 	item_state = "electronic"
 	var/allowtrack = 1 // defaults to on so people know where you are (sort of!)
 	var/serial = "4200" // shouldnt show up as this
 	var/identifier = "NT13" // four characters max plz
 	var/distress = 0
+	var/active = 0		//probably should
+	var/atom/tracking_target = null		//unafilliated with allowtrack, which essentially just lets your gps appear on other gps lists
 	flags = FPRINT | TABLEPASS| CONDUCT
 	w_class = 2.0
 	m_amt = 50
@@ -39,7 +43,8 @@
 		user.machine = src
 		var/HTML = "<span style='font-size:80%;text-align:right'><A href='byond://?src=\ref[src];refresh=6'>(Refresh)</A></span><br>"
 		HTML += "Each GPS is coined with a unique four digit number followed by a four letter identifier.<br>This GPS is assigned <b>[serial]-[identifier]</b>.<hr>"
-		HTML += "<A href='byond://?src=\ref[src];getcords=1'>Get Local Coordinates</A><BR>"
+		HTML += build_html_gps_form(src, false, src.tracking_target)
+		HTML += "<HR>"
 		if (allowtrack == 0)
 			HTML += "<A href='byond://?src=\ref[src];track1=2'>Enable Tracking</A><BR>"
 		if (allowtrack == 1)
@@ -95,6 +100,7 @@
 			usr.machine = src
 			if(href_list["getcords"])
 				boutput(usr, "<span style=\"color:blue\">Located at: <b>X</b>: [usr.x], <b>Y</b>: [usr.y]</span>")
+				return
 			if(href_list["track1"])
 				boutput(usr, "<span style=\"color:blue\">Tracking enabled.</span>")
 				src.allowtrack = 1
@@ -126,6 +132,14 @@
 						G.visible_message("<b>[bicon(G)] [G]</b> beeps, \"NOTICE: Distress signal cleared.\".")
 			if(href_list["refresh"])
 				..()
+
+			if(href_list["dest_cords"])
+				obtain_target_from_coords(href_list)
+			if(href_list["stop_tracking"])
+				tracking_target = null
+				active = null
+				icon_state = "gps-off"
+
 			if (!src.master)
 				if (istype(src.loc, /mob))
 					attack_self(src.loc)
@@ -152,6 +166,55 @@
 		serial = rand(4201,7999)
 		desc += " It's serial code is [src.serial]-[identifier]."
 
+	proc/obtain_target_from_coords(href_list)
+		if (href_list["dest_cords"])
+			tracking_target = null
+			var/x = text2num(href_list["x"])
+			var/y = text2num(href_list["y"])
+			if (!x || !y)
+				boutput(usr, "<span style=\"color:red\">Bad Topc call, if you see this something has gone wrong. And it's probably YOUR FAULT!</span>")
+				return
+			var/z = src.z
+			if (src.loc)
+				z = src.loc.z
+
+			var/turf/T = locate(x,y,z) 
+			//Set located turf to be the tracking_target
+			if (isturf(T))
+				src.tracking_target = T
+				boutput(usr, "<span style=\"color:blue\">Now tracking: <b>X</b>: [T.x], <b>Y</b>: [T.y]</span>")
+
+				begin_tracking()
+			else
+				boutput(usr, "<span style=\"color:red\">Invalid GPS coordinates.</span>")
+		sleep(10)
+
+	proc/begin_tracking()
+		if(!active)
+			if (!src.tracking_target)
+				usr.show_text("No target specified, cannot activate the pinpointer.", "red")
+				return
+			active = 1
+			do_tracking()
+			boutput(usr, "<span style=\"color:blue\">You activate the gps</span>")
+		// else
+		// 	active = 0
+		// 	icon_state = "gps-off"
+		// 	boutput(usr, "<span style=\"color:blue\">You deactivate the gps</span>")
+
+	proc/do_tracking()
+		if(!active || !tracking_target) 
+			active = 0
+			icon_state = "gps-off"
+			return
+
+		src.dir = get_dir(src,tracking_target)
+		if (get_dist(src,tracking_target) == 0)
+			icon_state = "gps-direct"
+		else
+			icon_state = "gps"
+
+		spawn(5) .()
 
 // coordinate beacons. pretty useless but whatever you never know
 

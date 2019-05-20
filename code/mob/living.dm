@@ -271,6 +271,18 @@
 			if(hasvar(src, "w_uniform") && src:w_uniform) src:w_uniform:equipment_click(target, src)*/
 			hand_range_attack(target, params)
 
+		if (istype(src.loc, /obj/machinery/vehicle))
+			var/obj/machinery/vehicle/ship = src.loc
+			if (ship.sensors)
+				if (ship.sensors.active)
+					var/obj/machinery/vehicle/target_pod = target
+					if (istype(target_pod) && src != target_pod)
+						ship.sensors.end_tracking()
+						ship.sensors.quick_obtain_target(target_pod)
+				else
+					if (istype(target, /obj/machinery/vehicle))
+						boutput(src, "<span style=\"color:red\">Sensors are inactive, unable to target craft!</span>")
+
 /mob/living/update_cursor()
 	..()
 	if (src.client)
