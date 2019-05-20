@@ -68,6 +68,11 @@ obj/machinery/microwave/attackby(var/obj/item/O as obj, var/mob/user as mob)
 			src.icon_state = "mw"
 		else //Otherwise bad luck!!
 			return
+	else if(istype(O, /obj/item/storage/box))
+		var/obj/item/storage/box/a_box = O
+		src.visible_message("<span style=\"color:blue\">[user] empties [a_box] into the microwave.</span>")
+		for(var/obj/item/I in a_box.contents)
+			attackby(I, user)
 	else if(istype(O, /obj/item/reagent_containers/food/snacks/ingredient/egg)) // If an egg is used, add it
 		if(src.egg_amount < 5)
 			src.visible_message("<span style=\"color:blue\">[user] adds an egg to the microwave.</span>")
