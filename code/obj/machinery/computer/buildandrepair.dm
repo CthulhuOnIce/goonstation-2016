@@ -93,6 +93,9 @@
 /obj/item/circuitboard/arcade
 	name = "Circuit board (Arcade)"
 	computertype = "/obj/machinery/computer/arcade"
+/obj/item/circuitboard/tetris
+	name = "Circuit board (Robustris Pro)"
+	computertype = "/obj/machinery/computer/tetris"
 /obj/item/circuitboard/turbine_control
 	name = "Circuit board (Turbine control)"
 	computertype = "/obj/machinery/computer/turbine_computer"
