@@ -299,6 +299,35 @@
 	/obj/item/mine/stun,
 	/obj/item/mine/blast)
 
+// Loot Crate picker.
+/obj/random_item_spawner/loot_crate/surplus
+    name = "Loot Crate Spawner"
+    guaranteed = list(/obj/item/material_piece/mauxite=10,
+	/obj/item/material_piece/molitz=10,
+	/obj/item/material_piece/pharosium=10)
+    min_amt2spawn = 12
+    max_amt2spawn = 36
+    items2spawn = list(/obj/item/material_piece/mauxite,
+    /obj/item/material_piece/molitz,
+    /obj/item/material_piece/pharosium,
+    /obj/item/material_piece/cobryl,
+    /obj/item/material_piece/claretine,
+    /obj/item/material_piece/bohrum,
+    /obj/item/material_piece/syreline,
+    /obj/item/material_piece/plasmastone,
+    /obj/item/material_piece/uqill,
+    /obj/item/material_piece/koshmarite,
+    /obj/item/material_piece/gold,
+    /obj/item/raw_material/cotton,
+    /obj/item/raw_material/miracle,
+    /obj/item/raw_material/uqill,
+    /obj/item/raw_material/cerenkite,
+    /obj/item/raw_material/erebite,
+    /obj/item/spacecash/buttcoin,
+	/obj/item/spacecash/random/tourist,
+    /obj/item/a_gift
+    )
+
 /obj/random_pod_spawner
 	name = "random pod spawner"
 	icon = 'icons/obj/objects.dmi'

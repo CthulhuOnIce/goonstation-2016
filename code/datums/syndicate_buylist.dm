@@ -261,6 +261,14 @@ proc/build_syndi_buylist_cache()
 	run_on_spawn(var/obj/storage/crate/syndicate_surplus/crate, var/mob/living/owner)
 		crate.spawn_items(owner)
 
+/datum/syndicate_buylist/traitor/loot_crate
+	name = "Loot Crate"
+	item = /obj/storage/crate/loot_crate
+	cost = 12
+	desc = "A crate containing 18-24 telecrystals worth of 'Materials'."
+	blockedmode = list(/datum/game_mode/spy)
+
+
 //////////////////////////////////////////////// Objective-specific items //////////////////////////////////////////////
 
 /datum/syndicate_buylist/traitor/idtracker
@@ -644,6 +652,7 @@ proc/build_syndi_buylist_cache()
 	desc = "A pair of surplus cybereyes that function like sunglasses. Operating table not included."
 	blockedmode = list(/datum/game_mode/revolution)
 
+
 /////////////////////////////////////////////// Disabled items /////////////////////////////////////////////////////
 
 /datum/syndicate_buylist/traitor/fogmaster
@@ -662,3 +671,4 @@ proc/build_syndi_buylist_cache()
 	desc = "Maybe paint a really insulting picture of your foe? To be honest, we have no idea what is even in these or where they came from, a huge crate of them just showed up at our warehouse around a month ago. We're sure it's something very handy, though!"
 	job = list("Chaplain")
 	blockedmode = list(/datum/game_mode/spy, /datum/game_mode/revolution)
+
