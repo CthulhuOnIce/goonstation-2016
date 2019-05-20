@@ -343,3 +343,24 @@
 			return ""
 		message = zalgoify(message, 8, 2, 8)
 		return message
+		
+/datum/bioEffect/speech/owowhatsthis
+	name = "Frontal Gyrus Alteration Type-W"
+	desc = "Reconstructs the language center of the subject's brain to resemble a segment of a feline brain."
+	id = "accent_furry"
+	effectType = effectTypeDisability
+	isBad = 1
+	msgGain = "You feew weawwy good!"
+	msgLose = "You cough up a hairball."
+	reclaim_fail = 10
+	lockProb = 25
+	lockedGaps = 2
+	lockedDiff = 2
+	lockedChars = list("G","C")
+	lockedTries = 3
+
+	OnSpeak(var/message)
+		if (!istext(message))
+			return ""
+		message = owotalk(message)
+		return message

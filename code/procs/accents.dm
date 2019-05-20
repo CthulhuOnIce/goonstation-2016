@@ -618,3 +618,62 @@ var/list/zalgo_mid = list(
 			new_string += pick(zalgo_down)
 	
 	return new_string
+
+/proc/owo_parse(var/datum/text_roamer/R)
+    var/new_string = ""
+    var/used = 0
+
+    if((R.curr_char == "l" || R.curr_char == "r") && R.next_char != " ")
+        new_string = "w"
+        used = 1
+
+    if(new_string == "")
+        new_string = R.curr_char
+        used = 1
+
+    var/datum/parse_result/P = new/datum/parse_result
+    P.string = new_string
+    P.chars_used = used
+    return P
+
+/proc/owotalk(var/string)
+	var/modded = ""
+	var/datum/text_roamer/T = new/datum/text_roamer(string)
+
+	if(prob(15))
+		modded += "-nuzzles you- "
+
+	if(prob(13))
+		modded += "rawr x3 "
+
+	if(prob(10))
+		modded += "whats this? "
+
+	if(prob(9))
+		modded += "owo "
+
+	if(prob(8))
+		modded += "uwu "
+
+
+	for(var/i = 0, i < length(string), i=i)
+		var/datum/parse_result/P = owo_parse(T)
+		modded += P.string
+		i += P.chars_used
+		T.curr_char_pos = T.curr_char_pos + P.chars_used
+		T.update()
+
+	if(prob(15))
+		modded += " :3c"
+
+	if(prob(13))
+		modded += "~"
+
+	if(prob(10))
+		modded += " uwu"
+
+	if(prob(11))
+		modded += " owo"
+
+
+	return modded
