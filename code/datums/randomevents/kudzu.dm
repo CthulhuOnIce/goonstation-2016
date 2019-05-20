@@ -55,7 +55,8 @@
 	for(var/obj/O in Vspread)
 		if (istype(O, /obj/window) || istype(O, /obj/forcefield) || istype(O, /obj/blob) || istype(O, /obj/spacevine)) dogrowth = 0
 		if (istype(O, /obj/machinery/door/))
-			if(O:p_open == 0 && prob(50)) O:open()
+			if(O:p_open == 0)
+				if (prob(door_open_prob())) O:open()
 			else dogrowth = 0
 	if (dogrowth == 1)
 		var/obj/spacevine/B = new /obj/spacevine(Vspread)
@@ -76,6 +77,29 @@
 	spawn(src.waittime)
 		if (src.growth < 20) src.Life()
 
+//This proc returns a number to be used in a prob() proc 0-100.
+/obj/spacevine/proc/door_open_prob()
+	//door integrity starts at 0. Bolting/welding/shocking increases how well it stands up to kudzu
+	var/door_integrity = 0
+	if (istype(src, /obj/machinery/door/airlock))	//pretty sure you can only weld airlocks, but they are most of the doors anyway
+		var/obj/machinery/door/airlock/AL = src
+		if (AL.welded)
+			door_integrity++
+		if (AL.locked)
+			door_integrity++
+		if (AL.isElectrified())
+			door_integrity++
+
+		//Based on door integrity, return the probability (0-100) that the kudzu will breach the door.
+		switch (door_integrity)
+			if (1)
+				return 50
+			if (2)
+				return 25
+			if (3)
+				return 0
+		return 90
+	return 90
 /obj/spacevine/ex_act(severity)
 	switch(severity)
 		if(1.0)
