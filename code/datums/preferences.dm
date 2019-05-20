@@ -235,7 +235,7 @@ datum/preferences
 		if (!IsGuestKey(user.key))
 			dat += "<b>Save Profile:</b>"
 			for (var/i=1, i <= SAVEFILE_PROFILES_MAX, i++)
-				dat += " <a href='byond://?src=\ref[user];preferences=1;save=[i]'>[i]</a>"
+				dat += " <a href='byond://?src=\ref[user];preferences=1;save=[savefile_get_profile_name(user, i) || i]'>[i]</a>"
 			dat += "<br>"
 			dat += "<b>Load Profile:</b>"
 			for (var/i=1, i <= SAVEFILE_PROFILES_MAX, i++)
