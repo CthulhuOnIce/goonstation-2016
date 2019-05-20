@@ -205,7 +205,11 @@
 				boutput(user, "<span style=\"color:red\">That tile is blocked by [O].</span>")
 				return
 
-		var/crate = input(usr, "Choose which cargo to unload..", "Choose cargo")  as null|anything in load
+		var/crate
+		if (load.len == 1)
+			crate = load[1]
+		else
+			crate = input(usr, "Choose which cargo to unload..", "Choose cargo")  as null|anything in load
 		if(!crate)
 			return
 		unload(crate,T)
