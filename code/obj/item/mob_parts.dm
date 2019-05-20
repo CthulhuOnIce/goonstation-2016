@@ -147,16 +147,24 @@
 				O.show_message("<span style=\"color:red\">[attacher] attaches [src] to \his own stump[both_legs? "s" : ""]!</span>", 1)
 			else
 				O.show_message("<span style=\"color:red\">[attachee] has [src] attached to \his stump[both_legs? "s" : ""] by [attacher].</span>", 1)
-
-		if(attachee != attacher)
-			boutput(attachee, "<span style=\"color:red\">[attacher] attaches [src] to your stump[both_legs? "s" : ""]. It doesn't look very secure!</span>")
-			boutput(attacher, "<span style=\"color:red\">You attach [src] to [attachee]'s stump[both_legs? "s" : ""]. It doesn't look very secure!</span>")
-		else
-			boutput(attacher, "<span style=\"color:red\">You attach [src] to your own stump[both_legs? "s" : ""]. It doesn't look very secure!</span>")
-
+		
 		attachee.set_body_icon_dirty()
-		spawn(rand(150,200))
-			if(remove_stage == 2) src.remove()
+
+		if (istype(src, /obj/item/parts/human_parts/leg/left/synth) || istype(src, /obj/item/parts/human_parts/arm/right/synth) || istype(src, /obj/item/parts/human_parts/arm/left/synth) || istype(src, /obj/item/parts/human_parts/leg/right/synth))
+			if(attachee != attacher)
+				boutput(attachee, "<span style=\"color:red\">[attacher] attaches [src] to your stump[both_legs? "s" : ""]. Roots fuse with the muscle and tendons!</span>")
+				boutput(attacher, "<span style=\"color:red\">You attach [src] to [attachee]'s stump[both_legs? "s" : ""]. Roots fuse with the muscle and tendons!</span>")
+			else
+				boutput(attacher, "<span style=\"color:red\">You attach [src] to your own stump[both_legs? "s" : ""]. Roots fuse with the muscle and tendons!</span>")
+		else
+			if(attachee != attacher)
+				boutput(attachee, "<span style=\"color:red\">[attacher] attaches [src] to your stump[both_legs? "s" : ""]. It doesn't look very secure!</span>")
+				boutput(attacher, "<span style=\"color:red\">You attach [src] to [attachee]'s stump[both_legs? "s" : ""]. It doesn't look very secure!</span>")
+			else
+				boutput(attacher, "<span style=\"color:red\">You attach [src] to your own stump[both_legs? "s" : ""]. It doesn't look very secure!</span>")
+
+			spawn(rand(150,200))
+				if(remove_stage == 2) src.remove()
 
 		return
 

@@ -51,8 +51,10 @@
 		if(user.zone_sel.selecting != slot || !ishuman(M))
 			return ..()
 
-		if(!(locate(/obj/machinery/optable, M.loc) && M.lying) && !(locate(/obj/table, M.loc) && (M.paralysis || M.stat)) && !(M.reagents && M.reagents.get_reagent_amount("ethanol") > 10 && M == user))
-			return ..()
+		//if it's not a snyth limb, we need to do actual surgery
+		if (!istype(src, /obj/item/parts/human_parts/leg/left/synth) && !istype(src, /obj/item/parts/human_parts/arm/right/synth) && !istype(src, /obj/item/parts/human_parts/arm/left/synth) && !istype(src, /obj/item/parts/human_parts/leg/right/synth))
+			if(!(locate(/obj/machinery/optable, M.loc) && M.lying) && !(locate(/obj/table, M.loc) && (M.paralysis || M.stat)) && !(M.reagents && M.reagents.get_reagent_amount("ethanol") > 10 && M == user))
+				return ..()
 
 		var/mob/living/carbon/human/H = M
 
