@@ -43,6 +43,10 @@
 	var/list/implant = list()
 	var/list/implant_images = list()
 
+	var/chest_cavity_open = 0
+	var/obj/item/chest_item = null	// Item stored in chest cavity
+	var/chest_item_sewn = 0			// Item is sewn in or is loose
+
 	var/cust_one_state = "short"
 	var/cust_two_state = "None"
 	var/cust_three_state = "none"
@@ -1564,6 +1568,7 @@
 					//		animate(transform = turn(GetPooledMatrix(), -180), time = 1, loop = -1)
 					//		animate(transform = turn(GetPooledMatrix(), -270), time = 1, loop = -1)
 					//		animate(transform = turn(GetPooledMatrix(), -360), time = 1, loop = -1)
+
 					if (istype(src.loc,/obj/))
 						var/obj/container = src.loc
 						boutput(src, "<span style=\"color:red\">You leap and slam your head against the inside of [container]! Ouch!</span>")
@@ -1764,6 +1769,10 @@
 					if (src.lying)
 						message = "<B>[src]</B> flops on the floor like a fish."
 
+					// If there is a chest item, see if its reagents can be dumped into the body
+					if(src.chest_item != null)
+						src.chest_item_dump_reagents_on_flip()
+
 			if ("scream")
 				if (src.emote_check(voluntary, 50))
 					if (!muzzled)
@@ -1896,6 +1905,11 @@
 							message = "<span style=\"color:red\"><B>[src] [pick("unleashes","rips","blasts")] \a [pick("truly","utterly","devastatingly","shockingly")] [pick("hideous","horrendous","horrific","heinous","horrible")] fart!</B></span>"
 							spawn(0)
 								new /obj/effects/fart_cloud(get_turf(src),src)
+
+						// If there is a chest item, see if it can be activated on fart (attack_self)
+						if (src.chest_item != null)
+							src.chest_item_attack_self_on_fart()
+
 						if (iscluwne(src))
 							playsound(src.loc, 'sound/misc/Poo.ogg', 50, 1)
 						else if (src.organHolder && src.organHolder.butt && istype(src.organHolder.butt, /obj/item/clothing/head/butt/cyberbutt))
@@ -2260,7 +2274,8 @@
 				. += "<br><span style=\"color:red\"><B>[src.name]'s left leg is completely severed!</B></span>"
 			if (!src.limbs.r_leg)
 				. += "<br><span style=\"color:red\"><B>[src.name]'s right leg is completely severed!</B></span>"
-
+	if (src.chest_cavity_open)
+		. += "<br><span style=\"color:red\"><B>[src.name] has a large gaping hole down their chest!</B></span>"
 	if (src.bleeding && src.stat != 2)
 		switch (src.bleeding)
 			if (1 to 2)
@@ -6280,6 +6295,8 @@
 
 /mob/living/carbon/human/attack_hand(mob/M)
 	..()
+	if (!surgeryCheck(src, M))
+		src.activate_chest_item_on_attack(M)
 	if (M.a_intent in list(INTENT_HARM,INTENT_DISARM,INTENT_GRAB))
 		src.was_harmed(M)
 
@@ -6291,6 +6308,8 @@
 	var/tmp/damage = ((newbloss - oldbloss) + (get_burn_damage() - oldfloss))
 	if (reagents)
 		reagents.physical_shock((newbloss - oldbloss) * 0.15)
+	if (!surgeryCheck(src, M))
+		src.activate_chest_item_on_attack(M)
 	if ((damage > 0) || W.force)
 		src.was_harmed(M, W)
 
@@ -6476,4 +6495,78 @@
 
 	if (src.sims) // saaaaame with sims motives
 		src.sims.updateHudIcons(new_style)
+	return
+
+// --- Chest Item Procs --- //
+
+/mob/living/carbon/human/proc/activate_chest_item_on_attack(mob/M)
+	// If attacker is targeting the chest and a chest item exists, activate it.
+	if (M.zone_sel.selecting == "chest" && src.chest_item != null)
+		src.chest_item.attack_self(src)
+	return
+
+/mob/living/carbon/human/proc/chest_item_dump_reagents_on_flip()
+	// Determine if the container is like a beaker/glass or is an artifact. We're looking for something that's got an
+	// open top to it. With stuff like pills/patches it would consume the reagents but not the item itself!
+	var/liquidReagentContainer = istype(src.chest_item, /obj/item/reagent_containers/food/drinks) || istype(src.chest_item, /obj/item/reagent_containers/glass/)
+	if (liquidReagentContainer && src.chest_item.reagents.total_volume > 0)			// If container type is OK and has reagents...
+		var/maxVolumeAdd = src.reagents.maximum_volume - src.reagents.total_volume	// Get max available volume in human
+		if (maxVolumeAdd > 0)	// If we can add reagents to human, print message and dump shit into human
+			boutput(src, "<span style=\"color:red\"><b>[src.chest_item] spills its contents inside your chest!</span>")
+			src.chest_item.reagents.trans_to(src, maxVolumeAdd)
+	return
+
+/mob/living/carbon/human/proc/chest_item_attack_self_on_fart()
+	src.show_text("You grunt and squeeze <B>[src.chest_item]</B> in your chest.")
+	src.chest_item.attack_self(src) // Activate the item
+	if (src.chest_item_sewn == 0)	// If item isn't sewn in, poop it onto the ground.
+		// Item object is pooped out
+		if (istype(src.chest_item, /obj/item/))
+			// Determine ass and bleed damage based on item size
+			var/poopingDamage = 0
+			if (src.chest_item.w_class == 1 )
+				poopingDamage = 5
+				src.show_text("<B>[src.chest_item]</B> plops out of your rear and onto the floor.")
+			else if (src.chest_item.w_class == 2 )
+				poopingDamage = 10
+				src.show_text("You poop out <B>[src.chest_item]</B>! Your butt aches a bit.")
+			else if (src.chest_item.w_class == 3 )
+				poopingDamage = 20
+				src.show_text("<span style=\"color:red\"><B>[src.chest_item]</B> was shat out, that's got to hurt!</span>")
+				src.stunned += 2
+				take_bleeding_damage(src, src, 5)
+			else if (src.chest_item.w_class == 4 || src.chest_item.w_class == 5)
+				poopingDamage = 50
+				src.show_text("<span style=\"color:red\"><B>[src.chest_item] explodes out of your ass, jesus christ!</B></span>")
+				src.stunned += 5
+				take_bleeding_damage(src, src, 20)
+
+			// Deal out ass damage
+			src.TakeDamage("chest", poopingDamage, 0, 0, src.chest_item.hit_type)
+
+			// If the object cuts things, cut the butt off
+			var/cutOffButt = 0
+			if (src.chest_item.hit_type == DAMAGE_CUT || src.chest_item.hit_type == DAMAGE_STAB)
+				cutOffButt = 1
+			if (istype(src.chest_item, /obj/item/sword/))
+				var/obj/item/sword/c_saber = src.chest_item
+				if(c_saber.active)
+					cutOffButt = 1
+			if (cutOffButt)
+				src.TakeDamage("chest", 15, 0, 0, src.chest_item.hit_type)
+				take_bleeding_damage(src, src, 15)
+				src.show_text("<span style=\"color:red\"><B>[src.chest_item] cut your butt off on the way out!</B></span>")
+				src.organHolder.drop_organ("butt")
+		// Other object is pooped out
+		else
+			// If it's not an "item", deal medium damage
+			src.show_text("<span style=\"color:red\"><B>[src.chest_item]</B> was shat out, that's got to hurt!</span>")
+			src.stunned += 1
+			src.TakeDamage("chest", 20, 0, 0, DAMAGE_BLUNT)
+			take_bleeding_damage(src, src, 5)
+
+		// Make copy of item on ground
+		var/obj/item/outChestItem = src.chest_item
+		outChestItem.set_loc(get_turf(src))
+		src.chest_item = null
 	return

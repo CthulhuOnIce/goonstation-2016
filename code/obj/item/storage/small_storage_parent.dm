@@ -66,6 +66,12 @@
 		total_amt = null
 		return
 
+	attack(mob/M as mob, mob/user as mob)
+		if (surgeryCheck(M, user))
+			insertChestItem(M, user)
+			return
+		..()
+
 	attackby(obj/item/W as obj, mob/user as mob)
 		if (W.cant_drop) return
 		if (can_hold.len)

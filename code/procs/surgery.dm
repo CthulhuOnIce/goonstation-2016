@@ -129,6 +129,31 @@
 
 	return damage
 
+/proc/insertChestItem(var/mob/living/carbon/human/patient as mob, var/mob/surgeon as mob)
+	// Check if surgeon is targeting chest while there's a hole in patient's chest
+	if (surgeon.zone_sel.selecting == "chest" && patient.chest_cavity_open == 1)
+		// Check if patient has item in chest already
+		if (patient.chest_item == null)
+			// If no item in chest, get surgeon's equipped item
+			var/obj/item/chest_item = surgeon.equipped()
+
+			patient.tri_message("<span style=\"color:blue\"><b>[surgeon]</b> shoves [chest_item] into [patient == surgeon ? "[his_or_her(patient)]" : "[patient]'s"] chest.</span>",\
+			surgeon, "<span style=\"color:blue\">You shove [chest_item] into [surgeon == patient ? "your" : "[patient]'s"] chest.</span>",\
+			patient, "<span style=\"color:blue\">[patient == surgeon ? "You shove" : "<b>[surgeon]</b> shoves"] [chest_item] into your chest.</span>")
+
+			// Move equipped item to patient's chest
+			playsound(get_turf(patient), "sound/weapons/squishcut.ogg", 50, 1)
+			chest_item.set_loc(patient)
+			patient.chest_item = chest_item
+
+			// Remove item from surgeon
+			surgeon.u_equip(chest_item)
+
+		else if (patient.chest_item != null)
+			// State that there's already something in the patient's chest.
+			surgeon.show_text("<span style=\"color:red\">[patient.chest_item] is already inside [patient]'s chest cavity.</span>")
+	return
+
 /obj/item/proc/remove_bandage(var/mob/living/carbon/human/H as mob, var/mob/user as mob)
 	if (!H)
 		return 0
@@ -550,9 +575,57 @@
 			src.surgeryConfusion(patient, surgeon, damage_high)
 			return 1
 
+/* ---------- SCALPEL - CAVITY ---------- */
+	// Surgeon targeting chest with grab intent
+	else if (surgeon.zone_sel.selecting == "chest" && surgeon.a_intent == "grab")
+		// Chest cavity is not open
+		if(patient.chest_cavity_open == 0)
+			playsound(get_turf(patient), "sound/weapons/squishcut.ogg", 50, 1)
+			patient.tri_message("<span style=\"color:blue\"><b>[surgeon]</b> carefully cuts down [patient == surgeon ? "[his_or_her(patient)]" : "[patient]'s"] chest with [src] and opens it.</span>",\
+			surgeon, "<span style=\"color:blue\">You carefully cut down [surgeon == patient ? "your" : "[patient]'s"] chest with [src] and open it up.</span>",\
+			patient, "<span style=\"color:blue\">[patient == surgeon ? "You carefully cut" : "<b>[surgeon]</b> carefully cuts"] down your chest with [src] and [patient == surgeon ? "open" : "opens"] it.</span>")
+
+			patient.TakeDamage("chest", damage_low, 0)
+			if (!surgeon.find_type_in_hand(/obj/item/hemostat))
+				take_bleeding_damage(patient, surgeon, damage_low)
+			else
+				surgeon.show_text("You clamp the bleeders with the hemostat.", "blue")
+			patient.updatehealth()
+
+			// Open chest cavity for item insertion
+			patient.chest_cavity_open = 1
+			// If a chest item exists and is unsecured, it flops out onto the table
+			if(patient.chest_item != null && patient.chest_item_sewn == 0)
+				var/location = get_turf(patient)
+				var/obj/item/outChestItem = patient.chest_item
+				outChestItem.set_loc(location)
+				patient.chest_item = null
+			return 1
+		// Chest cavity is open and an item exists
+		else if(patient.chest_cavity_open == 1 && patient.chest_item != null)
+			playsound(get_turf(patient), "sound/weapons/squishcut.ogg", 50, 1)
+			patient.tri_message("<span style=\"color:blue\"><b>[surgeon]</b> cuts [patient.chest_item] out of [patient == surgeon ? "[his_or_her(patient)]" : "[patient]'s"] chest with [src].</span>",\
+			surgeon, "<span style=\"color:blue\">You cut [patient.chest_item] out of [surgeon == patient ? "your" : "[patient]'s"] chest with [src].</span>",\
+			patient, "<span style=\"color:blue\">[patient == surgeon ? "You cut" : "<b>[surgeon]</b> cuts"] [patient.chest_item] out of your chest with [src].</span>")
+
+			patient.TakeDamage("chest", damage_low, 0)
+			if (!surgeon.find_type_in_hand(/obj/item/hemostat))
+				take_bleeding_damage(patient, surgeon, damage_low)
+			else
+				surgeon.show_text("You clamp the bleeders with the hemostat.", "blue")
+			patient.updatehealth()
+
+			// Cut item out of chest and move it outside of patient's body
+			var/location = get_turf(patient)
+			var/obj/item/outChestItem = patient.chest_item
+			outChestItem.set_loc(location)
+			patient.chest_item = null
+			patient.chest_item_sewn = 0
+			return 1
+
 /* ---------- SCALPEL - IMPLANT ---------- */
 
-	else if (surgeon.zone_sel.selecting == "chest" && surgeon.a_intent != "harm")
+	else if (surgeon.zone_sel.selecting == "chest" && (surgeon.a_intent == "help" || surgeon.a_intent == "disarm"))
 		if (patient.implant.len > 0)
 			playsound(get_turf(patient), "sound/weapons/squishcut.ogg", 50, 1)
 			patient.tri_message("<span style=\"color:red\"><b>[surgeon]</b> cuts into [patient == surgeon ? "[his_or_her(patient)]" : "[patient]'s"] chest with [src]!</span>",\
@@ -1070,6 +1143,32 @@
 			patient, "<span style=\"color:blue\">[patient == surgeon ? "You sew" : "<b>[surgeon]</b> sews"] the incision on your chest closed with [src].</span>")
 
 			patient.organHolder.heart.op_stage = 0.0
+			patient.TakeDamage("chest", 2, 0)
+			if (patient.bleeding)
+				repair_bleeding_damage(patient, 50, rand(1,3))
+			patient.updatehealth()
+			return 1
+
+		// Sew chest cavity closed
+		else if (patient.chest_cavity_open == 1 && surgeon.a_intent == "grab")
+			patient.tri_message("<span style=\"color:blue\"><b>[surgeon]</b> pulls the sides of [patient == surgeon ? "[his_or_her(patient)]" : "[patient]'s"] chest cavity closed and sew them together with [src].</span>",\
+			surgeon, "<span style=\"color:blue\">You pull the sides of [surgeon == patient ? "your" : "[patient]'s"] chest cavity closed and sew them together with [src].</span>",\
+			patient, "<span style=\"color:blue\">[patient == surgeon ? "You pull" : "<b>[surgeon]</b> pulls"] your chest cavity closed and [patient == surgeon ? "sew" : "sews"] them together with [src].</span>")
+
+			patient.chest_cavity_open = 0
+			patient.TakeDamage("chest", 2, 0)
+			if (patient.bleeding)
+				repair_bleeding_damage(patient, 50, rand(1,3))
+			patient.updatehealth()
+			return 1
+
+		// Sew chest item securely into chest cavity
+		else if (patient.chest_cavity_open == 1 && patient.chest_item != null && patient.chest_item_sewn == 0 && surgeon.a_intent != "grab")
+			patient.tri_message("<span style=\"color:blue\"><b>[surgeon]</b> sews the [patient.chest_item] into [patient == surgeon ? "[his_or_her(patient)]" : "[patient]'s"] chest cavity with [src].</span>",\
+			surgeon, "<span style=\"color:blue\">You sew the [patient.chest_item] securely into [surgeon == patient ? "your" : "[patient]'s"] chest cavity with [src].</span>",\
+			patient, "<span style=\"color:blue\">[patient == surgeon ? "You sew" : "<b>[surgeon]</b> sews"] the [patient.chest_item] into your chest cavity with [src].</span>")
+
+			patient.chest_item_sewn = 1
 			patient.TakeDamage("chest", 2, 0)
 			if (patient.bleeding)
 				repair_bleeding_damage(patient, 50, rand(1,3))

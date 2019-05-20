@@ -90,13 +90,17 @@
 						blood_data += " | <span style='color:red'><B>Bleeding wounds detected</B></span>"
 					if (7 to INFINITY)
 						blood_data += " | <span style='color:red'><B>Major bleeding wounds detected</B></span>"
-			if (H.implant && H.implant.len > 0)
+			if ((H.implant && H.implant.len > 0) || H.chest_item != null)
 				var/bad_stuff = 0
 				for (var/obj/item/implant/I in H)
 					if (istype(I, /obj/item/implant/projectile))
 						bad_stuff ++
+				if(H.chest_item != null) // If item is in chest, add one
+					bad_stuff ++
 				if (bad_stuff)
 					blood_data += " | <span style='color:red'><B>Foreign object[bad_stuff == 1 ? "" : "s"] detected</B></span>"
+				if(H.chest_item != null) // State that large foreign object is located in chest
+					blood_data += " | <span style=\"color:red\"><B>Sizable foreign object located below sternum</B></span>"
 
 		if (H.pathogens.len)
 			pathogen_data = "<span style='color:red'>Scans indicate the presence of [H.pathogens.len > 1 ? "[H.pathogens.len] " : null]pathogenic bodies.</span>"
