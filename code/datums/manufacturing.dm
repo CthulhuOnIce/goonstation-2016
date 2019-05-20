@@ -834,6 +834,17 @@
 	time = 40
 	create = 1
 	category = "Resource"
+	
+/datum/manufacture/crutch
+	name = "Crutch"
+	item_paths = list("MET-1")
+	item_names = list("Metal")
+	item_amounts = list(2)
+	item_outputs = list(/obj/item/crutch)
+	time = 5
+	create = 1
+	category = "Tool"
+
 
 /******************** Robotics **************************/
 

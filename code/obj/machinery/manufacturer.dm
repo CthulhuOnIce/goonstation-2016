@@ -1689,6 +1689,7 @@
 	/datum/manufacture/surgical_shield,
 	/datum/manufacture/implanter,
 	/datum/manufacture/implant_health,
+	/datum/manufacture/crutch,
 	/datum/manufacture/crowbar,
 	/datum/manufacture/extinguisher,
 	/datum/manufacture/rods2,

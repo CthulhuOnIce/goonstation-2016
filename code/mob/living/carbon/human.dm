@@ -2435,12 +2435,23 @@
 					tally -= 2.0 //less effect if there's only one i guess
 				else
 					tally -= 0.5
+			if (src.is_in_both_hands(/obj/item/crutch))
+				tally -= 6
+			else if (istype(src.l_hand,/obj/item/crutch) && !src.has_limb("l_leg"))
+				tally -= 4
+			else if (istype(src.r_hand,/obj/item/crutch) && !src.has_limb("r_leg"))
+				tally -= 4
+
 		if (2)
 			tally += 15
 			var/missing_arms = 0
 			if (src.limbs && !src.limbs.l_arm) missing_arms++
 			if (src.limbs && !src.limbs.r_arm) missing_arms++
 			switch(missing_arms)
+				if (0)
+					if (src.is_in_both_hands(/obj/item/crutch))
+						tally -= 12
+
 				if (1)
 					tally += 15 //can't pull yourself along too well
 				if (2)
@@ -2888,6 +2899,11 @@
 
 /mob/living/carbon/human/is_in_hands(var/obj/O)
 	if (l_hand == O || r_hand == O)
+		return 1
+	return 0
+
+/mob/living/carbon/human/proc/is_in_both_hands(var/eqtype)
+	if (istype(l_hand, eqtype) && istype(r_hand, eqtype))
 		return 1
 	return 0
 
