@@ -157,6 +157,36 @@
 		..()
 		reagents.add_reagent("silver_sulfadiazine", 100)
 
+/obj/item/reagent_containers/glass/beaker/large/salbutamol
+	name = "salbutamol reserve tank"
+	New()
+		..()
+		reagents.add_reagent("salbutamol", 100)
+
+/obj/item/reagent_containers/glass/beaker/large/omnizine
+	name = "omnizine reserve tank"
+	New()
+		..()
+		reagents.add_reagent("omnizine", 100)
+
+/obj/item/reagent_containers/glass/beaker/large/atropine
+	name = "atropine reserve tank"
+	New()
+		..()
+		reagents.add_reagent("atropine", 100)
+
+/obj/item/reagent_containers/glass/beaker/large/pentetic_acid
+	name = "pentetic acid reserve tank"
+	New()
+		..()
+		reagents.add_reagent("pentetic_acid", 100)
+
+/obj/item/reagent_containers/glass/beaker/large/morphine
+	name = "morphine reserve tank"
+	New()
+		..()
+		reagents.add_reagent("morphine", 100)
+
 /obj/item/reagent_containers/glass/beaker/large/happy_plant //I have to test too many fucking plant-related issues atm so I'm adding this just to make my life less annoying
 	name = "Happy Plant Mixture"
 	desc = "160 units of things that make plants grow happy!"
