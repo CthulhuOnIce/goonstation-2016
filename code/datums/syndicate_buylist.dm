@@ -317,6 +317,21 @@ proc/build_syndi_buylist_cache()
 	job = list("Geneticist")
 	not_in_crates = 1
 
+/datum/syndicate_buylist/traitor/mindslave_module
+	name = "Mindslave Cloning Module"
+	item = /obj/item/cloneModule/mindslave_module
+	cost = 7
+	desc = "An add on to the genetics cloning pod that make anyone cloned loyal to whoever installed it."
+	job = list("Geneticist", "Medical Doctor", "Medical Director")
+
+/datum/syndicate_buylist/traitor/mindslave_module_deluxe
+	name = "Mindslave Cloning Module - Deluxe Package"
+	item = /obj/item/storage/box/mindslave_module_kit
+	cost = 11 //  Always leave them 1tc so they can buy the moustache. Style is key.
+	desc = "A Deluxe Mindslave Cloning Kit. Contains a mindslave cloning module and a cloning lab in a box!"
+	job = list("Geneticist", "Medical Doctor", "Medical Director")
+
+
 /datum/syndicate_buylist/traitor/minibible
 	name = "Miniature Bible"
 	item = /obj/item/storage/bible/mini

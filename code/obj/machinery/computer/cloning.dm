@@ -16,7 +16,10 @@
 	var/held_credit = 5000 // one free clone
 
 	var/allow_dead_scanning = 0 //Can the dead be scanned in the cloner?
+	var/allow_mind_erasure = 0 // Can you erase minds?
+	var/mindwipe = 0 //Is mind wiping active?
 	var/portable = 0 //override new() proc and proximity check, for port-a-clones
+
 
 	old
 		icon_state = "old2"
@@ -93,6 +96,13 @@
 			M.records = src.records
 			if (src.allow_dead_scanning)
 				new /obj/item/cloner_upgrade (src.loc)
+				src.allow_dead_scanning = 0
+			if( src.allow_mind_erasure)
+				new /obj/item/cloneModule/minderaser(src.loc)
+				src.allow_mind_erasure = 0
+			if(src.pod1 && src.pod1.BE)
+				new /obj/item/cloneModule/genepowermodule(src.loc)
+				src.pod1.BE = null
 			A.circuit = M
 			A.state = 3
 			A.icon_state = "3"
@@ -100,14 +110,37 @@
 			qdel(src)
 
 	else if (istype(W, /obj/item/cloner_upgrade))
-		if (allow_dead_scanning)
-			boutput(user, "<span style=\"color:red\">There is already an upgrade card installed.</span>")
+		if (allow_dead_scanning || allow_dead_scanning)
+			boutput(user, "<span style=\"color:red\">There is already an upgrade installed.</span>")
 			return
 
 		user.visible_message("[user] installs [W] into [src].", "You install [W] into [src].")
 		src.allow_dead_scanning = 1
 		user.drop_item()
 		qdel(W)
+
+	else if (istype(W, /obj/item/cloneModule/minderaser))
+		if(allow_mind_erasure || allow_dead_scanning)
+			boutput(user, "<span style=\"color:red\">There is already an upgrade installed.</span>")
+			return
+
+		user.visible_message("[user] installs [W] into [src].", "You install [W] into [src].")
+		src.allow_mind_erasure = 1
+		user.drop_item()
+		qdel(W)
+
+	else if (istype(W, /obj/item/cloneModule/genepowermodule))
+		var/obj/item/cloneModule/genepowermodule/module = W
+		if(module.BE == null)
+			boutput(user, "<span style=\"color:red\">You need to put an injector into the module before it will work!</span>")
+			return
+		if(pod1.BE)
+			boutput(user,"<span style=\"color:red\">There is already a gene module in this upgrade spot! You can remove it by blowing up the genetics computer and building a new one. Or you could just use a screwdriver, I guess.</span>")
+			return
+		src.pod1.BE = module.BE
+		user.drop_item()
+		user.visible_message("[user] installs [module] into [src].", "You install [module] into [src].")
+		qdel(module)
 
 	else
 		src.attack_hand(user)
@@ -147,7 +180,10 @@
 					<h4>Database Functions</h4>
 					<a href='byond://?src=\ref[src];menu=2'>View Records</a><br>"}
 			if (src.diskette)
-				dat += "<a href='byond://?src=\ref[src];disk=eject'>Eject Disk</a>"
+				dat += "<a href='byond://?src=\ref[src];disk=eject'>Eject Disk</a><br>"
+
+			if(src.allow_mind_erasure)
+				dat += "<a href='byond://?src=\ref[src];menu=6'>Criminal rehabilitation controls</a>"
 
 
 		if(2) //Viewing records
@@ -208,6 +244,20 @@
 			else
 				dat += {"Cannot toggle while cloning pod is active. <BR>
 						AGA: <B>[pod1.gen_analysis ? "Enabled" : "Disabled"]</B>"}
+		if(6) // Mind erasure controls
+			dat += {"<h4>Criminal rehabilitation controls</h4>
+					<a href='byond://?src=\ref[src];menu=1'>Back</a><br>
+					<B>Notice:</B> Enabling this feature will enable an experimental criminal rehabilitation routine.<BR><B>Human use is specifically forbidden by the space geneva convention.<B><BR>"}
+
+			if(!pod1.operating)
+				if(pod1.mindwipe)
+					dat += {"Enabled<BR>
+							<a href='byond://?src=\ref[src];set_mindwipe=0'>Disable</A><BR>"}
+				else
+					dat += {"<a href='byond://?src=\ref[src];set_mindwipe=1'>Enable</A><BR>
+							Disabled<BR>"}
+			else
+				dat += {"Cannot toggle while cloning pod is active. <BR>"}
 
 	user << browse(dat, "window=cloning")
 	onclose(user, "cloning")
@@ -344,10 +394,14 @@
 			qdel(C)
 			src.menu = 1
 
+			// Are they being mindwiped? [TODO]
+
 	else if (href_list["menu"])
 		src.menu = text2num(href_list["menu"])
 	else if (href_list["set_analysis"])
 		pod1.gen_analysis = text2num(href_list["set_analysis"])
+	else if (href_list["set_mindwipe"])
+		pod1.mindwipe = text2num(href_list["set_mindwipe"])
 
 	src.add_fingerprint(usr)
 	src.updateUsrDialog()
