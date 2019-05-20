@@ -46,12 +46,12 @@
 	var/datum/material/my_material = null
 	var/datum/material/initial_material = null
 
-	proc/start_tutorial()
+	proc/start_tutorial(var/is_ghost=0)
 		if (tutorial)
 			return
 		tutorial = new(src)
 		if (tutorial.tutorial_area)
-			tutorial.Start()
+			tutorial.Start(is_ghost)
 		else
 			boutput(src, "<span style=\"color:red\">Could not start tutorial! Please try again later or call Marquesas.</span>")
 			tutorial = null

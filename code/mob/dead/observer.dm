@@ -15,6 +15,20 @@
 	var/delete_on_logout_reset = 1
 	var/obj/item/clothing/head/wig/wig = null
 
+	verb/start_tutorial()
+		set name = "Blob Tutorial"
+		set category = "Commands"
+		set desc = "Practice how to be a better blob."
+		if (ghost_blob_tutorial)
+			usr << "Someone is already doing the blob tutorial, you'll have to wait your turn."
+
+		else 
+			var/mob/living/intangible/blob_overmind/blob_tutorial = new
+			ghost_blob_tutorial = blob_tutorial
+			blob_tutorial.start_tutorial(1)
+			usr.mind.swap_with(blob_tutorial)
+
+
 /mob/dead/observer/disposing()
 	corpse = null
 	..()

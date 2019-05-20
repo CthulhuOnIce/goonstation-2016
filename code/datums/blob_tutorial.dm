@@ -18,6 +18,7 @@ var/global/list/blob_tutorial_areas = list(/area/blob_tutorial_zone_1, /area/blo
 	var/area/tutorial_area = null
 	var/mob/living/intangible/blob_overmind/bowner = null
 	var/turf/initial_turf = null
+	var/is_ghost = 0
 
 	New()
 		..()
@@ -41,13 +42,14 @@ var/global/list/blob_tutorial_areas = list(/area/blob_tutorial_zone_1, /area/blo
 				if (!initial_turf)
 					logTheThing("debug", usr, null, "<b>Blob Tutorial</b>: Tutorial failed setup: [L], [initial_turf].")
 
-	Start()
+	Start(var/is_ghost=0)
 		if (!initial_turf)
 			logTheThing("debug", usr, null, "<b>Blob Tutorial</b>: Failed setup.")
 			boutput(usr, "<span style=\"color:red\"><b>Error setting up tutorial!</b></span>")
 			qdel(src)
 			return
 		if (..())
+			src.is_ghost = is_ghost
 			bowner = owner
 			bowner.sight &= ~SEE_TURFS
 			bowner.sight &= ~SEE_MOBS
@@ -81,7 +83,10 @@ var/global/list/blob_tutorial_areas = list(/area/blob_tutorial_zone_1, /area/blo
 			bowner.nuclei = list()
 			bowner.tutorial = null
 			bowner.sight |= SEE_TURFS | SEE_MOBS | SEE_OBJS | SEE_SELF
-
+		if (is_ghost)
+			bowner.ghostize()
+			ghost_blob_tutorial = null
+			qdel(bowner)
 	Del()
 		if (tutorial_area_type)
 			blob_tutorial_areas += tutorial_area_type

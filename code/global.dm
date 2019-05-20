@@ -713,6 +713,8 @@ var/global
 	"l_leg" = "left leg",
 	"r_leg" = "right leg")
 
+	datum/tutorial/blob/ghost_blob_tutorial = null
+
 var/global/mentorhelp_text_color = "#CC0066"
 /proc/set_mentorhelp_color(var/new_color as color)
 	if (!new_color)
