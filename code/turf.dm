@@ -1351,6 +1351,12 @@ var/global/client/ff_debugger = null
 	if (user.pulling.loc == user)
 		user.pulling = null
 		return
+	//if the object being pulled's loc is another object (being in their contents) return
+	if (isobj(user.pulling.loc))
+		var/obj/container = user.pulling.loc
+		if (user.pulling in container.contents)
+			return //container.vis_contents -= user.pulling
+
 	var/turf/fuck_u = user.pulling.loc
 	if (ismob(user.pulling))
 		var/mob/M = user.pulling
@@ -1371,6 +1377,11 @@ var/global/client/ff_debugger = null
 		return
 	if ((user.pulling.loc != user.loc && get_dist(user, user.pulling) > 1))
 		return
+	if (isobj(user.pulling.loc))
+		var/obj/container = user.pulling.loc
+		if (user.pulling in container.contents)
+			return //container.vis_contents -= user.pulling
+
 	var/turf/fuck_u = user.pulling.loc
 	if (ismob(user.pulling))
 		var/mob/M = user.pulling
@@ -1391,6 +1402,11 @@ var/global/client/ff_debugger = null
 		return
 	if ((user.pulling.loc != user.loc && get_dist(user, user.pulling) > 1))
 		return
+	if (isobj(user.pulling.loc))
+		var/obj/container = user.pulling.loc
+		if (user.pulling in container.contents)
+			return //container.vis_contents -= user.pulling
+
 	var/turf/fuck_u = user.pulling.loc
 	if (ismob(user.pulling))
 		var/mob/M = user.pulling

@@ -502,6 +502,11 @@
 			return
 		checkloc = checkloc:loc
 	src.throwing = 0
+
+	if (isobj(src.loc))
+		var/obj/container = src.loc
+		container.vis_contents -= src
+
 	if (src.loc == user)
 		if (!cant_self_remove || (!cant_drop && (user.l_hand == src || user.r_hand == src)))
 			user.u_equip(src)
