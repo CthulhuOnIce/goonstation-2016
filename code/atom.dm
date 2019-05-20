@@ -88,6 +88,7 @@
 	var/level = 2
 	var/flags = FPRINT
 	var/fingerprints = null
+	var/interesting = "" // thing what this atom might show up on scanners as a mean clue
 	var/list/fingerprintshidden = new/list()
 	var/fingerprintslast = null
 	var/blood_DNA = null

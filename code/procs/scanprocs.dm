@@ -56,6 +56,7 @@
 	var/reagent_data = null
 	var/pathogen_data = null
 	var/disease_data = null
+	var/interesting_data = null
 
 	if (ishuman(M))
 		var/mob/living/carbon/human/H = M
@@ -164,6 +165,9 @@
 		else if (M.get_brain_damage() >= 10)
 			brain_data = "<span style='color:red'>Significant brain damage detected. Subject may have had a concussion.</span>"
 
+	if (M.interesting)
+		interesting_data += "<br><span style='color:blue'>[M.interesting]</span>"
+
 	var/data = "--------------------------------<br>\
 	Analyzing Results for <span style='color:blue'>[M]</span>:<br>\
 	&emsp; Overall Status: [death_state > 1 ? "<span style='color:red'>DEAD</span>" : "[colored_health]% healthy"]<br>\
@@ -176,7 +180,9 @@
 	[heart_data ? "<br>[heart_data]" : null]\
 	[reagent_data ? "<br>[reagent_data]" : null]\
 	[pathogen_data ? "<br>[pathogen_data]" : null]\
-	[disease_data ? "[disease_data]" : null]"
+	[disease_data ? "<br>[disease_data]" : null]\
+	[interesting_data ? "<br><i>Historical analysis:</i><span style='color:blue'> [interesting_data]</span>" : null]\
+	"
 
 	return data
 
@@ -253,6 +259,7 @@
 	var/forensic_data = null
 	var/glove_data = null
 	var/contraband_data = null
+	var/interesting_data = null
 
 	if (!A)
 		return "<span style='color:red'>ERROR: NO SUBJECT DETECTED</span>"
@@ -314,6 +321,12 @@
 
 	else
 
+		if (A.interesting)
+			if (istype(A, /obj))
+				interesting_data += "<br><span style='color:blue'>[A.interesting]</span>"
+			if (istype(A, /turf))
+				interesting_data += "<br><span style='color:blue'>There seems to be more to [A] than meets the eye.</span>"
+
 		if (!A.fingerprints)
 			fingerprint_data += "<br><span style='color:blue'>Unable to locate any fingerprints.</span>"
 		else
@@ -374,6 +387,7 @@
 	<i>Isolated blood samples:</i>[blood_data]<br>\
 	[forensic_data ? "<br><i>Additional forensic data:</i>[forensic_data]<br>" : null]\
 	[glove_data ? "<br><i>Material analysis:</i><span style='color:blue'> [glove_data]</span>" : null]\
+	[interesting_data ? "<br><i>Historical analysis:</i><span style='color:blue'> [interesting_data]</span>" : null]\
 	"
 
 	return data
