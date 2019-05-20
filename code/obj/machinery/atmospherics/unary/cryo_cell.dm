@@ -12,9 +12,13 @@
 	var/mob/occupant = null
 	var/beaker = null
 	var/next_trans = 0
-
+	var/show_beaker_contents = 0
 	var/current_heat_capacity = 50
 	var/pipe_direction = 1
+	var/reagent_scan_enabled = 0
+	var/reagent_scan_active = 0
+	var/obj/item/robodefibrilator/defib
+
 
 	north
 		dir = NORTH
@@ -84,35 +88,56 @@
 
 	attack_hand(mob/user as mob)
 		user.machine = src
-		var/beaker_text = ""
-		var/health_text = ""
 		var/temp_text = ""
-		if(src.occupant)
-			if(src.occupant.stat == 2)
-				health_text = "<FONT color=red>Dead</FONT>"
-			else if(src.occupant.health < 0)
-				health_text = "<FONT color=red>[src.occupant.health]</FONT>"
-			else
-				health_text = "[src.occupant.health]"
 		if(air_contents.temperature > T0C)
 			temp_text = "<FONT color=red>[air_contents.temperature]</FONT>"
 		else if(air_contents.temperature > 225)
 			temp_text = "<FONT color=black>[air_contents.temperature]</FONT>"
 		else
 			temp_text = "<FONT color=blue>[air_contents.temperature]</FONT>"
-		if(src.beaker)
-			beaker_text = "<B>Beaker:</B> <A href='?src=\ref[src];eject=1'>Eject</A>"
-		else
-			beaker_text = "<B>Beaker:</B> <FONT color=red>No beaker loaded</FONT>"
-		var/dat = {"<B>Cryo cell control system</B><BR>
-			<B>Current cell temperature:</B> [temp_text]K<BR>
-			<B>Cryo status:</B> [ src.on ? "<A href='?src=\ref[src];start=1'>Off</A> <B>On</B>" : "<B>Off</B> <A href='?src=\ref[src];start=1'>On</A>"]<BR>
-			[beaker_text]<BR><BR>
-			<B>Current occupant:</B> [src.occupant ? "<BR>Name: [src.occupant]<BR>Health: [health_text]<BR>Oxygen deprivation: [src.occupant.get_oxygen_deprivation()]<BR>Brute damage: [src.occupant.get_brute_damage()]<BR>Fire damage: [src.occupant.get_burn_damage()]<BR>Toxin damage: [src.occupant.get_toxin_damage()]<BR>Body temperature: [src.occupant.bodytemperature]" : "<FONT color=red>None</FONT>"]<BR>
-		"}
+
+		var/dat = "<B>Cryo cell control system</B><BR>"
+		dat += "<B>Current cell temperature:</B> [temp_text]K<BR>"
+		dat += "<B>Eject Occupant:</B> [src.occupant ? "<A href='?src=\ref[src];eject_occupant=1'>Eject</A>" : "Eject"]<BR>"
+		dat += "<B>Cryo status:</B> [src.on ? "<A href='?src=\ref[src];start=1'>Off</A> <B>On</B>" : "<B>Off</B> <A href='?src=\ref[src];start=1'>On</A>"]<BR>"
+		dat += "[draw_beaker_text()]<BR>"
+		dat += "--------------------------------<BR>"
+		dat += "[draw_beaker_reagent_scan()]<BR>"
+		dat += "[draw_defib_zap()]"
+		dat += "[scan_health(src.occupant, reagent_scan_active, 1)]"
+
+		update_medical_record(src.occupant)
+
 
 		user << browse(dat, "window=cryo")
 		onclose(user, "cryo")
+
+	proc/draw_defib_zap()
+		if (!src.defib)
+			return ""
+		else 
+			if (src.occupant)
+				return "<B>Defibrillate Occupant : <A href='?src=\ref[src];defib=1'>ZAP!!!</A></B> <BR>"
+			else 
+				return "<B>Defibrillate Occupant : No occupant!</B> <BR>"
+
+	proc/draw_beaker_text()
+		var/beaker_text = ""
+		if(src.beaker)
+			beaker_text = "<B>Beaker:</B> <A href='?src=\ref[src];eject=1'>Eject</A><BR>"
+			beaker_text += "<B>Beaker Contents:</B> <A href='?src=\ref[src];show_beaker_contents=1'>[show_beaker_contents ? "Hide" : "Show"]</A> "
+			if (show_beaker_contents)
+				beaker_text += "<BR>[scan_reagents(src.beaker)]"
+		else
+			beaker_text = "<B>Beaker:</B> <FONT color=red>No beaker loaded</FONT>"
+
+		return beaker_text
+
+	proc/draw_beaker_reagent_scan()
+		if (!reagent_scan_enabled)
+			return ""
+		else
+			return "<B>Reagent Scan : </B>[ reagent_scan_active ? "<A href='?src=\ref[src];reagent_scan_active=1'>Off</A> <B>On</B>" : "<B>Off</B> <A href='?src=\ref[src];reagent_scan_active=1'>On</A>"]"
 
 	Topic(href, href_list)
 		if (( usr.machine==src && ((get_dist(src, usr) <= 1) && istype(src.loc, /turf))) || (istype(usr, /mob/living/silicon/ai)))
@@ -123,7 +148,14 @@
 				beaker:set_loc(src.loc)
 				usr.put_in_hand(beaker)
 				beaker = null
-
+			if(href_list["show_beaker_contents"])
+				show_beaker_contents = !show_beaker_contents
+			if (href_list["reagent_scan_active"])
+				reagent_scan_active = !reagent_scan_active
+			if (href_list["defib"])
+				src.defib.attack(src.occupant, usr)
+			if (href_list["eject_occupant"])
+				go_out()
 			src.updateUsrDialog()
 			src.add_fingerprint(usr)
 			return
@@ -157,6 +189,49 @@
 			src.add_fingerprint(user)
 			build_icon()
 			qdel(G)
+		else if (istype(G, /obj/item/reagent_containers/syringe))
+			//this is in syringe.dm
+			logTheThing("combat", user, null, "injects [log_reagents(G)] to [src] at [log_loc(src)].")
+			if (src.beaker == null)
+				boutput(user, "<span style=\"color:red\">There is no beaker in [src] for you to inject reagents.</span>")
+				return
+			if (src.beaker:reagents.total_volume == src.beaker:reagents.maximum_volume)
+				boutput(user, "<span style=\"color:red\">The beaker in [src] is full.</span>")
+				return
+			var/transferred = G.reagents.trans_to(src.beaker, 5)
+			src.visible_message("<span style=\"color:red\"><B>[user] injects [transferred] into [src]!</B></span>")
+			src.beaker:on_reagent_change()
+			return
+		else if (istype(G, /obj/item/device/healthanalyzer_upgrade))
+			if (reagent_scan_enabled)
+				boutput(user, "<span style=\"color:red\">This Cryo Cell already has a reagent scan upgrade!</span>")
+				return
+			else
+				reagent_scan_enabled = 1
+				boutput(user, "<span style=\"color:blue\">Reagent scan upgrade installed.</span>")
+				playsound(src.loc ,"sound/items/Deconstruct.ogg", 80, 0)
+				user.u_equip(G)
+				qdel(G)
+				return
+		else if (istype(G, /obj/item/robodefibrilator))
+			if (src.defib)
+				boutput(user, "<span style=\"color:red\">[src] already has a Defibrillator installed.</span>")
+			else
+				var/obj/item/robodefibrilator/D = G
+				src.defib = D
+				boutput(user, "<span style=\"color:blue\">Defibrillator installed into [src].</span>")
+				playsound(src.loc ,"sound/items/Deconstruct.ogg", 80, 0)
+				user.u_equip(G)
+		else if (istype(G, /obj/item/wrench))
+			if (!src.defib)
+				boutput(user, "<span style=\"color:red\">[src] does not have a Defibrillator installed.</span>")
+			else
+				src.defib.set_loc(src.loc)
+				src.defib = null
+				src.visible_message("<span style=\"color:red\">[user] removes the Defibrillator from [src].</span>")
+				playsound(src.loc ,"sound/items/Ratchet.ogg", 50, 1)
+
+
 		src.updateUsrDialog()
 		return
 
@@ -257,6 +332,12 @@
 		if(!src.node)
 			boutput(usr, "The cell is not corrrectly connected to its pipe network!")
 			return
+
+		if (usr.a_intent == INTENT_HELP)
+			if (ishuman(usr))
+				var/mob/living/carbon/human/H = usr
+				usr.drop_from_slot(H.wear_suit, H.loc)
+				usr.drop_from_slot(H.head, H.loc)
 		usr.pulling = null
 		usr.set_loc(src)
 		src.occupant = usr
