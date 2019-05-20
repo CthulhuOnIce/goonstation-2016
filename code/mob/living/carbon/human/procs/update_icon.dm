@@ -543,7 +543,14 @@
 			istate = "fire3"
 			//src.fire_standing = image('icons/mob/human.dmi', "fire3", MOB_EFFECT_LAYER)
 			//src.fire_lying = image('icons/mob/human.dmi', "fire3_l", MOB_EFFECT_LAYER)
-		src.fire_standing = SafeGetOverlayImage("fire", 'icons/mob/human.dmi', istate, MOB_EFFECT_LAYER)
+
+		if (ismonkey(src))
+			src.fire_standing = SafeGetOverlayImage("fire", 'icons/mob/Monkeyburning.dmi', istate, MOB_EFFECT_LAYER)
+			//below is the suggested file to put the monkey fire[1-3] sprites.
+			// src.fire_standing = SafeGetOverlayImage("fire", 'icons/mob/monkey.dmi', istate, MOB_EFFECT_LAYER)
+
+		else
+			src.fire_standing = SafeGetOverlayImage("fire", 'icons/mob/human.dmi', istate, MOB_EFFECT_LAYER)
 
 		//make them light up!
 		burning_light.set_brightness(round(0.5 + src.burning / 150, 0.1))
