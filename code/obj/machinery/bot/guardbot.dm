@@ -206,6 +206,39 @@
 						if (task)
 							task:protected_name = ckey(H.name)
 						break
+	golden
+		name = "Goldbuddy"
+		desc = "A gold plated PR-4 Guardbuddy from a limited time raffle from like, a decade ago."
+		icon = 'icons/misc/oldbots.dmi'
+		icon_state = "Goldbuddy0"
+
+		update_icon()
+			var/emotion_image = null
+
+			if(!src.on)
+				src.icon_state = "Goldbuddy0"
+
+			else if(src.stunned)
+				src.icon_state = "Goldbuddya"
+
+			else if(src.idle)
+				src.icon_state = "Goldbuddy_idle"
+
+			else
+				if (src.emotion)
+					emotion_image = image(src.icon, "face-[src.emotion]")
+				src.icon_state = "Goldbuddy1"
+
+			src.overlays = list( emotion_image, src.bedsheet ? image(src.icon, "bhat-ghost[src.bedsheet]") : null, src.costume_icon ? costume_icon : null)
+
+			if (src.hat && !src.hat_shown)
+				var/image/hat_image = image(src.hat_icon, "bhat-[src.hat.icon_state]",,layer = 9.5) //TODO LAYER
+				hat_image.pixel_x = hat_x_offset
+				src.underlays = list(hat_image)
+				src.hat_shown = 1
+
+			src.icon_needs_update = 0
+			return
 
 	gunner
 		name = "Gunbuddy"
@@ -3726,6 +3759,89 @@
 	icon_state = "robuddy_frame-4-1"
 	spawned_bot_type = /obj/machinery/bot/guardbot/old
 	buddy_model = 4
+
+/obj/item/guardbot_frame/old/golden
+	desc = "The external casing of a PR-4 Robuddy. This one is gold plated."
+	icon = 'icons/obj/aibots.dmi'
+	icon_state = "goldbuddy_frame-4-1"
+	spawned_bot_type = /obj/machinery/bot/guardbot/golden
+	created_name = "Goldbuddy"
+	buddy_model = 4
+
+	New()
+		..()
+		spawn(6)
+			src.icon_state = "goldbuddy_frame-[buddy_model]-[stage]"
+			if(src.stage >= 2)
+				src.created_cell = new
+				src.created_cell.charge = 0.9 * src.created_cell.maxcharge
+		return
+
+	attackby(obj/item/W as obj, mob/user as mob)
+		if ((istype(W, /obj/item/guardbot_core)))
+			if(W:buddy_model != src.buddy_model)
+				boutput(user, "<span style=\"color:red\">That core board is for a different model of robot!</span>")
+				return
+			if(!created_cell || stage != 2)
+				boutput(user, "<span style=\"color:red\">You need to add a power cell first!</span>")
+				return
+			if(!created_module)
+				boutput(user, "<span style=\"color:red\">You need to add a tool module first!</span>")
+				return
+			src.stage = 3
+			src.icon_state = "goldbuddy_frame-[buddy_model]-3"
+			if(W:created_name)
+				src.created_name = W:created_name
+			if(W:created_default_task)
+				src.created_default_task = W:created_default_task
+			if(W:created_model_task)
+				src.created_model_task = W:created_model_task
+			boutput(user, "You add the core board to  [src]!")
+			qdel(W)
+
+		else if((istype(W, /obj/item/cell)) && stage == 1 && !created_cell)
+			user.drop_item()
+
+			W.set_loc(src)
+			src.created_cell = W
+			src.stage = 2
+			src.icon_state = "goldbuddy_frame-[buddy_model]-2"
+			boutput(user, "You add the power cell to [src]!")
+
+		else if((istype(W, /obj/item/device/guardbot_tool)) && stage == 2 && !created_module)
+			user.drop_item()
+
+			W.set_loc(src)
+			src.created_module = W
+			boutput(user, "You add the [W.name] to [src]!")
+
+		else if (istype(W, /obj/item/parts/robot_parts/arm/) && src.stage == 3)
+			src.stage++
+			boutput(user, "You add the robot arm to [src]!")
+			qdel(W)
+
+			var/obj/machinery/bot/guardbot/newbot = new src.spawned_bot_type (get_turf(src))
+			if(newbot.cell)
+				qdel(newbot.cell)
+			newbot.cell = src.created_cell
+			newbot.setup_default_tool_path = null
+			newbot.cell.set_loc(newbot)
+
+			if(src.created_default_task)
+				newbot.setup_default_startup_task = src.created_default_task
+
+			if(src.created_module)
+				newbot.tool = src.created_module
+				newbot.tool.set_loc(newbot)
+				newbot.tool.master = newbot
+
+			if(src.created_model_task)
+				newbot.model_task = src.created_model_task
+				newbot.model_task.master = newbot
+			newbot.name = src.created_name
+
+			qdel(src)
+			return
 
 /obj/item/guardbot_core/old
 	name = "Robuddy mainboard"

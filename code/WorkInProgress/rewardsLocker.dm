@@ -9,6 +9,32 @@
 		return							   //You could even make one-time reward by stripping their medal here.
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// Rewards below
+/datum/achievementReward/goldbud
+	title = "(Skin) Golden PR-4 Guardbuddy Frame"
+	desc = "Gold plates a held PR-4 Guardbuddy frame."
+	required_medal = "Ol' buddy ol' pal"
+	once_per_round = 1
+
+	rewardActivate(var/mob/activator)
+		if (!istype(activator))
+			return
+
+		if (istype(activator.l_hand, /obj/item/guardbot_frame/old))
+			var/obj/item/guardbot_frame/old/M = activator.l_hand
+			new /obj/item/guardbot_frame/old/golden(get_turf(activator))
+			qdel(M)
+
+		else if (istype(activator.r_hand, /obj/item/guardbot_frame/old))
+			var/obj/item/reagent_containers/glass/beaker/large/M = activator.r_hand
+			new /obj/item/guardbot_frame/old/golden(get_turf(activator))
+			qdel(M)
+
+		else
+			boutput(activator, "<span style=\"color:red\">You need to be holding a PR-4 Guardbuddy frame in order to claim this reward!</span>")
+			return
+
+		return
+
 /datum/achievementReward/satchel
 	title = "(Skin) Satchel"
 	desc = "Converts whatever backpack you're wearing into a satchel. Requires that you're wearing a backpack."
