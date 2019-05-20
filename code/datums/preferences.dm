@@ -30,6 +30,7 @@ datum/preferences
 	var/listen_looc = 1
 	var/default_wasd = 0 // do they want wasd on by default?
 	var/use_azerty = 0 // do they have an AZERTY keyboard?
+	var/spessman_direction = SOUTH
 
 	var/job_favorite = null
 	var/list/jobs_med_priority = list()
@@ -90,7 +91,7 @@ datum/preferences
 
 		src.preview_icon = null
 
-		src.preview_icon = new /icon('icons/mob/human.dmi', "body_[src.gender == MALE ? "m" : "f"]")
+		src.preview_icon = new /icon('icons/mob/human.dmi', "body_[src.gender == MALE ? "m" : "f"]", "dir" = src.spessman_direction)
 
 		// Skin tone
 		if (AH.s_tone >= 0)
@@ -99,7 +100,7 @@ datum/preferences
 			src.preview_icon.Blend(rgb(-AH.s_tone,  -AH.s_tone,  -AH.s_tone), ICON_SUBTRACT)
 
 
-		var/icon/eyes_s = new/icon("icon" = 'icons/mob/human_hair.dmi', "icon_state" = "eyes")
+		var/icon/eyes_s = new/icon("icon" = 'icons/mob/human_hair.dmi', "icon_state" = "eyes", "dir" = src.spessman_direction)
 		if (is_valid_color_string(AH.e_color))
 			eyes_s.Blend(AH.e_color, ICON_MULTIPLY)
 		else
@@ -117,26 +118,26 @@ datum/preferences
 		if (!customization_third_r)
 			customization_third_r = "none"
 
-		var/icon/hair_s = new/icon("icon" = 'icons/mob/human_hair.dmi', "icon_state" = customization_first_r)
+		var/icon/hair_s = new/icon("icon" = 'icons/mob/human_hair.dmi', "icon_state" = customization_first_r, "dir" = src.spessman_direction)
 		if (is_valid_color_string(AH.customization_first_color))
 			hair_s.Blend(AH.customization_first_color, ICON_MULTIPLY)
 		else
 			hair_s.Blend("#101010", ICON_MULTIPLY)
 
-		var/icon/facial_s = new/icon("icon" = 'icons/mob/human_hair.dmi', "icon_state" = customization_second_r)
+		var/icon/facial_s = new/icon("icon" = 'icons/mob/human_hair.dmi', "icon_state" = customization_second_r, "dir" = src.spessman_direction)
 		if (is_valid_color_string(AH.customization_second_color))
 			facial_s.Blend(AH.customization_second_color, ICON_MULTIPLY)
 		else
 			facial_s.Blend("#101010", ICON_MULTIPLY)
 
-		var/icon/detail_s = new/icon("icon" = 'icons/mob/human_hair.dmi', "icon_state" = customization_third_r)
+		var/icon/detail_s = new/icon("icon" = 'icons/mob/human_hair.dmi', "icon_state" = customization_third_r, "dir" = src.spessman_direction)
 		if (is_valid_color_string(AH.customization_third_color))
 			detail_s.Blend(AH.customization_third_color, ICON_MULTIPLY)
 		else
 			detail_s.Blend("#101010", ICON_MULTIPLY)
 
 		var/underwear_style = underwear_styles[AH.underwear]
-		var/icon/underwear_s = new/icon("icon" = 'icons/mob/human_underwear.dmi', "icon_state" = "[underwear_style]")
+		var/icon/underwear_s = new/icon("icon" = 'icons/mob/human_underwear.dmi', "icon_state" = "[underwear_style]", "dir" = src.spessman_direction)
 		if (is_valid_color_string(AH.u_color))
 			underwear_s.Blend(AH.u_color, ICON_MULTIPLY)
 
@@ -207,7 +208,12 @@ datum/preferences
 
 			dat += "</td><td>"
 			dat += "<center><b>Preview</b>:<br>"
-			dat += "<img style=\"-ms-interpolation-mode:nearest-neighbor;\" src=previewicon.png height=64 width=64></center>"
+			dat += "<img style=\"-ms-interpolation-mode:nearest-neighbor;\" src=previewicon.png height=64 width=64><br>"
+
+			dat += "<a href=\"byond://?src=\ref[user];preferences=1;rotate_counter_clockwise=1\">&#x27f2;</a>"
+			dat += " || "
+			dat += "<a href=\"byond://?src=\ref[user];preferences=1;rotate_clockwise=1\">&#x27f3;</a>"
+			dat += "</center>"
 
 		else
 			dat += "<span color=red>ERROR:<br>PREFERENCE APPEARENCE HOLDER IS NULL<br>Please alert a coder!</span>"
@@ -886,6 +892,12 @@ datum/preferences
 				src.be_random_look = !src.be_random_look
 			else
 				src.be_random_look = 1
+
+		if (link_tags["rotate_counter_clockwise"])
+			src.spessman_direction = turn(spessman_direction, 90)
+
+		if (link_tags["rotate_clockwise"])
+			src.spessman_direction = turn(spessman_direction, -90)
 
 		/* Wire: a little thing i'll finish up eventually
 		if (link_tags["set_will"])
